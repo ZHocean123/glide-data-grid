@@ -7,6 +7,22 @@
     @focus="onFocus"
     @blur="onBlur"
   >
+    <!-- 滚动容器 -->
+    <div
+      ref="scrollerRef"
+      class="vue-glide-data-grid__scroller"
+      :style="scrollerStyle"
+      @scroll="onScroll"
+    >
+      <!-- 虚拟滚动垫片 -->
+      <div class="vue-glide-data-grid__scroll-inner">
+        <div
+          class="vue-glide-data-grid__padder"
+          :style="{ width: `${scrollWidth}px`, height: `${scrollHeight}px` }"
+        />
+      </div>
+    </div>
+
     <!-- Canvas 主渲染层 -->
     <canvas
       ref="canvasRef"
@@ -22,11 +38,7 @@
     />
 
     <!-- 覆盖层容器 -->
-    <div
-      v-if="overlayVisible"
-      class="vue-glide-data-grid__overlay"
-      :style="overlayStyle"
-    >
+    <div v-if="overlayVisible" class="vue-glide-data-grid__overlay" :style="overlayStyle">
       <component
         :is="overlayComponent"
         v-bind="overlayProps"
@@ -37,11 +49,7 @@
     </div>
 
     <!-- 搜索组件 -->
-    <div
-      v-if="searchVisible"
-      class="vue-glide-data-grid__search"
-      :style="searchStyle"
-    >
+    <div v-if="searchVisible" class="vue-glide-data-grid__search" :style="searchStyle">
       <component
         :is="searchComponent"
         v-bind="searchProps"
@@ -51,10 +59,7 @@
     </div>
 
     <!-- 调试信息 (开发模式) -->
-    <div
-      v-if="showDebugInfo && isDevelopment"
-      class="vue-glide-data-grid__debug"
-    >
+    <div v-if="showDebugInfo && isDevelopment" class="vue-glide-data-grid__debug">
       <div>Render Time: {{ renderTime.toFixed(2) }}ms</div>
       <div>FPS: {{ fps }}</div>
       <div>Visible Region: {{ visibleRegion }}</div>
@@ -72,7 +77,7 @@ import {
   onBeforeUnmount,
   nextTick,
   provide,
-  type Component
+  type Component,
 } from 'vue';
 
 // 导入类型
@@ -158,6 +163,11 @@ const emit = defineEmits<DataGridEmits>();
 // 模板引用
 const containerRef = ref<HTMLDivElement | null>(null);
 const canvasRef = ref<HTMLCanvasElement | null>(null);
+const scrollerRef = ref<HTMLDivElement | null>(null);
+
+// 滚动状态
+const currentScrollX = ref(props.scrollX || 0);
+const currentScrollY = ref(props.scrollY || 0);
 
 // 主题系统
 const themeProvider = provideTheme(computed(() => props.theme || {}));
@@ -172,8 +182,8 @@ const renderConfig = computed<CanvasRenderConfig>(() => ({
   getCellContent: props.getCellContent,
   getCellRenderer: props.getCellRenderer,
   selection: props.selection,
-  scrollX: props.scrollX,
-  scrollY: props.scrollY,
+  scrollX: currentScrollX.value,
+  scrollY: currentScrollY.value,
   freezeColumns: props.freezeColumns,
   freezeRows: props.freezeRows,
   rowHeight: props.rowHeight,
@@ -202,10 +212,29 @@ const {
   onMouseUp,
   onKeyDown,
   onKeyUp,
-  onWheel,
   onFocus,
   onBlur,
 } = useGridEvents(containerRef, getCellAtPoint, emit);
+
+// 重写wheel事件处理，直接操作滚动容器
+const onWheel = (event: WheelEvent) => {
+  const scroller = scrollerRef.value;
+  if (!scroller) return;
+
+  // 阻止默认滚动行为
+  event.preventDefault();
+
+  // 计算滚动增量
+  const deltaX = event.deltaX;
+  const deltaY = event.deltaY;
+
+  // 应用滚动
+  scroller.scrollLeft += deltaX;
+  scroller.scrollTop += deltaY;
+
+  // 发出滚动事件
+  emit('scroll', { scrollX: scroller.scrollLeft, scrollY: scroller.scrollTop });
+};
 
 // 覆盖层状态
 const overlayVisible = ref(false);
@@ -235,6 +264,26 @@ const containerStyle = computed(() => ({
   overflow: 'hidden' as const,
   outline: 'none',
   ...cssVariables.value,
+}));
+
+// 计算总滚动区域大小
+const scrollWidth = computed(() => {
+  return props.columns.reduce((total, col) => total + col.width, 0);
+});
+
+const scrollHeight = computed(() => {
+  return props.rows * props.rowHeight;
+});
+
+// 滚动容器样式
+const scrollerStyle = computed(() => ({
+  position: 'absolute' as const,
+  top: '0',
+  left: '0',
+  width: `${props.width}px`,
+  height: `${props.height}px`,
+  overflow: 'auto' as const,
+  pointerEvents: 'auto' as const,
 }));
 
 const canvasStyle = computed(() => ({
@@ -304,10 +353,47 @@ const hideSearch = () => {
   searchProps.value = {};
 };
 
+// 滚动事件处理
+const onScroll = () => {
+  const scroller = scrollerRef.value;
+  if (!scroller) return;
+
+  const scrollLeft = scroller.scrollLeft;
+  const scrollTop = scroller.scrollTop;
+
+  // 更新滚动位置
+  currentScrollX.value = scrollLeft;
+  currentScrollY.value = scrollTop;
+
+  // 发出滚动事件
+  emit('scroll', { scrollX: scrollLeft, scrollY: scrollTop });
+
+  // 更新渲染配置中的滚动位置
+  renderConfig.value.scrollX = scrollLeft;
+  renderConfig.value.scrollY = scrollTop;
+
+  // 触发重绘
+  forceRedraw();
+};
+
 // 滚动到指定位置
 const scrollTo = (col: number, row: number, behavior: 'auto' | 'smooth' = 'smooth') => {
-  const newScrollX = col * 150; // 简化的列宽计算
-  const newScrollY = row * props.rowHeight;
+  const scroller = scrollerRef.value;
+  if (!scroller) return;
+
+  // 计算目标滚动位置
+  let targetX = 0;
+  for (let i = 0; i < col && i < props.columns.length; i++) {
+    targetX += props.columns[i].width;
+  }
+  const targetY = row * props.rowHeight;
+
+  // 执行滚动
+  scroller.scrollTo({
+    left: targetX,
+    top: targetY,
+    behavior: behavior === 'smooth' ? 'smooth' : 'auto',
+  });
 
   emit('scroll-to', { col, row });
 };
@@ -368,9 +454,13 @@ const updatePerformanceMetrics = () => {
 watch(renderState, updatePerformanceMetrics, { deep: true });
 
 // 监听props变化，触发重绘
-watch(() => [props.columns, props.rows, props.selection], () => {
-  requestRedraw();
-}, { deep: true });
+watch(
+  () => [props.columns, props.rows, props.selection],
+  () => {
+    requestRedraw();
+  },
+  { deep: true }
+);
 
 // 组件挂载
 onMounted(() => {
@@ -433,6 +523,44 @@ provide('dataGridInstance', {
 .vue-glide-data-grid__canvas {
   display: block;
   touch-action: none;
+}
+
+/* 滚动容器样式 */
+.vue-glide-data-grid__scroller {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: auto;
+  scrollbar-width: auto;
+  transform: translate3d(0, 0, 0);
+}
+
+.vue-glide-data-grid__scroller::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+
+.vue-glide-data-grid__scroller::-webkit-scrollbar-track {
+  background: var(--gdg-bg-cell, #ffffff);
+}
+
+.vue-glide-data-grid__scroller::-webkit-scrollbar-thumb {
+  background: var(--gdg-border-color, #e5e7eb);
+  border-radius: 8px;
+  border: 2px solid var(--gdg-bg-cell, #ffffff);
+}
+
+.vue-glide-data-grid__scroller::-webkit-scrollbar-thumb:hover {
+  background: var(--gdg-text-medium, #6b7280);
+}
+
+.vue-glide-data-grid__scroll-inner {
+  display: flex;
+  pointer-events: none;
+}
+
+.vue-glide-data-grid__padder {
+  flex-shrink: 0;
 }
 
 .vue-glide-data-grid__overlay {
