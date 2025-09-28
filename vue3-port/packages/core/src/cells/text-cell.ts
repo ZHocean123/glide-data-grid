@@ -51,26 +51,23 @@ export const textCellRenderer: CustomRenderer<TextCell> = {
 
   hitTest: (cell, pos, bounds) => {
     // 文本单元格整个区域都可点击
-    return pos.x >= bounds.x &&
-           pos.x <= bounds.x + bounds.width &&
-           pos.y >= bounds.y &&
-           pos.y <= bounds.y + bounds.height;
+    return (
+      pos.x >= bounds.x &&
+      pos.x <= bounds.x + bounds.width &&
+      pos.y >= bounds.y &&
+      pos.y <= bounds.y + bounds.height
+    );
   },
 
-  provideEditor: (cell) => {
-    if (!cell.allowOverlay) return undefined;
-
-    // 返回文本编辑器组件 (稍后实现)
-    return {
-      editor: {} as any, // TextEditor component
-      disablePadding: false,
-      deletedValue: () => ({
-        ...cell,
-        data: '',
-        displayData: '',
-      }),
-    };
-  },
+  // 暂时禁用编辑器，避免TypeScript错误
+  // provideEditor: (cell) => {
+  //   if (!cell.allowOverlay) return undefined;
+  //   return {
+  //     editor: {} as any, // TextEditor component
+  //     disablePadding: false,
+  //     deletedValue: () => ({ ...cell, data: '', displayData: '' }),
+  //   };
+  // },
 
   onPaste: (val, cell) => {
     return {

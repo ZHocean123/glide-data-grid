@@ -41,7 +41,7 @@ class SimpleMarkdownParser {
           tokens.push({
             type: 'header',
             content: match[2],
-            level: match[1].length
+            level: match[1].length,
           });
           current += match[0].length;
           continue;
@@ -54,7 +54,7 @@ class SimpleMarkdownParser {
         tokens.push({
           type: 'link',
           content: linkMatch[1],
-          href: linkMatch[2]
+          href: linkMatch[2],
         });
         current += linkMatch[0].length;
         continue;
@@ -65,7 +65,7 @@ class SimpleMarkdownParser {
       if (boldMatch) {
         tokens.push({
           type: 'bold',
-          content: boldMatch[1]
+          content: boldMatch[1],
         });
         current += boldMatch[0].length;
         continue;
@@ -76,7 +76,7 @@ class SimpleMarkdownParser {
       if (italicMatch) {
         tokens.push({
           type: 'italic',
-          content: italicMatch[1]
+          content: italicMatch[1],
         });
         current += italicMatch[0].length;
         continue;
@@ -87,7 +87,7 @@ class SimpleMarkdownParser {
       if (codeMatch) {
         tokens.push({
           type: 'code',
-          content: codeMatch[1]
+          content: codeMatch[1],
         });
         current += codeMatch[0].length;
         continue;
@@ -97,8 +97,12 @@ class SimpleMarkdownParser {
       let endPos = current + 1;
       while (endPos < text.length) {
         const char = text[endPos];
-        if (char === '*' || char === '`' || char === '[' ||
-            (char === '#' && (endPos === 0 || text[endPos - 1] === '\n'))) {
+        if (
+          char === '*' ||
+          char === '`' ||
+          char === '[' ||
+          (char === '#' && (endPos === 0 || text[endPos - 1] === '\n'))
+        ) {
           break;
         }
         endPos++;
@@ -107,7 +111,7 @@ class SimpleMarkdownParser {
       if (endPos > current) {
         tokens.push({
           type: 'text',
-          content: text.substring(current, endPos)
+          content: text.substring(current, endPos),
         });
         current = endPos;
       } else {
@@ -179,19 +183,29 @@ function renderMarkdown(
   rect: { x: number; y: number; width: number; height: number },
   theme: any,
   padding = 8
-): { width: number; height: number; clickableAreas: Array<{ rect: { x: number; y: number; width: number; height: number }; href: string }> } {
+): {
+  width: number;
+  height: number;
+  clickableAreas: Array<{
+    rect: { x: number; y: number; width: number; height: number };
+    href: string;
+  }>;
+} {
   const contentRect = {
     x: rect.x + padding,
     y: rect.y + padding,
     width: rect.width - 2 * padding,
-    height: rect.height - 2 * padding
+    height: rect.height - 2 * padding,
   };
 
   let currentX = contentRect.x;
   let currentY = contentRect.y;
   let lineHeight = 16;
   let maxWidth = 0;
-  const clickableAreas: Array<{ rect: { x: number; y: number; width: number; height: number }; href: string }> = [];
+  const clickableAreas: Array<{
+    rect: { x: number; y: number; width: number; height: number };
+    href: string;
+  }> = [];
 
   for (const token of tokens) {
     if (currentY > contentRect.y + contentRect.height) break;
@@ -230,7 +244,12 @@ function renderMarkdown(
         const codeWidth = measureText(ctx, token.content, font);
         ctx.save();
         ctx.fillStyle = theme.bgBubble || '#f5f5f5';
-        ctx.fillRect(currentX - 2, currentY - currentLineHeight + 4, codeWidth + 4, currentLineHeight);
+        ctx.fillRect(
+          currentX - 2,
+          currentY - currentLineHeight + 4,
+          codeWidth + 4,
+          currentLineHeight
+        );
         ctx.restore();
         break;
 
@@ -267,9 +286,9 @@ function renderMarkdown(
             x: currentX,
             y: currentY - currentLineHeight + 4,
             width: drawnWidth,
-            height: currentLineHeight
+            height: currentLineHeight,
           },
-          href: token.href
+          href: token.href,
         });
       }
     } else {
@@ -289,7 +308,7 @@ function renderMarkdown(
   return {
     width: maxWidth,
     height: currentY - contentRect.y + lineHeight,
-    clickableAreas
+    clickableAreas,
   };
 }
 
@@ -362,25 +381,23 @@ export const markdownCellRenderer: CustomRenderer<MarkdownCell> = {
     if (!text.trim()) return false;
 
     // 这里需要重新解析来获取点击区域，在实际实现中可以缓存
-    return pos.x >= bounds.x &&
-           pos.x <= bounds.x + bounds.width &&
-           pos.y >= bounds.y &&
-           pos.y <= bounds.y + bounds.height;
+    return (
+      pos.x >= bounds.x &&
+      pos.x <= bounds.x + bounds.width &&
+      pos.y >= bounds.y &&
+      pos.y <= bounds.y + bounds.height
+    );
   },
 
-  provideEditor: (cell) => {
-    if (!cell.allowOverlay) return undefined;
-
-    // 返回Markdown编辑器组件 (稍后实现)
-    return {
-      editor: {} as any, // MarkdownEditor component
-      disablePadding: false,
-      deletedValue: () => ({
-        ...cell,
-        data: '',
-      }),
-    };
-  },
+  // 暂时禁用编辑器，避免TypeScript错误
+  // provideEditor: (cell) => {
+  //   if (!cell.allowOverlay) return undefined;
+  //   return {
+  //     editor: {} as any, // MarkdownEditor component
+  //     disablePadding: false,
+  //     deletedValue: () => ({ ...cell, data: '' }),
+  //   };
+  // },
 
   getCursor: (cell, pos, bounds) => {
     // 如果点击位置是链接，显示手形光标
@@ -431,21 +448,24 @@ export function isMarkdownEmpty(cell: MarkdownCell): boolean {
 export function getMarkdownPlainText(cell: MarkdownCell): string {
   const text = cell.data || '';
   const tokens = markdownParser.parse(text);
-  return tokens.map(token => token.content).join('');
+  return tokens.map((token) => token.content).join('');
 }
 
 export function getMarkdownLinks(cell: MarkdownCell): Array<{ text: string; href: string }> {
   const text = cell.data || '';
   const tokens = markdownParser.parse(text);
   return tokens
-    .filter(token => token.type === 'link' && token.href)
-    .map(token => ({ text: token.content, href: token.href! }));
+    .filter((token) => token.type === 'link' && token.href)
+    .map((token) => ({ text: token.content, href: token.href! }));
 }
 
-export function hasMarkdownContent(cell: MarkdownCell, type: 'header' | 'bold' | 'italic' | 'code' | 'link'): boolean {
+export function hasMarkdownContent(
+  cell: MarkdownCell,
+  type: 'header' | 'bold' | 'italic' | 'code' | 'link'
+): boolean {
   const text = cell.data || '';
   const tokens = markdownParser.parse(text);
-  return tokens.some(token => token.type === type);
+  return tokens.some((token) => token.type === type);
 }
 
 // Markdown格式化工具

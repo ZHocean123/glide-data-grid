@@ -7,7 +7,12 @@ import type { BooleanCell, BooleanEmpty, BooleanIndeterminate } from '../types/g
 import type { DrawArgs, CustomRenderer } from '../types/cell-renderer.js';
 import { drawCellBorder } from '../types/cell-renderer.js';
 import { GridCellKind } from '../types/grid-cell.js';
-import { getSquareXPosFromAlign, getSquareWidth, getSquareBB, pointIsWithinBB } from '../common/utils.js';
+import {
+  getSquareXPosFromAlign,
+  getSquareWidth,
+  getSquareBB,
+  pointIsWithinBB,
+} from '../common/utils.js';
 
 // 绘制复选框
 function drawCheckbox(
@@ -28,12 +33,8 @@ function drawCheckbox(
   const halfSize = size / 2;
 
   // 背景颜色 (根据状态和悬停)
-  const bgColor = checked === true
-    ? theme.accentColor
-    : theme.bgCell;
-  const borderColor = checked === true
-    ? theme.accentColor
-    : theme.borderColor;
+  const bgColor = checked === true ? theme.accentColor : theme.bgCell;
+  const borderColor = checked === true ? theme.accentColor : theme.borderColor;
 
   // 悬停效果
   if (hoverAmount > 0) {
@@ -64,7 +65,7 @@ function drawCheckbox(
       x: centerX - halfSize,
       y: centerY - halfSize,
       width: size,
-      height: size
+      height: size,
     };
 
     // 圆角矩形
@@ -161,10 +162,7 @@ export const booleanCellRenderer: CustomRenderer<BooleanCell> = {
     return pointIsWithinBB(pos.x, pos.y, bb);
   },
 
-  provideEditor: () => {
-    // 布尔单元格通常不需要专门的编辑器，直接点击切换
-    return undefined;
-  },
+  // 布尔单元格通常不需要专门的编辑器，直接点击切换，省略该属性
 
   getCursor: () => 'pointer',
 
@@ -175,7 +173,12 @@ export const booleanCellRenderer: CustomRenderer<BooleanCell> = {
 
     if (lowerVal === 'true' || lowerVal === '1' || lowerVal === 'yes' || lowerVal === 'on') {
       newValue = true;
-    } else if (lowerVal === 'false' || lowerVal === '0' || lowerVal === 'no' || lowerVal === 'off') {
+    } else if (
+      lowerVal === 'false' ||
+      lowerVal === '0' ||
+      lowerVal === 'no' ||
+      lowerVal === 'off'
+    ) {
       newValue = false;
     } else if (lowerVal === '' || lowerVal === 'null') {
       newValue = null;

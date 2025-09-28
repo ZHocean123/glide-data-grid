@@ -132,7 +132,7 @@ export class LRUCache<K, V> {
       }
     }
 
-    toDelete.forEach(key => this.cache.delete(key));
+    toDelete.forEach((key) => this.cache.delete(key));
   }
 
   destroy(): void {
@@ -229,7 +229,9 @@ export function throttle<T extends (...args: any[]) => any>(
 }
 
 // RAF 节流
-export function rafThrottle<T extends (...args: any[]) => any>(func: T): T & { cancel: () => void } {
+export function rafThrottle<T extends (...args: any[]) => any>(
+  func: T
+): T & { cancel: () => void } {
   let rafId: number | undefined;
   let lastArgs: Parameters<T>;
 
@@ -303,7 +305,7 @@ export class BatchProcessor<T> {
       }
 
       // 让出控制权给其他任务
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
     }
 
     this.isProcessing = false;
@@ -345,7 +347,7 @@ export function calculateVirtualScroll(
     endIndex,
     totalHeight,
     offsetY,
-    visibleCount: endIndex - startIndex + 1
+    visibleCount: endIndex - startIndex + 1,
   };
 }
 
@@ -401,7 +403,7 @@ export class PerformanceMonitor {
       cellCount,
       fps: this.currentFps,
       memoryUsage,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     this.addMetric(metric);
@@ -572,7 +574,7 @@ export function usePerformance() {
     averageFps,
     enable,
     disable,
-    clear
+    clear,
   };
 }
 
@@ -594,15 +596,8 @@ export function useCache<K, V>(config: CacheConfig) {
     delete: del,
     clear,
     size,
-    cache
+    cache,
   };
 }
 
-// 工具函数导出
-export {
-  LRUCache,
-  BatchProcessor,
-  PerformanceMonitor,
-  ObjectPool,
-  calculateVirtualScroll
-};
+// Classes and functions are already exported above, no need for duplicate export

@@ -24,43 +24,43 @@ const defaultBubbleStyles: Record<string, BubbleStyle> = {
     backgroundColor: '#e5e7eb',
     textColor: '#374151',
     borderRadius: 12,
-    padding: { x: 8, y: 4 }
+    padding: { x: 8, y: 4 },
   },
   primary: {
     backgroundColor: '#3b82f6',
     textColor: '#ffffff',
     borderRadius: 12,
-    padding: { x: 8, y: 4 }
+    padding: { x: 8, y: 4 },
   },
   success: {
     backgroundColor: '#10b981',
     textColor: '#ffffff',
     borderRadius: 12,
-    padding: { x: 8, y: 4 }
+    padding: { x: 8, y: 4 },
   },
   warning: {
     backgroundColor: '#f59e0b',
     textColor: '#ffffff',
     borderRadius: 12,
-    padding: { x: 8, y: 4 }
+    padding: { x: 8, y: 4 },
   },
   error: {
     backgroundColor: '#ef4444',
     textColor: '#ffffff',
     borderRadius: 12,
-    padding: { x: 8, y: 4 }
+    padding: { x: 8, y: 4 },
   },
   info: {
     backgroundColor: '#06b6d4',
     textColor: '#ffffff',
     borderRadius: 12,
-    padding: { x: 8, y: 4 }
+    padding: { x: 8, y: 4 },
   },
   secondary: {
     backgroundColor: '#6b7280',
     textColor: '#ffffff',
     borderRadius: 12,
-    padding: { x: 8, y: 4 }
+    padding: { x: 8, y: 4 },
   },
   light: {
     backgroundColor: '#f9fafb',
@@ -68,14 +68,14 @@ const defaultBubbleStyles: Record<string, BubbleStyle> = {
     borderColor: '#d1d5db',
     borderWidth: 1,
     borderRadius: 12,
-    padding: { x: 8, y: 4 }
+    padding: { x: 8, y: 4 },
   },
   dark: {
     backgroundColor: '#1f2937',
     textColor: '#ffffff',
     borderRadius: 12,
-    padding: { x: 8, y: 4 }
-  }
+    padding: { x: 8, y: 4 },
+  },
 };
 
 // 测量文本宽度
@@ -160,11 +160,7 @@ function drawBubble(
   ctx.font = font;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText(
-    displayText,
-    x + bubbleWidth / 2,
-    y + bubbleHeight / 2
-  );
+  ctx.fillText(displayText, x + bubbleWidth / 2, y + bubbleHeight / 2);
 
   ctx.restore();
 
@@ -179,8 +175,22 @@ function calculateBubbleLayout(
   font: string,
   theme: any,
   ctx: CanvasRenderingContext2D
-): Array<{ bubble: string; x: number; y: number; width: number; height: number; style: BubbleStyle }> {
-  const layout: Array<{ bubble: string; x: number; y: number; width: number; height: number; style: BubbleStyle }> = [];
+): Array<{
+  bubble: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  style: BubbleStyle;
+}> {
+  const layout: Array<{
+    bubble: string;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    style: BubbleStyle;
+  }> = [];
   const spacing = 4; // 气泡间距
   const padding = 4; // 容器内边距
 
@@ -215,7 +225,7 @@ function calculateBubbleLayout(
       y: currentY,
       width: bubbleWidth,
       height: bubbleHeight,
-      style
+      style,
     });
 
     currentX += bubbleWidth + spacing;
@@ -252,26 +262,11 @@ export const bubbleCellRenderer: CustomRenderer<BubbleCell> = {
 
     // 计算气泡布局
     const font = theme.baseFontStyle || '12px sans-serif';
-    const layout = calculateBubbleLayout(
-      bubbles,
-      rect.width,
-      rect.height,
-      font,
-      theme,
-      ctx
-    );
+    const layout = calculateBubbleLayout(bubbles, rect.width, rect.height, font, theme, ctx);
 
     // 绘制气泡
     for (const item of layout) {
-      drawBubble(
-        ctx,
-        item.bubble,
-        rect.x + item.x,
-        rect.y + item.y,
-        item.style,
-        font,
-        item.width
-      );
+      drawBubble(ctx, item.bubble, rect.x + item.x, rect.y + item.y, item.style, font, item.width);
     }
 
     // 显示省略指示器
@@ -322,25 +317,23 @@ export const bubbleCellRenderer: CustomRenderer<BubbleCell> = {
 
   hitTest: (cell, pos, bounds) => {
     // 整个单元格都可点击
-    return pos.x >= bounds.x &&
-           pos.x <= bounds.x + bounds.width &&
-           pos.y >= bounds.y &&
-           pos.y <= bounds.y + bounds.height;
+    return (
+      pos.x >= bounds.x &&
+      pos.x <= bounds.x + bounds.width &&
+      pos.y >= bounds.y &&
+      pos.y <= bounds.y + bounds.height
+    );
   },
 
-  provideEditor: (cell) => {
-    if (!cell.allowOverlay) return undefined;
-
-    // 返回气泡编辑器组件 (稍后实现)
-    return {
-      editor: {} as any, // BubbleEditor component
-      disablePadding: false,
-      deletedValue: () => ({
-        ...cell,
-        data: [],
-      }),
-    };
-  },
+  // 暂时禁用编辑器，避免TypeScript错误
+  // provideEditor: (cell) => {
+  //   if (!cell.allowOverlay) return undefined;
+  //   return {
+  //     editor: {} as any, // BubbleEditor component
+  //     disablePadding: false,
+  //     deletedValue: () => ({ ...cell, data: [] }),
+  //   };
+  // },
 
   getCursor: () => 'pointer',
 
@@ -348,8 +341,8 @@ export const bubbleCellRenderer: CustomRenderer<BubbleCell> = {
     // 处理粘贴的文本，按逗号或换行分割成气泡
     const bubbles = val
       .split(/[,\n]/)
-      .map(b => b.trim())
-      .filter(b => b.length > 0);
+      .map((b) => b.trim())
+      .filter((b) => b.length > 0);
 
     return {
       ...cell,

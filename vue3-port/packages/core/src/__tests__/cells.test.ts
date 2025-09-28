@@ -10,8 +10,9 @@ import {
   createTextCell,
   createNumberCell,
   createBooleanCell,
-  cellRendererRegistry,
-  getDefaultCellRenderer
+  getCellRenderer,
+  hasCellRenderer,
+  registerCellRenderer,
 } from '../cells/index.js';
 import { GridCellKind } from '../types/grid-cell.js';
 import { defaultTheme } from '../types/theme.js';
@@ -32,24 +33,60 @@ const createMockContext = () => ({
   roundRect: vi.fn(),
   measureText: vi.fn(() => ({ width: 100 })),
   fillText: vi.fn(),
-  set fillStyle(value) { this._fillStyle = value; },
-  get fillStyle() { return this._fillStyle; },
-  set strokeStyle(value) { this._strokeStyle = value; },
-  get strokeStyle() { return this._strokeStyle; },
-  set font(value) { this._font = value; },
-  get font() { return this._font; },
-  set textAlign(value) { this._textAlign = value; },
-  get textAlign() { return this._textAlign; },
-  set textBaseline(value) { this._textBaseline = value; },
-  get textBaseline() { return this._textBaseline; },
-  set lineWidth(value) { this._lineWidth = value; },
-  get lineWidth() { return this._lineWidth; },
-  set lineCap(value) { this._lineCap = value; },
-  get lineCap() { return this._lineCap; },
-  set lineJoin(value) { this._lineJoin = value; },
-  get lineJoin() { return this._lineJoin; },
-  set globalAlpha(value) { this._globalAlpha = value; },
-  get globalAlpha() { return this._globalAlpha; },
+  set fillStyle(value) {
+    this._fillStyle = value;
+  },
+  get fillStyle() {
+    return this._fillStyle;
+  },
+  set strokeStyle(value) {
+    this._strokeStyle = value;
+  },
+  get strokeStyle() {
+    return this._strokeStyle;
+  },
+  set font(value) {
+    this._font = value;
+  },
+  get font() {
+    return this._font;
+  },
+  set textAlign(value) {
+    this._textAlign = value;
+  },
+  get textAlign() {
+    return this._textAlign;
+  },
+  set textBaseline(value) {
+    this._textBaseline = value;
+  },
+  get textBaseline() {
+    return this._textBaseline;
+  },
+  set lineWidth(value) {
+    this._lineWidth = value;
+  },
+  get lineWidth() {
+    return this._lineWidth;
+  },
+  set lineCap(value) {
+    this._lineCap = value;
+  },
+  get lineCap() {
+    return this._lineCap;
+  },
+  set lineJoin(value) {
+    this._lineJoin = value;
+  },
+  get lineJoin() {
+    return this._lineJoin;
+  },
+  set globalAlpha(value) {
+    this._globalAlpha = value;
+  },
+  get globalAlpha() {
+    return this._globalAlpha;
+  },
 });
 
 const createDrawArgs = (cell: any): DrawArgs => ({
@@ -74,7 +111,11 @@ describe('单元格渲染器', () => {
 
       expect(() => textCellRenderer.draw(args)).not.toThrow();
       expect(args.ctx.fillRect).toHaveBeenCalled();
-      expect(args.ctx.fillText).toHaveBeenCalledWith('Hello World', expect.any(Number), expect.any(Number));
+      expect(args.ctx.fillText).toHaveBeenCalledWith(
+        'Hello World',
+        expect.any(Number),
+        expect.any(Number)
+      );
     });
 
     it('测量文本宽度', () => {
@@ -116,7 +157,11 @@ describe('单元格渲染器', () => {
       const args = createDrawArgs(cell);
 
       numberCellRenderer.draw(args);
-      expect(args.ctx.fillText).toHaveBeenCalledWith('1234.57', expect.any(Number), expect.any(Number));
+      expect(args.ctx.fillText).toHaveBeenCalledWith(
+        '1234.57',
+        expect.any(Number),
+        expect.any(Number)
+      );
     });
 
     it('处理undefined数字', () => {
@@ -189,13 +234,13 @@ describe('单元格渲染器', () => {
 
   describe('渲染器注册表', () => {
     it('注册内置渲染器', () => {
-      expect(cellRendererRegistry.hasRenderer(GridCellKind.Text)).toBe(true);
-      expect(cellRendererRegistry.hasRenderer(GridCellKind.Number)).toBe(true);
-      expect(cellRendererRegistry.hasRenderer(GridCellKind.Boolean)).toBe(true);
+      expect(hasCellRenderer(GridCellKind.Text)).toBe(true);
+      expect(hasCellRenderer(GridCellKind.Number)).toBe(true);
+      expect(hasCellRenderer(GridCellKind.Boolean)).toBe(true);
     });
 
     it('获取渲染器', () => {
-      const textRenderer = cellRendererRegistry.getRenderer(GridCellKind.Text);
+      const textRenderer = getCellRenderer(GridCellKind.Text);
       expect(textRenderer).toBeDefined();
       expect(textRenderer?.kind).toBe(GridCellKind.Text);
     });
@@ -206,15 +251,15 @@ describe('单元格渲染器', () => {
         draw: vi.fn(),
       };
 
-      cellRendererRegistry.registerRenderer('custom', customRenderer as any);
+      registerCellRenderer('custom' as any, customRenderer as any);
 
-      expect(cellRendererRegistry.hasRenderer('custom')).toBe(true);
-      expect(cellRendererRegistry.getRenderer('custom')).toBe(customRenderer);
+      expect(hasCellRenderer('custom' as any)).toBe(true);
+      expect(getCellRenderer('custom' as any)).toBe(customRenderer);
     });
 
     it('默认渲染器回调', () => {
       const textCell = createTextCell('test');
-      const renderer = getDefaultCellRenderer(textCell);
+      const renderer = getCellRenderer(textCell.kind);
 
       expect(renderer).toBeDefined();
       expect(renderer?.kind).toBe(GridCellKind.Text);

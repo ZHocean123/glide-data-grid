@@ -5,6 +5,9 @@
 
 import type { Component } from 'vue';
 import type { Rectangle, Item } from './base.js';
+import { BlendMode, Direction } from './base.js';
+import { GridColumnIcon, GridColumnMenuIcon } from './grid-column.js';
+import { OutOfBoundsRegionAxis } from './events.js';
 
 // 单元格种类枚举
 export enum GridCellKind {
@@ -150,10 +153,7 @@ export type GridCell =
   | CustomCell;
 
 // 可编辑单元格类型
-export type EditableGridCell = Extract<
-  GridCell,
-  { allowOverlay: true }
->;
+export type EditableGridCell = Extract<GridCell, { allowOverlay: true }>;
 
 // 只读单元格类型
 export type ReadonlyGridCell = Exclude<GridCell, EditableGridCell>;
@@ -247,3 +247,12 @@ export function createLoadingCell(): LoadingCell {
     allowOverlay: false,
   };
 }
+
+// Re-export grid column types
+export { GridColumnIcon, GridColumnMenuIcon };
+
+// Re-export event types
+export { OutOfBoundsRegionAxis };
+
+// Re-export base types
+export { BlendMode, Direction };

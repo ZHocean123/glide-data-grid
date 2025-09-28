@@ -140,7 +140,7 @@ function getColor(color: string | undefined, theme: any): string {
 function getInitials(text: string): string {
   return text
     .split(' ')
-    .map(word => word.charAt(0))
+    .map((word) => word.charAt(0))
     .join('')
     .substring(0, 2)
     .toUpperCase();
@@ -185,7 +185,7 @@ export const drilldownCellRenderer: CustomRenderer<DrilldownCell> = {
         x: rect.x + padding,
         y: itemY,
         width: rect.width - padding * 2,
-        height: itemHeight
+        height: itemHeight,
       };
 
       // 检查项目是否被禁用
@@ -217,7 +217,7 @@ export const drilldownCellRenderer: CustomRenderer<DrilldownCell> = {
       }
 
       // 绘制文本
-      const textColor = isEnabled ? (theme.textDark || '#000000') : (theme.textLight || '#999999');
+      const textColor = isEnabled ? theme.textDark || '#000000' : theme.textLight || '#999999';
       const font = theme.baseFontStyle || '12px sans-serif';
       const availableTextWidth = itemRect.x + itemRect.width - currentX - 20; // 为箭头留空间
 
@@ -324,34 +324,32 @@ export const drilldownCellRenderer: CustomRenderer<DrilldownCell> = {
 
   hitTest: (cell, pos, bounds) => {
     // 整个单元格都可点击
-    return pos.x >= bounds.x &&
-           pos.x <= bounds.x + bounds.width &&
-           pos.y >= bounds.y &&
-           pos.y <= bounds.y + bounds.height;
+    return (
+      pos.x >= bounds.x &&
+      pos.x <= bounds.x + bounds.width &&
+      pos.y >= bounds.y &&
+      pos.y <= bounds.y + bounds.height
+    );
   },
 
-  provideEditor: (cell) => {
-    if (!cell.allowOverlay) return undefined;
-
-    // 返回下钻编辑器组件 (稍后实现)
-    return {
-      editor: {} as any, // DrilldownEditor component
-      disablePadding: false,
-      deletedValue: () => ({
-        ...cell,
-        data: [],
-      }),
-    };
-  },
+  // 暂时禁用编辑器，避免TypeScript错误
+  // provideEditor: (cell) => {
+  //   if (!cell.allowOverlay) return undefined;
+  //   return {
+  //     editor: {} as any, // DrilldownEditor component
+  //     disablePadding: false,
+  //     deletedValue: () => ({ ...cell, data: [] }),
+  //   };
+  // },
 
   getCursor: () => 'pointer',
 
   onPaste: (val, cell) => {
     // 处理粘贴的文本，每行作为一个项目
-    const lines = val.split('\n').filter(line => line.trim());
-    const items: DrilldownItem[] = lines.map(line => ({
+    const lines = val.split('\n').filter((line) => line.trim());
+    const items: DrilldownItem[] = lines.map((line) => ({
       text: line.trim(),
-      enabled: true
+      enabled: true,
     }));
 
     return {
@@ -412,7 +410,7 @@ export function getDrilldownItemCount(cell: DrilldownCell): number {
 }
 
 export function getEnabledItemCount(cell: DrilldownCell): number {
-  return (cell.data || []).filter(item => item.enabled !== false).length;
+  return (cell.data || []).filter((item) => item.enabled !== false).length;
 }
 
 export function addDrilldownItem(cell: DrilldownCell, item: DrilldownItem): DrilldownCell {
@@ -440,9 +438,7 @@ export function updateDrilldownItem(
 ): DrilldownCell {
   if (!cell.data || index < 0 || index >= cell.data.length) return cell;
 
-  const newData = cell.data.map((item, i) =>
-    i === index ? { ...item, ...updates } : item
-  );
+  const newData = cell.data.map((item, i) => (i === index ? { ...item, ...updates } : item));
 
   return {
     ...cell,
@@ -507,8 +503,8 @@ export function sortDrilldownItems(
     let bValue: string | number;
 
     if (sortBy === 'badge') {
-      aValue = typeof a.badge === 'number' ? a.badge : (a.badge || '');
-      bValue = typeof b.badge === 'number' ? b.badge : (b.badge || '');
+      aValue = typeof a.badge === 'number' ? a.badge : a.badge || '';
+      bValue = typeof b.badge === 'number' ? b.badge : b.badge || '';
     } else {
       aValue = a.text;
       bValue = b.text;
@@ -534,7 +530,7 @@ export function filterDrilldownItems(
     hasBadge?: boolean;
   }
 ): DrilldownItem[] {
-  return items.filter(item => {
+  return items.filter((item) => {
     if (filter.enabled !== undefined && item.enabled !== filter.enabled) {
       return false;
     }

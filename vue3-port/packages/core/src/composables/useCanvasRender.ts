@@ -3,21 +3,13 @@
  * 负责Canvas的创建、管理和渲染逻辑
  */
 
-import {
-  ref,
-  computed,
-  watch,
-  onMounted,
-  onBeforeUnmount,
-  nextTick,
-  type Ref
-} from 'vue';
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick, type Ref } from 'vue';
 import type { GridColumn } from '../types/grid-column.js';
 import type { GridCell } from '../types/grid-cell.js';
 import type { Item, Rectangle, GridSelection } from '../types/base.js';
 import type { FullTheme } from '../types/theme.js';
 import type { GetCellRendererCallback } from '../types/cell-renderer.js';
-import { getDefaultCellRenderer } from '../cells/index.js';
+import { getCellRenderer } from '../cells/index.js';
 import { useEventListener } from '../common/utils.js';
 
 // Canvas渲染配置
@@ -81,9 +73,9 @@ export function useCanvasRender(
     height: config.value.height,
   }));
 
-  // 获取单元格渲染器
-  const getCellRenderer = computed(() =>
-    config.value.getCellRenderer || getDefaultCellRenderer
+  // 获取单元格渲染器函数
+  const getCellRendererFn = computed(
+    () => config.value.getCellRenderer || ((cell: GridCell) => getCellRenderer(cell.kind))
   );
 
   // 初始化Canvas
@@ -209,7 +201,7 @@ export function useCanvasRender(
     currentTheme: FullTheme
   ) => {
     const { rowHeight = 32 } = config.value;
-    const cellRenderer = getCellRenderer.value;
+    const cellRenderer = getCellRendererFn.value;
 
     for (let row = visibleRegion.y; row < visibleRegion.y + visibleRegion.height; row++) {
       for (let col = visibleRegion.x; col < visibleRegion.x + visibleRegion.width; col++) {
@@ -365,32 +357,48 @@ export function useCanvasRender(
   };
 
   // 监听配置变化
-  watch(config, () => {
-    requestRedraw();
-  }, { deep: true });
+  watch(
+    config,
+    () => {
+      requestRedraw();
+    },
+    { deep: true }
+  );
 
   // 监听主题变化
-  watch(theme, () => {
-    requestRedraw();
-  }, { deep: true });
+  watch(
+    theme,
+    () => {
+      requestRedraw();
+    },
+    { deep: true }
+  );
 
   // 监听Canvas尺寸变化
-  watch([canvasSize, displaySize], () => {
-    nextTick(() => {
-      initCanvas();
-    });
-  }, { deep: true });
-
-  // 监听设备像素比变化
-  useEventListener('resize', () => {
-    const newDPR = window.devicePixelRatio || 1;
-    if (newDPR !== devicePixelRatio.value) {
-      devicePixelRatio.value = newDPR;
+  watch(
+    [canvasSize, displaySize],
+    () => {
       nextTick(() => {
         initCanvas();
       });
-    }
-  }, window);
+    },
+    { deep: true }
+  );
+
+  // 监听设备像素比变化
+  useEventListener(
+    'resize',
+    () => {
+      const newDPR = window.devicePixelRatio || 1;
+      if (newDPR !== devicePixelRatio.value) {
+        devicePixelRatio.value = newDPR;
+        nextTick(() => {
+          initCanvas();
+        });
+      }
+    },
+    window
+  );
 
   // 组件挂载时初始化
   onMounted(() => {

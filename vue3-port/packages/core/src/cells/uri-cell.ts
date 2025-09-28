@@ -16,7 +16,7 @@ export enum UriType {
   Phone = 'phone',
   File = 'file',
   Ftp = 'ftp',
-  Unknown = 'unknown'
+  Unknown = 'unknown',
 }
 
 // URI信息接口
@@ -46,7 +46,7 @@ class UriParser {
         type: UriType.Unknown,
         displayText: uri || '',
         fullUri: uri || '',
-        isValid: false
+        isValid: false,
       };
     }
 
@@ -58,7 +58,7 @@ class UriParser {
         type: UriType.Email,
         displayText: trimmedUri,
         fullUri: `mailto:${trimmedUri}`,
-        isValid: true
+        isValid: true,
       };
     }
 
@@ -68,7 +68,7 @@ class UriParser {
         type: UriType.Phone,
         displayText: trimmedUri,
         fullUri: `tel:${trimmedUri.replace(/[^\d+]/g, '')}`,
-        isValid: true
+        isValid: true,
       };
     }
 
@@ -93,14 +93,14 @@ class UriParser {
         fullUri: url.toString(),
         isValid: true,
         domain: url.hostname,
-        path: url.pathname
+        path: url.pathname,
       };
     } catch (error) {
       return {
         type: UriType.Unknown,
         displayText: trimmedUri,
         fullUri: trimmedUri,
-        isValid: false
+        isValid: false,
       };
     }
   }
@@ -289,7 +289,7 @@ export const uriCellRenderer: CustomRenderer<UriCell> = {
     const font = theme.baseFontStyle || '12px sans-serif';
     const color = uriInfo.isValid
       ? getUriColor(uriInfo.type, theme)
-      : (theme.textMedium || '#666666');
+      : theme.textMedium || '#666666';
 
     // 计算可用宽度
     const availableWidth = rect.x + rect.width - currentX - padding;
@@ -360,25 +360,23 @@ export const uriCellRenderer: CustomRenderer<UriCell> = {
 
   hitTest: (cell, pos, bounds) => {
     // 整个单元格都可点击
-    return pos.x >= bounds.x &&
-           pos.x <= bounds.x + bounds.width &&
-           pos.y >= bounds.y &&
-           pos.y <= bounds.y + bounds.height;
+    return (
+      pos.x >= bounds.x &&
+      pos.x <= bounds.x + bounds.width &&
+      pos.y >= bounds.y &&
+      pos.y <= bounds.y + bounds.height
+    );
   },
 
-  provideEditor: (cell) => {
-    if (!cell.allowOverlay) return undefined;
-
-    // 返回URI编辑器组件 (稍后实现)
-    return {
-      editor: {} as any, // UriEditor component
-      disablePadding: false,
-      deletedValue: () => ({
-        ...cell,
-        data: '',
-      }),
-    };
-  },
+  // 暂时禁用编辑器，避免TypeScript错误
+  // provideEditor: (cell) => {
+  //   if (!cell.allowOverlay) return undefined;
+  //   return {
+  //     editor: {} as any, // UriEditor component
+  //     disablePadding: false,
+  //     deletedValue: () => ({ ...cell, data: '' }),
+  //   };
+  // },
 
   getCursor: (cell) => {
     const uri = cell.data || '';

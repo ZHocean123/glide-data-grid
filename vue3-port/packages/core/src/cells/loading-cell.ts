@@ -14,14 +14,14 @@ export enum LoadingAnimationType {
   Dots = 'dots',
   Pulse = 'pulse',
   Wave = 'wave',
-  Skeleton = 'skeleton'
+  Skeleton = 'skeleton',
 }
 
 // 加载状态
 export enum LoadingState {
   Loading = 'loading',
   Error = 'error',
-  Empty = 'empty'
+  Empty = 'empty',
 }
 
 // 动画参数接口
@@ -193,12 +193,7 @@ function drawSkeleton(
   ctx.fillRect(x, y, width, height);
 
   // 绘制闪光效果
-  const gradient = ctx.createLinearGradient(
-    x + shimmerX,
-    y,
-    x + shimmerX + shimmerWidth,
-    y
-  );
+  const gradient = ctx.createLinearGradient(x + shimmerX, y, x + shimmerX + shimmerWidth, y);
   gradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
   gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.5)');
   gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
@@ -296,7 +291,7 @@ export const loadingCellRenderer: CustomRenderer<LoadingCell> = {
       speed: cell.speed || 1,
       color: cell.color || theme.accentColor || '#3b82f6',
       secondaryColor: cell.secondaryColor || '#f3f4f6',
-      size: animationSize
+      size: animationSize,
     };
 
     const centerX = rect.x + rect.width / 2 - animationSize / 2;
@@ -364,10 +359,7 @@ export const loadingCellRenderer: CustomRenderer<LoadingCell> = {
     return false;
   },
 
-  provideEditor: () => {
-    // 加载单元格不提供编辑器
-    return undefined;
-  },
+  // 加载单元格不提供编辑器，直接省略该属性
 
   getCursor: () => 'default',
 
@@ -384,9 +376,7 @@ export const internalLoadingCellRenderer = {
 };
 
 // 创建加载单元格的工厂函数
-export function createLoadingCell(
-  options: Partial<Omit<LoadingCell, 'kind'>> = {}
-): LoadingCell {
+export function createLoadingCell(options: Partial<Omit<LoadingCell, 'kind'>> = {}): LoadingCell {
   return {
     kind: GridCellKind.Loading,
     state: LoadingState.Loading,
@@ -461,7 +451,11 @@ export function isEmpty(cell: LoadingCell): boolean {
   return cell.state === LoadingState.Empty;
 }
 
-export function setLoadingState(cell: LoadingCell, state: LoadingState, text?: string): LoadingCell {
+export function setLoadingState(
+  cell: LoadingCell,
+  state: LoadingState,
+  text?: string
+): LoadingCell {
   return {
     ...cell,
     state,
@@ -526,5 +520,4 @@ export function createAnimationConfig(
   };
 }
 
-// 导出所有枚举和类型
-export { LoadingAnimationType, LoadingState };
+// 注意：LoadingAnimationType 和 LoadingState 已在文件顶部导出
