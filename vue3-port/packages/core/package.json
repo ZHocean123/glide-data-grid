@@ -1,0 +1,49 @@
+{
+  "name": "@vue-glide/data-grid",
+  "version": "1.0.0-alpha.1",
+  "description": "Vue3 high-performance canvas-based data grid component",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./style": "./dist/style.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite build --watch",
+    "build": "vue-tsc && vite build",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
+  },
+  "peerDependencies": {
+    "vue": "^3.3.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.0",
+    "@vue/test-utils": "^2.4.0",
+    "rimraf": "^5.0.0",
+    "vite": "^5.0.0",
+    "vite-plugin-dts": "^3.7.0",
+    "vitest": "^1.2.0",
+    "vue": "^3.4.0"
+  },
+  "keywords": [
+    "vue3",
+    "data-grid",
+    "canvas",
+    "table",
+    "component"
+  ],
+  "license": "MIT"
+}
