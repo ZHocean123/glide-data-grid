@@ -52,26 +52,34 @@ export { useGridEvents } from './composables/useGridEvents.js';
 
 // 导出单元格渲染器
 export {
-  // 渲染器注册表
-  cellRendererRegistry,
-  getDefaultCellRenderer,
-  AllCellRenderers,
-  getCellRenderer,
-  registerCustomCellRenderer,
-  registerCellRenderers,
-  validateRenderer,
-  performanceMonitor,
-  rendererDebugger,
-
   // 单元格创建函数
   createTextCell,
   createNumberCell,
   createBooleanCell,
+  createImageCell,
+  createMarkdownCell,
+  createUriCell,
+  createBubbleCell,
+  createDrilldownCell,
+  createLoadingCell,
 
   // 具体渲染器
   textCellRenderer,
   numberCellRenderer,
   booleanCellRenderer,
+  imageCellRenderer,
+  markdownCellRenderer,
+  uriCellRenderer,
+  bubbleCellRenderer,
+  drilldownCellRenderer,
+  loadingCellRenderer,
+
+  // 渲染器管理
+  cellRenderers,
+  getCellRenderer,
+  registerCellRenderer,
+  hasCellRenderer,
+  getAvailableCellKinds,
 } from './cells/index.js';
 
 // 导出工具函数

@@ -8,14 +8,16 @@ export default defineConfig({
     vue(),
     dts({
       insertTypesEntry: true,
-      rollupTypes: true
+      rollupTypes: true,
+      exclude: ['**/*.test.ts', '**/*.spec.ts']
     })
   ],
   build: {
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
       name: 'VueGlideDataGrid',
-      fileName: 'index'
+      fileName: (format) => `index.${format}.js`,
+      formats: ['es', 'umd']
     },
     rollupOptions: {
       external: ['vue', 'lodash'],
@@ -25,7 +27,9 @@ export default defineConfig({
           lodash: '_'
         }
       }
-    }
+    },
+    target: 'es2018',
+    sourcemap: true
   },
   resolve: {
     alias: {

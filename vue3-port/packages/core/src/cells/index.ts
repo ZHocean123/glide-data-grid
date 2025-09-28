@@ -1,209 +1,278 @@
 /**
- * 单元格渲染器注册表和导出
- * 集中管理所有单元格渲染器
+ * 单元格渲染器统一导出
+ * Vue3 版本的所有单元格渲染器和相关工具
  */
 
-import type { GridCell } from '../types/grid-cell.js';
-import type { CellRenderer, InternalCellRenderer, GetCellRendererCallback } from '../types/cell-renderer.js';
+// 基础单元格渲染器
+export * from './text-cell.js';
+export * from './number-cell.js';
+export * from './boolean-cell.js';
+
+// 高级单元格渲染器
+export * from './image-cell.js';
+export * from './markdown-cell.js';
+export * from './uri-cell.js';
+export * from './bubble-cell.js';
+export * from './drilldown-cell.js';
+export * from './loading-cell.js';
+
+// 类型和接口
+import type { CustomRenderer } from '../types/cell-renderer.js';
 import { GridCellKind } from '../types/grid-cell.js';
 
-// 导入所有渲染器
+// 导入所有内部渲染器
 import { internalTextCellRenderer } from './text-cell.js';
 import { internalNumberCellRenderer } from './number-cell.js';
 import { internalBooleanCellRenderer } from './boolean-cell.js';
+import { internalImageCellRenderer } from './image-cell.js';
+import { internalMarkdownCellRenderer } from './markdown-cell.js';
+import { internalUriCellRenderer } from './uri-cell.js';
+import { internalBubbleCellRenderer } from './bubble-cell.js';
+import { internalDrilldownCellRenderer } from './drilldown-cell.js';
+import { internalLoadingCellRenderer } from './loading-cell.js';
 
-// 渲染器注册表类
-class CellRendererRegistry {
-  private renderers = new Map<string, InternalCellRenderer>();
-
-  constructor() {
-    // 注册内置渲染器
-    this.registerRenderer(GridCellKind.Text, internalTextCellRenderer);
-    this.registerRenderer(GridCellKind.Number, internalNumberCellRenderer);
-    this.registerRenderer(GridCellKind.Boolean, internalBooleanCellRenderer);
-  }
-
-  registerRenderer(kind: string, renderer: InternalCellRenderer): void {
-    this.renderers.set(kind, renderer);
-  }
-
-  getRenderer(kind: string): InternalCellRenderer | undefined {
-    return this.renderers.get(kind);
-  }
-
-  getAllRenderers(): Map<string, InternalCellRenderer> {
-    return new Map(this.renderers);
-  }
-
-  unregisterRenderer(kind: string): boolean {
-    return this.renderers.delete(kind);
-  }
-
-  hasRenderer(kind: string): boolean {
-    return this.renderers.has(kind);
-  }
-
-  getRegisteredKinds(): string[] {
-    return Array.from(this.renderers.keys());
-  }
-}
-
-// 全局渲染器注册表实例
-export const cellRendererRegistry = new CellRendererRegistry();
-
-// 获取单元格渲染器的默认回调
-export const getDefaultCellRenderer: GetCellRendererCallback = (cell: GridCell) => {
-  return cellRendererRegistry.getRenderer(cell.kind);
-};
-
-// 导出所有渲染器
-export const AllCellRenderers = {
+// 渲染器映射表
+export const cellRenderers: Record<GridCellKind, CustomRenderer<any>> = {
   [GridCellKind.Text]: internalTextCellRenderer,
   [GridCellKind.Number]: internalNumberCellRenderer,
   [GridCellKind.Boolean]: internalBooleanCellRenderer,
-} as const;
+  [GridCellKind.Image]: internalImageCellRenderer,
+  [GridCellKind.Markdown]: internalMarkdownCellRenderer,
+  [GridCellKind.Uri]: internalUriCellRenderer,
+  [GridCellKind.Bubble]: internalBubbleCellRenderer,
+  [GridCellKind.Drilldown]: internalDrilldownCellRenderer,
+  [GridCellKind.Loading]: internalLoadingCellRenderer,
+};
 
-// 类型安全的渲染器获取函数
-export function getCellRenderer<T extends GridCell>(cell: T): CellRenderer<T> | undefined {
-  const renderer = cellRendererRegistry.getRenderer(cell.kind);
-  return renderer as CellRenderer<T> | undefined;
+// 获取单元格渲染器
+export function getCellRenderer(kind: GridCellKind): CustomRenderer<any> | undefined {
+  return cellRenderers[kind];
 }
 
-// 注册自定义渲染器的便捷函数
-export function registerCustomCellRenderer(
-  kind: string,
-  renderer: CellRenderer
-): void {
-  const internalRenderer: InternalCellRenderer = {
-    ...renderer,
-    kind,
-  };
-  cellRendererRegistry.registerRenderer(kind, internalRenderer);
+// 注册自定义渲染器
+export function registerCellRenderer(kind: GridCellKind, renderer: CustomRenderer<any>): void {
+  cellRenderers[kind] = renderer;
 }
 
-// 批量注册渲染器
-export function registerCellRenderers(
-  renderers: Record<string, CellRenderer>
-): void {
-  Object.entries(renderers).forEach(([kind, renderer]) => {
-    registerCustomCellRenderer(kind, renderer);
-  });
+// 检查渲染器是否存在
+export function hasCellRenderer(kind: GridCellKind): boolean {
+  return kind in cellRenderers;
 }
 
-// 验证渲染器是否完整
-export function validateRenderer(renderer: CellRenderer): string[] {
-  const errors: string[] = [];
-
-  if (!renderer.draw || typeof renderer.draw !== 'function') {
-    errors.push('Missing or invalid draw function');
-  }
-
-  if (renderer.measure && typeof renderer.measure !== 'function') {
-    errors.push('Invalid measure function');
-  }
-
-  if (renderer.hitTest && typeof renderer.hitTest !== 'function') {
-    errors.push('Invalid hitTest function');
-  }
-
-  if (renderer.provideEditor && typeof renderer.provideEditor !== 'function') {
-    errors.push('Invalid provideEditor function');
-  }
-
-  if (renderer.getCursor && typeof renderer.getCursor !== 'function') {
-    errors.push('Invalid getCursor function');
-  }
-
-  if (renderer.onPaste && typeof renderer.onPaste !== 'function') {
-    errors.push('Invalid onPaste function');
-  }
-
-  return errors;
+// 获取所有可用的单元格类型
+export function getAvailableCellKinds(): GridCellKind[] {
+  return Object.keys(cellRenderers) as GridCellKind[];
 }
 
-// 渲染器性能监控
-export function createPerformanceMonitor() {
-  const metrics = new Map<string, { totalTime: number; callCount: number }>();
-
-  return {
-    wrapRenderer<T extends GridCell>(kind: string, renderer: CellRenderer<T>): CellRenderer<T> {
-      return {
-        ...renderer,
-        draw: (args) => {
-          const start = performance.now();
-          renderer.draw(args);
-          const end = performance.now();
-
-          const current = metrics.get(kind) || { totalTime: 0, callCount: 0 };
-          metrics.set(kind, {
-            totalTime: current.totalTime + (end - start),
-            callCount: current.callCount + 1,
-          });
-        },
-      };
-    },
-
-    getMetrics: () => new Map(metrics),
-
-    getAverageTime: (kind: string) => {
-      const metric = metrics.get(kind);
-      return metric ? metric.totalTime / metric.callCount : 0;
-    },
-
-    reset: () => metrics.clear(),
-  };
+// 渲染器功能检查
+export function rendererSupportsEdit(kind: GridCellKind): boolean {
+  const renderer = getCellRenderer(kind);
+  return renderer?.provideEditor !== undefined;
 }
 
-// 默认性能监控器
-export const performanceMonitor = createPerformanceMonitor();
+export function rendererSupportsClick(kind: GridCellKind): boolean {
+  const renderer = getCellRenderer(kind);
+  return renderer?.onClick !== undefined;
+}
 
-// 开发模式下的渲染器调试
-export function createRendererDebugger() {
-  return {
-    logRenderCall: (kind: string, args: any) => {
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`[Cell Renderer] ${kind}:`, args);
+export function rendererSupportsPaste(kind: GridCellKind): boolean {
+  const renderer = getCellRenderer(kind);
+  return renderer?.onPaste !== undefined;
+}
+
+// 渲染器工厂函数映射
+export const cellFactories = {
+  // 基础类型
+  text: () => import('./text-cell.js').then(m => m.createTextCell),
+  number: () => import('./number-cell.js').then(m => m.createNumberCell),
+  boolean: () => import('./boolean-cell.js').then(m => m.createBooleanCell),
+
+  // 高级类型
+  image: () => import('./image-cell.js').then(m => m.createImageCell),
+  markdown: () => import('./markdown-cell.js').then(m => m.createMarkdownCell),
+  uri: () => import('./uri-cell.js').then(m => m.createUriCell),
+  bubble: () => import('./bubble-cell.js').then(m => m.createBubbleCell),
+  drilldown: () => import('./drilldown-cell.js').then(m => m.createDrilldownCell),
+  loading: () => import('./loading-cell.js').then(m => m.createLoadingCell),
+
+  // 特殊加载类型
+  spinner: () => import('./loading-cell.js').then(m => m.createSpinnerCell),
+  dots: () => import('./loading-cell.js').then(m => m.createDotsCell),
+  pulse: () => import('./loading-cell.js').then(m => m.createPulseCell),
+  wave: () => import('./loading-cell.js').then(m => m.createWaveCell),
+  skeleton: () => import('./loading-cell.js').then(m => m.createSkeletonCell),
+  error: () => import('./loading-cell.js').then(m => m.createErrorCell),
+  empty: () => import('./loading-cell.js').then(m => m.createEmptyCell),
+};
+
+// 动态创建单元格的工厂函数
+export async function createCell(type: keyof typeof cellFactories, ...args: any[]) {
+  const factory = await cellFactories[type]();
+  return factory(...args);
+}
+
+// 单元格工具函数
+export const cellUtils = {
+  // 文本相关
+  isTextEmpty: () => import('./text-cell.js').then(m => m.isTextEmpty),
+  formatText: () => import('./text-cell.js').then(m => m.formatText),
+  truncateText: () => import('./text-cell.js').then(m => m.truncateText),
+
+  // 数字相关
+  isNumberEmpty: () => import('./number-cell.js').then(m => m.isNumberEmpty),
+  formatNumber: () => import('./number-cell.js').then(m => m.formatNumber),
+
+  // 布尔相关
+  isBooleanEmpty: () => import('./boolean-cell.js').then(m => m.isBooleanEmpty),
+
+  // 图片相关
+  isImageEmpty: () => import('./image-cell.js').then(m => m.isImageEmpty),
+  validateImageUrl: () => import('./image-cell.js').then(m => m.validateImageUrl),
+  optimizeImageUrl: () => import('./image-cell.js').then(m => m.optimizeImageUrl),
+
+  // Markdown相关
+  isMarkdownEmpty: () => import('./markdown-cell.js').then(m => m.isMarkdownEmpty),
+  getMarkdownPlainText: () => import('./markdown-cell.js').then(m => m.getMarkdownPlainText),
+  formatMarkdown: () => import('./markdown-cell.js').then(m => m.formatMarkdown),
+
+  // URI相关
+  isUriEmpty: () => import('./uri-cell.js').then(m => m.isUriEmpty),
+  isUriValid: () => import('./uri-cell.js').then(m => m.isUriValid),
+  validateEmail: () => import('./uri-cell.js').then(m => m.validateEmail),
+  validateUrl: () => import('./uri-cell.js').then(m => m.validateUrl),
+
+  // 气泡相关
+  isBubbleEmpty: () => import('./bubble-cell.js').then(m => m.isBubbleEmpty),
+  addBubbleToCell: () => import('./bubble-cell.js').then(m => m.addBubbleToCell),
+  sortBubbles: () => import('./bubble-cell.js').then(m => m.sortBubbles),
+
+  // 下钻相关
+  isDrilldownEmpty: () => import('./drilldown-cell.js').then(m => m.isDrilldownEmpty),
+  addDrilldownItem: () => import('./drilldown-cell.js').then(m => m.addDrilldownItem),
+  sortDrilldownItems: () => import('./drilldown-cell.js').then(m => m.sortDrilldownItems),
+
+  // 加载相关
+  isLoading: () => import('./loading-cell.js').then(m => m.isLoading),
+  setLoadingState: () => import('./loading-cell.js').then(m => m.setLoadingState),
+  startLoading: () => import('./loading-cell.js').then(m => m.startLoading),
+  finishLoading: () => import('./loading-cell.js').then(m => m.finishLoading),
+};
+
+// 批量操作工具
+export const batchOperations = {
+  // 批量创建单元格
+  async createCells(configs: Array<{ type: keyof typeof cellFactories; args: any[] }>) {
+    return Promise.all(
+      configs.map(config => createCell(config.type, ...config.args))
+    );
+  },
+
+  // 批量转换单元格类型
+  async convertCells(cells: any[], targetType: keyof typeof cellFactories) {
+    const factory = await cellFactories[targetType]();
+    return cells.map(cell => {
+      // 简化的类型转换逻辑
+      switch (targetType) {
+        case 'text':
+          return factory(String(cell.data || ''));
+        case 'number':
+          return factory(Number(cell.data) || 0);
+        case 'boolean':
+          return factory(Boolean(cell.data));
+        default:
+          return factory(cell.data);
       }
-    },
+    });
+  },
 
-    validateDrawCall: (kind: string, args: any) => {
-      if (process.env.NODE_ENV === 'development') {
-        const { ctx, rect, cell, theme } = args;
+  // 批量验证单元格
+  async validateCells(cells: any[]) {
+    const results = [];
 
-        if (!ctx) console.warn(`[Cell Renderer] ${kind}: Missing canvas context`);
-        if (!rect) console.warn(`[Cell Renderer] ${kind}: Missing rect`);
-        if (!cell) console.warn(`[Cell Renderer] ${kind}: Missing cell data`);
-        if (!theme) console.warn(`[Cell Renderer] ${kind}: Missing theme`);
+    for (const cell of cells) {
+      let isValid = true;
+      let error = '';
 
-        // 验证rect的有效性
-        if (rect && (rect.width <= 0 || rect.height <= 0)) {
-          console.warn(`[Cell Renderer] ${kind}: Invalid rect dimensions`, rect);
+      try {
+        switch (cell.kind) {
+          case GridCellKind.Uri:
+            const isUriValid = await cellUtils.isUriValid();
+            isValid = isUriValid(cell);
+            if (!isValid) error = 'Invalid URI format';
+            break;
+          case GridCellKind.Image:
+            const validateImageUrl = await cellUtils.validateImageUrl();
+            isValid = validateImageUrl(cell.data);
+            if (!isValid) error = 'Invalid image URL';
+            break;
+          // 添加其他验证逻辑
         }
+      } catch (e) {
+        isValid = false;
+        error = 'Validation failed';
       }
-    },
-  };
-}
 
-// 默认调试器
-export const rendererDebugger = createRendererDebugger();
+      results.push({ cell, isValid, error });
+    }
 
-// 导出所有单元格创建函数
-export { createTextCell } from './text-cell.js';
-export { createNumberCell } from './number-cell.js';
-export { createBooleanCell } from './boolean-cell.js';
+    return results;
+  },
+};
 
-// 导出所有渲染器
-export {
-  textCellRenderer,
-  internalTextCellRenderer,
-} from './text-cell.js';
+// 性能优化工具
+export const performanceUtils = {
+  // 预加载渲染器
+  async preloadRenderers(kinds: GridCellKind[]) {
+    const promises = kinds.map(kind => {
+      switch (kind) {
+        case GridCellKind.Image:
+          return import('./image-cell.js');
+        case GridCellKind.Markdown:
+          return import('./markdown-cell.js');
+        case GridCellKind.Uri:
+          return import('./uri-cell.js');
+        case GridCellKind.Bubble:
+          return import('./bubble-cell.js');
+        case GridCellKind.Drilldown:
+          return import('./drilldown-cell.js');
+        case GridCellKind.Loading:
+          return import('./loading-cell.js');
+        default:
+          return Promise.resolve();
+      }
+    });
 
-export {
-  numberCellRenderer,
-  internalNumberCellRenderer,
-} from './number-cell.js';
+    await Promise.all(promises);
+  },
 
-export {
-  booleanCellRenderer,
-  internalBooleanCellRenderer,
-} from './boolean-cell.js';
+  // 缓存渲染器实例
+  rendererCache: new Map<GridCellKind, CustomRenderer<any>>(),
+
+  getCachedRenderer(kind: GridCellKind): CustomRenderer<any> | undefined {
+    if (!this.rendererCache.has(kind)) {
+      const renderer = getCellRenderer(kind);
+      if (renderer) {
+        this.rendererCache.set(kind, renderer);
+      }
+    }
+    return this.rendererCache.get(kind);
+  },
+
+  clearRendererCache() {
+    this.rendererCache.clear();
+  },
+};
+
+// 默认导出
+export default {
+  cellRenderers,
+  cellFactories,
+  cellUtils,
+  batchOperations,
+  performanceUtils,
+  getCellRenderer,
+  registerCellRenderer,
+  hasCellRenderer,
+  getAvailableCellKinds,
+  createCell,
+};

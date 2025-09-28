@@ -1,5 +1,5 @@
 {
-  "name": "@vue-glide/data-grid",
+  "name": "@vue-glide/core",
   "version": "1.0.0-alpha.1",
   "description": "Vue3 high-performance canvas-based data grid component",
   "type": "module",
