@@ -3,7 +3,16 @@
  * 替代 React 的 Context 系统
  */
 
-import { inject, provide, readonly, ref, computed, type Ref, type InjectionKey } from 'vue';
+import {
+  inject,
+  provide,
+  readonly,
+  ref,
+  computed,
+  watchEffect,
+  type Ref,
+  type InjectionKey,
+} from 'vue';
 import type { Theme, FullTheme } from '../types/theme.js';
 import { defaultTheme, mergeTheme, makeCSSStyle } from '../types/theme.js';
 
@@ -12,11 +21,22 @@ const THEME_KEY: InjectionKey<Ref<FullTheme>> = Symbol('glide-theme');
 
 // 提供主题的组合式函数
 export function provideTheme(theme: Ref<Partial<Theme>> | Partial<Theme> = {}) {
-  const themeRef = ref(theme);
+  // 创建一个内部的响应式主题引用
+  const internalThemeRef = ref<Partial<Theme>>({});
+
+  // 如果传入的是 ref，则监听它的变化
+  if (typeof theme === 'object' && 'value' in theme) {
+    // 是 ref 对象，监听变化
+    watchEffect(() => {
+      internalThemeRef.value = theme.value;
+    });
+  } else {
+    // 是普通对象，直接设置
+    internalThemeRef.value = theme;
+  }
 
   const mergedTheme = computed(() => {
-    const currentTheme = themeRef.value;
-    return mergeTheme(defaultTheme, currentTheme);
+    return mergeTheme(defaultTheme, internalThemeRef.value);
   });
 
   // CSS 变量计算
@@ -29,11 +49,11 @@ export function provideTheme(theme: Ref<Partial<Theme>> | Partial<Theme> = {}) {
     theme: readonly(mergedTheme),
     cssVariables: readonly(cssVariables),
     updateTheme: (newTheme: Partial<Theme>) => {
-      themeRef.value = newTheme;
+      internalThemeRef.value = newTheme;
     },
     mergeTheme: (updates: Partial<Theme>) => {
-      themeRef.value = {
-        ...themeRef.value,
+      internalThemeRef.value = {
+        ...internalThemeRef.value,
         ...updates,
       };
     },
@@ -100,11 +120,7 @@ export function useThemeSwitch(initialTheme: Partial<Theme> = {}) {
 export function useThemeAnimation() {
   const isAnimating = ref(false);
 
-  const animateThemeChange = async (
-    fromTheme: FullTheme,
-    toTheme: FullTheme,
-    duration = 300
-  ) => {
+  const animateThemeChange = async (fromTheme: FullTheme, toTheme: FullTheme, duration = 300) => {
     isAnimating.value = true;
 
     // 简化的主题动画实现

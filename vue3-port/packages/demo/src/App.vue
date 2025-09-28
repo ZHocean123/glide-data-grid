@@ -15,7 +15,6 @@
         :columns="columns"
         :rows="rows"
         :get-cell-content="getCellContent"
-        :theme="theme"
         :width="1000"
         :height="400"
         @cell-clicked="onCellClicked"
@@ -32,11 +31,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import DataGrid from '../../core/src/components/DataGrid.vue';
-import {
-  createTextCell,
-  createNumberCell,
-  createBooleanCell
-} from '../../core/src/cells/index.js';
+import { provideTheme } from '../../core/src/composables/useTheme.js';
+import { createTextCell, createNumberCell, createBooleanCell } from '../../core/src/cells/index.js';
 import type { GridColumn, GridCell, Item } from '../../core/src/types/base.js';
 
 // 列定义
@@ -46,7 +42,7 @@ const columns = ref<GridColumn[]>([
   { title: '年龄', width: 100 },
   { title: '活跃', width: 100 },
   { title: '邮箱', width: 200 },
-  { title: '分数', width: 100 }
+  { title: '分数', width: 100 },
 ]);
 
 // 行数
@@ -55,7 +51,7 @@ const rows = ref(50);
 // 主题
 const currentTheme = ref<'light' | 'dark'>('light');
 
-const theme = computed(() => {
+const themeConfig = computed(() => {
   if (currentTheme.value === 'dark') {
     return {
       accentColor: '#3b82f6',
@@ -66,7 +62,10 @@ const theme = computed(() => {
       bgHeader: '#111827',
       borderColor: '#374151',
       headerFontStyle: 'bold 14px',
-      baseFontStyle: '13px'
+      baseFontStyle: '13px',
+      fontFamily: 'Inter, sans-serif',
+      cellHorizontalPadding: 8,
+      cellVerticalPadding: 3,
     };
   }
 
@@ -79,9 +78,15 @@ const theme = computed(() => {
     bgHeader: '#f3f4f6',
     borderColor: '#e5e7eb',
     headerFontStyle: 'bold 14px',
-    baseFontStyle: '13px'
+    baseFontStyle: '13px',
+    fontFamily: 'Inter, sans-serif',
+    cellHorizontalPadding: 8,
+    cellVerticalPadding: 3,
   };
 });
+
+// 提供主题给所有子组件
+const { updateTheme } = provideTheme(themeConfig);
 
 // 生成单元格内容
 const getCellContent = (cell: Item): GridCell => {
@@ -119,6 +124,7 @@ const addRow = () => {
 // 切换主题
 const changeTheme = () => {
   currentTheme.value = currentTheme.value === 'light' ? 'dark' : 'light';
+  updateTheme(themeConfig.value);
 };
 
 // 单元格点击事件
