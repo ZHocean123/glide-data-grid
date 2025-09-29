@@ -91,3 +91,7 @@ This document outlines the step-by-step approach for migrating Glide Data Grid f
 1. Confirm team alignment on the phase schedule and resource allocation.
 2. Set up tracking (issue board or roadmap) using the phases above as epics.
 3. Kick off Phase 0 tasks and log findings in this document.
+
+## Progress Log
+
+- 2025-09-29: Shared bounds/geometry/column helpers are now consumed from Vue through new `useGridGeometry` and `useMappedColumns` composables. Added Vue Vitest coverage (`use-mapped-columns.test.ts`) to document behaviour while continuing Phase 2 foundations.
