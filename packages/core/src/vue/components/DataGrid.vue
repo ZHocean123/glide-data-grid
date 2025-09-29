@@ -1,4 +1,4 @@
-﻿<template>
+<template>
     <div
         ref="rootEl"
         class="gdg-vue-grid"
@@ -291,6 +291,11 @@ watchEffect(() => {
         return;
     }
 
+    if (mappedColumns.value.length === 0) {
+        renderPlaceholder(ctx, dpr);
+        return;
+    }
+
     try {
         renderStateProvider.setWindow(
             {
@@ -463,3 +468,4 @@ onBeforeUnmount(() => {
     pointer-events: none;
 }
 </style>
+
