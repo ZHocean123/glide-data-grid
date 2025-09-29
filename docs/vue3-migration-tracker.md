@@ -146,3 +146,4 @@ _Use `[ ] Not started`, `[~] In progress`, or `[x] Complete` to indicate phase s
 _Add a new row after every sync or review to capture progress and decisions._
 
 
+| 2025-09-29 | Phase 2 | Vue DataGrid invokes shared `drawGrid` with stubbed render state while Vue-specific wiring migrates. | Replace placeholders with real data/interaction handlers |

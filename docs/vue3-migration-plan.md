@@ -99,3 +99,4 @@ This document outlines the step-by-step approach for migrating Glide Data Grid f
 - 2025-09-29: `useGridGeometry` now supports Vue refs/getters; covered by `use-grid-geometry.test.ts`.
 - 2025-09-29: DataGrid canvas scaffold wired with DPR-aware sizing plus Storybook controls; added canvas sizing test coverage.
 - 2025-09-29: Theme overrides now flow through the Vue DataGrid root, applying CSS variables via shared `makeCSSStyle` for upcoming canvas rendering work.
+- 2025-09-29: Vue DataGrid now invokes shared `drawGrid` with stubbed render state, setting the stage for real canvas rendering.

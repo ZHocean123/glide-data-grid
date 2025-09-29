@@ -1,4 +1,4 @@
-﻿<template>
+<template>
     <div
         ref="rootEl"
         class="gdg-vue-grid"
@@ -37,11 +37,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onBeforeUnmount, toRefs, ref, watchEffect } from "vue";
-import type { InnerGridColumn } from "../../internal/data-grid/data-grid-types.js";
-import { useMappedColumns } from "../composables/useMappedColumns.js";
+import { computed, onMounted, onBeforeUnmount, ref, toRefs, watchEffect } from "vue";
+import type { GetCellRendererCallback } from "../../cells/cell-types.js";
+import { RenderStateProvider } from "../../common/render-state-provider.js";
+import { getDataEditorTheme, makeCSSStyle, mergeAndRealizeTheme, type FullTheme, type Theme } from "../../common/styles.js";
+import { drawGrid } from "../../internal/data-grid/render/data-grid-render.js";
+import type { HoverValues } from "../../internal/data-grid/animation-manager.js";
+import type { SpriteManager } from "../../internal/data-grid/data-grid-sprites.js";
+import { CompactSelection, DEFAULT_FILL_HANDLE, GridCellKind, type GridSelection, type InnerGridCell, type InnerGridColumn, type Item } from "../../internal/data-grid/data-grid-types.js";
+import type { ImageWindowLoader } from "../../internal/data-grid/image-window-loader-interface.js";
 import { useGridGeometry } from "../composables/useGridGeometry.js";
-import { getDataEditorTheme, makeCSSStyle, mergeAndRealizeTheme, type Theme, type FullTheme } from "../../common/styles.js";
+import { useMappedColumns } from "../composables/useMappedColumns.js";
 
 interface DataGridProps {
     width: number;
@@ -101,6 +107,36 @@ const rootEl = ref<HTMLDivElement | null>(null);
 const gridCanvas = ref<HTMLCanvasElement | null>(null);
 const devicePixelRatio = ref(getDevicePixelRatio());
 
+const renderStateProvider = new RenderStateProvider();
+const theme = computed<FullTheme>(() => mergeAndRealizeTheme(getDataEditorTheme(), props.themeOverrides));
+const emptySelection: GridSelection = {
+    current: undefined,
+    columns: CompactSelection.empty(),
+    rows: CompactSelection.empty(),
+};
+const fallbackCell: InnerGridCell = {
+    kind: GridCellKind.Text,
+    allowOverlay: false,
+    data: "",
+    displayData: "",
+};
+const hoverValuesStub: HoverValues = [] as HoverValues;
+const spriteManagerStub = { drawSprite: () => {} } as unknown as SpriteManager;
+const imageLoaderStub: ImageWindowLoader = {
+    setWindow() {},
+    loadOrGetImage() {
+        return undefined;
+    },
+    setCallback() {},
+};
+const lastBlitData = { current: undefined } as { current: undefined };
+const getCellRendererStub: GetCellRendererCallback = () => undefined as any;
+const getCellContent = (_cell: Item): InnerGridCell => fallbackCell;
+const overrideCursor = () => {};
+const enqueueStub = () => {};
+const getGroupDetailsStub = () => undefined;
+const verticalBorderStub = () => false;
+
 function getDevicePixelRatio() {
     return typeof window === "undefined" ? 1 : window.devicePixelRatio || 1;
 }
@@ -108,8 +144,6 @@ function getDevicePixelRatio() {
 function handleWindowDprChange() {
     devicePixelRatio.value = getDevicePixelRatio();
 }
-
-const theme = computed<FullTheme>(() => mergeAndRealizeTheme(getDataEditorTheme(), props.themeOverrides));
 
 watchEffect(() => {
     const el = rootEl.value;
@@ -168,31 +202,11 @@ const gridStyle = computed<Record<string, string>>(() => ({
 
 const bodyHeight = computed(() => Math.max(height.value - totalHeaderHeight.value, 0));
 
-watchEffect(() => {
-    const canvas = gridCanvas.value;
-    if (canvas === null) return;
-
-    const dpr = devicePixelRatio.value;
-    const canvasWidth = Math.max(Math.floor(width.value * dpr), 1);
-    const canvasHeight = Math.max(Math.floor(bodyHeight.value * dpr), 1);
-
-    canvas.width = canvasWidth;
-    canvas.height = canvasHeight;
-    canvas.style.width = `${width.value}px`;
-    canvas.style.height = `${bodyHeight.value}px`;
-
-    if (typeof navigator !== "undefined" && /jsdom/i.test(navigator.userAgent ?? "")) {
-        return;
-    }
-
-    const ctx = canvas.getContext("2d");
-    if (ctx === null) return;
-
+function renderPlaceholder(ctx: CanvasRenderingContext2D, dpr: number) {
     ctx.save();
     ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, width.value, bodyHeight.value);
 
-    // Placeholder render while canvas port is in progress
     const gradient = ctx.createLinearGradient(0, 0, width.value, bodyHeight.value);
     gradient.addColorStop(0, "rgba(99, 102, 241, 0.08)");
     gradient.addColorStop(1, "rgba(59, 130, 246, 0.12)");
@@ -206,6 +220,91 @@ watchEffect(() => {
     ctx.fillText("Canvas renderer coming soon", width.value / 2, bodyHeight.value / 2);
 
     ctx.restore();
+}
+
+watchEffect(() => {
+    const canvas = gridCanvas.value;
+    if (canvas === null) return;
+
+    const dpr = devicePixelRatio.value;
+    const canvasWidth = Math.max(Math.floor(width.value * dpr), 1);
+    const canvasHeight = Math.max(Math.floor(bodyHeight.value * dpr), 1);
+
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+    canvas.style.width = `${width.value}px`;
+    canvas.style.height = `${bodyHeight.value}px`;
+
+    const ctx = canvas.getContext("2d");
+    if (ctx === null) return;
+
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+    if (typeof navigator !== "undefined" && /jsdom/i.test(navigator.userAgent ?? "")) {
+        renderPlaceholder(ctx, dpr);
+        return;
+    }
+
+    try {
+        const drawArgs = {
+            canvasCtx: ctx,
+            headerCanvasCtx: ctx,
+            bufferACtx: ctx,
+            bufferBCtx: ctx,
+            width: width.value,
+            height: height.value,
+            cellXOffset: cellXOffset.value,
+            cellYOffset: cellYOffset.value,
+            translateX: Math.round(translateXValue.value),
+            translateY: Math.round(translateY.value ?? 0),
+            mappedColumns: mappedColumns.value,
+            enableGroups: enableGroups.value,
+            freezeColumns: freezeColumns.value,
+            dragAndDropState: undefined,
+            theme: theme.value,
+            headerHeight: headerHeight.value,
+            groupHeaderHeight: groupHeaderHeight.value,
+            disabledRows: CompactSelection.empty(),
+            rowHeight: rowHeight.value,
+            verticalBorder: verticalBorderStub,
+            isResizing: false,
+            resizeCol: undefined,
+            isFocused: false,
+            drawFocus: false,
+            selection: emptySelection,
+            fillHandle: DEFAULT_FILL_HANDLE,
+            freezeTrailingRows: freezeTrailingRows.value,
+            hasAppendRow: false,
+            hyperWrapping: false,
+            rows: rows.value,
+            getCellContent,
+            overrideCursor,
+            getGroupDetails: getGroupDetailsStub,
+            getRowThemeOverride: undefined,
+            drawHeaderCallback: undefined,
+            drawCellCallback: undefined,
+            prelightCells: undefined,
+            highlightRegions: undefined,
+            imageLoader: imageLoaderStub,
+            lastBlitData,
+            damage: undefined,
+            hoverValues: hoverValuesStub,
+            hoverInfo: undefined,
+            spriteManager: spriteManagerStub,
+            maxScaleFactor: 1,
+            touchMode: false,
+            renderStrategy: "direct",
+            enqueue: enqueueStub,
+            renderStateProvider,
+            getCellRenderer: getCellRendererStub,
+            minimumCellWidth: 0,
+            resizeIndicator: "none",
+        } as Parameters<typeof drawGrid>[0];
+
+        drawGrid(drawArgs, undefined);
+    } catch {
+        renderPlaceholder(ctx, dpr);
+    }
 });
 
 onMounted(() => {
