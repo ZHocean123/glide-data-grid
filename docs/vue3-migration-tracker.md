@@ -7,14 +7,14 @@
 | Phase | Focus | Owner(s) | Status | Start | Target Complete | Actual Complete | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 0 | Environment preparation | _Unassigned_ | [~] In progress | 2025-09-29 | | | Vue toolchain scaffolding in progress |
-| 1 | Shared logic extraction | _Unassigned_ | [ ] Not started | 2025-09-29 | Phase 0 | Vue toolchain scaffolding committed (deps, Storybook Vue, vitest config). | Install deps and validate new scripts |
-| 2 | Vue data grid foundations | _Unassigned_ | [ ] Not started | 2025-09-29 | Phase 0 | Vue toolchain scaffolding committed (deps, Storybook Vue, vitest config). | Install deps and validate new scripts |
-| 3 | DataEditor container migration | _Unassigned_ | [ ] Not started | 2025-09-29 | Phase 0 | Vue toolchain scaffolding committed (deps, Storybook Vue, vitest config). | Install deps and validate new scripts |
-| 4 | Cells & overlay editors | _Unassigned_ | [ ] Not started | 2025-09-29 | Phase 0 | Vue toolchain scaffolding committed (deps, Storybook Vue, vitest config). | Install deps and validate new scripts |
-| 5 | Supporting packages | _Unassigned_ | [ ] Not started | 2025-09-29 | Phase 0 | Vue toolchain scaffolding committed (deps, Storybook Vue, vitest config). | Install deps and validate new scripts |
-| 6 | Documentation & Storybook | _Unassigned_ | [ ] Not started | 2025-09-29 | Phase 0 | Vue toolchain scaffolding committed (deps, Storybook Vue, vitest config). | Install deps and validate new scripts |
-| 7 | Cleanup & release | _Unassigned_ | [ ] Not started | 2025-09-29 | Phase 0 | Vue toolchain scaffolding committed (deps, Storybook Vue, vitest config). | Install deps and validate new scripts |
-| 8 | Ongoing tracking & QA | _Unassigned_ | [ ] Not started | 2025-09-29 | Phase 0 | Vue toolchain scaffolding committed (deps, Storybook Vue, vitest config). | Install deps and validate new scripts |
+| 1 | Shared logic extraction | _Unassigned_ | [~] In progress | 2025-09-29 | Phase 0 | Vue toolchain scaffolding committed (deps, Storybook Vue, vitest config). | Install deps and validate new scripts |\n| 2025-09-29 | Phase 0 | `npm install` completed; `npm run test:vue` green. | Exercise Storybook Vue build; start shared extraction |\n| 2025-09-29 | Phases 0 & 1 | React + Vue vitest suites passing after extracting `mapColumns` into shared helpers. | Run Storybook Vue; plan next shared refactors |
+| 2 | Vue data grid foundations | _Unassigned_ | [ ] Not started | 2025-09-29 | Phase 0 | Vue toolchain scaffolding committed (deps, Storybook Vue, vitest config). | Install deps and validate new scripts |\n| 2025-09-29 | Phase 0 | `npm install` completed; `npm run test:vue` green. | Exercise Storybook Vue build; start shared extraction |\n| 2025-09-29 | Phases 0 & 1 | React + Vue vitest suites passing after extracting `mapColumns` into shared helpers. | Run Storybook Vue; plan next shared refactors |
+| 3 | DataEditor container migration | _Unassigned_ | [ ] Not started | 2025-09-29 | Phase 0 | Vue toolchain scaffolding committed (deps, Storybook Vue, vitest config). | Install deps and validate new scripts |\n| 2025-09-29 | Phase 0 | `npm install` completed; `npm run test:vue` green. | Exercise Storybook Vue build; start shared extraction |\n| 2025-09-29 | Phases 0 & 1 | React + Vue vitest suites passing after extracting `mapColumns` into shared helpers. | Run Storybook Vue; plan next shared refactors |
+| 4 | Cells & overlay editors | _Unassigned_ | [ ] Not started | 2025-09-29 | Phase 0 | Vue toolchain scaffolding committed (deps, Storybook Vue, vitest config). | Install deps and validate new scripts |\n| 2025-09-29 | Phase 0 | `npm install` completed; `npm run test:vue` green. | Exercise Storybook Vue build; start shared extraction |\n| 2025-09-29 | Phases 0 & 1 | React + Vue vitest suites passing after extracting `mapColumns` into shared helpers. | Run Storybook Vue; plan next shared refactors |
+| 5 | Supporting packages | _Unassigned_ | [ ] Not started | 2025-09-29 | Phase 0 | Vue toolchain scaffolding committed (deps, Storybook Vue, vitest config). | Install deps and validate new scripts |\n| 2025-09-29 | Phase 0 | `npm install` completed; `npm run test:vue` green. | Exercise Storybook Vue build; start shared extraction |\n| 2025-09-29 | Phases 0 & 1 | React + Vue vitest suites passing after extracting `mapColumns` into shared helpers. | Run Storybook Vue; plan next shared refactors |
+| 6 | Documentation & Storybook | _Unassigned_ | [ ] Not started | 2025-09-29 | Phase 0 | Vue toolchain scaffolding committed (deps, Storybook Vue, vitest config). | Install deps and validate new scripts |\n| 2025-09-29 | Phase 0 | `npm install` completed; `npm run test:vue` green. | Exercise Storybook Vue build; start shared extraction |\n| 2025-09-29 | Phases 0 & 1 | React + Vue vitest suites passing after extracting `mapColumns` into shared helpers. | Run Storybook Vue; plan next shared refactors |
+| 7 | Cleanup & release | _Unassigned_ | [ ] Not started | 2025-09-29 | Phase 0 | Vue toolchain scaffolding committed (deps, Storybook Vue, vitest config). | Install deps and validate new scripts |\n| 2025-09-29 | Phase 0 | `npm install` completed; `npm run test:vue` green. | Exercise Storybook Vue build; start shared extraction |\n| 2025-09-29 | Phases 0 & 1 | React + Vue vitest suites passing after extracting `mapColumns` into shared helpers. | Run Storybook Vue; plan next shared refactors |
+| 8 | Ongoing tracking & QA | _Unassigned_ | [ ] Not started | 2025-09-29 | Phase 0 | Vue toolchain scaffolding committed (deps, Storybook Vue, vitest config). | Install deps and validate new scripts |\n| 2025-09-29 | Phase 0 | `npm install` completed; `npm run test:vue` green. | Exercise Storybook Vue build; start shared extraction |\n| 2025-09-29 | Phases 0 & 1 | React + Vue vitest suites passing after extracting `mapColumns` into shared helpers. | Run Storybook Vue; plan next shared refactors |
 
 _Use `[ ] Not started`, `[~] In progress`, or `[x] Complete` to indicate phase status._
 
@@ -22,15 +22,15 @@ _Use `[ ] Not started`, `[~] In progress`, or `[x] Complete` to indicate phase s
 
 ### Phase 0 - Environment Preparation
 - **Milestones:** Tooling inventory, Vue stack bootstrap, regression verification.
-- **Latest Update:** Vue dependencies, configs, and placeholder component added to validate the new toolchain.
+- **Latest Update:** Vue dependencies, configs, placeholder component, and vitest suite working (`npm run test:vue`).
 - **Risks/Blockers:** Pending dependency install and validation runs; no blocking issues identified.
-- **Next Actions:** Install updated deps, exercise `npm run storybook:vue` and `npm run test:vue`, start extracting shared React/Vue utilities.
+- **Next Actions:** Trial `npm run storybook:vue`, begin extracting shared utilities (e.g., useMappedColumns) into `src/shared`. 
 
 ### Phase 1 - Shared Logic Extraction
 - **Milestones:** Shared module scaffolding, React/Vue adapters, shared tests.
-- **Latest Update:** _TBD_
-- **Risks/Blockers:** _TBD_
-- **Next Actions:** _TBD_
+- **Latest Update:** `mapColumns` helper moved into `src/shared/mapped-columns.ts` with React hook delegating to it.
+- **Risks/Blockers:** None yet; ensure existing React bundle consumes the shared helper without regression.
+- **Next Actions:** Continue extracting additional utilities (selection math, theme helpers) and create Vue counterparts.
 
 ### Phase 2 - Vue Data Grid Foundations
 - **Milestones:** Vue entry point, DataGrid.vue port, canvas parity tests.
@@ -78,8 +78,11 @@ _Use `[ ] Not started`, `[~] In progress`, or `[x] Complete` to indicate phase s
 
 | Date | Phase(s) Touched | Summary | Action Items |
 | --- | --- | --- | --- |
-| 2025-09-29 | Phase 0 | Vue toolchain scaffolding committed (deps, Storybook Vue, vitest config). | Install deps and validate new scripts |
+| 2025-09-29 | Phase 0 | Vue toolchain scaffolding committed (deps, Storybook Vue, vitest config). | Install deps and validate new scripts |\n| 2025-09-29 | Phase 0 | `npm install` completed; `npm run test:vue` green. | Exercise Storybook Vue build; start shared extraction |\n| 2025-09-29 | Phases 0 & 1 | React + Vue vitest suites passing after extracting `mapColumns` into shared helpers. | Run Storybook Vue; plan next shared refactors |
 
 _Add a new row after every sync or review to capture progress and decisions._
+
+
+
 
 

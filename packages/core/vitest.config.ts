@@ -7,6 +7,7 @@ export default defineConfig({
         include: ["test/**/*.test.tsx", "test/**/*.test.ts"],
         environment: "jsdom",
         setupFiles: "vitest.setup.ts",
+        exclude: ["test/vue/**"],
         // threads: false,
         // singleThread: true,
         watch: false,
@@ -38,3 +39,6 @@ export default defineConfig({
         },
     },
 });
+
+
+

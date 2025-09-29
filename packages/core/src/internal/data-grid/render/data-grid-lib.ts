@@ -10,48 +10,15 @@ import {
 } from "../data-grid-types.js";
 import { direction } from "../../../common/utils.js";
 import React from "react";
+import { mapColumns, type MappedGridColumn } from "../../../shared/mapped-columns.js";
 import type { BaseDrawArgs, PrepResult } from "../../../cells/cell-types.js";
 import { split as splitText, clearCache } from "canvas-hypertxt";
-import type { FullyDefined } from "../../../common/support.js";
-
-export interface MappedGridColumn extends FullyDefined<InnerGridColumn> {
-    sourceIndex: number;
-    sticky: boolean;
-}
 
 export function useMappedColumns(
     columns: readonly InnerGridColumn[],
     freezeColumns: number
 ): readonly MappedGridColumn[] {
-    return React.useMemo(
-        () =>
-            columns.map(
-                (c, i): MappedGridColumn => ({
-                    group: c.group,
-                    grow: c.grow,
-                    hasMenu: c.hasMenu,
-                    icon: c.icon,
-                    id: c.id,
-                    menuIcon: c.menuIcon,
-                    overlayIcon: c.overlayIcon,
-                    sourceIndex: i,
-                    sticky: i < freezeColumns,
-                    indicatorIcon: c.indicatorIcon,
-                    style: c.style,
-                    themeOverride: c.themeOverride,
-                    title: c.title,
-                    trailingRowOptions: c.trailingRowOptions,
-                    width: c.width,
-                    growOffset: c.growOffset,
-                    rowMarker: c.rowMarker,
-                    rowMarkerChecked: c.rowMarkerChecked,
-                    headerRowMarkerTheme: c.headerRowMarkerTheme,
-                    headerRowMarkerAlwaysVisible: c.headerRowMarkerAlwaysVisible,
-                    headerRowMarkerDisabled: c.headerRowMarkerDisabled,
-                })
-            ),
-        [columns, freezeColumns]
-    );
+    return React.useMemo(() => mapColumns(columns, freezeColumns), [columns, freezeColumns]);
 }
 
 export function gridSelectionHasItem(sel: GridSelection, item: Item): boolean {
@@ -868,3 +835,5 @@ export function computeBounds(
 
     return result;
 }
+
+
