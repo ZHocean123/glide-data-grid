@@ -1,0 +1,17 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "jsx": "preserve",
+        "types": ["vitest", "node"],
+        "lib": ["ES2022", "DOM"],
+        "moduleResolution": "Node16",
+        "module": "Node16"
+    },
+    "include": [
+        "packages/**/src/**/*.ts",
+        "packages/**/src/**/*.tsx",
+        "packages/**/src/**/*.vue",
+        "packages/**/test/**/*.ts",
+        "packages/**/test/**/*.tsx"
+    ]
+}

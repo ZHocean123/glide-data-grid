@@ -6,15 +6,15 @@
 
 | Phase | Focus | Owner(s) | Status | Start | Target Complete | Actual Complete | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 0 | Environment preparation | _Unassigned_ | [ ] Not started | | | | |
-| 1 | Shared logic extraction | _Unassigned_ | [ ] Not started | | | | |
-| 2 | Vue data grid foundations | _Unassigned_ | [ ] Not started | | | | |
-| 3 | DataEditor container migration | _Unassigned_ | [ ] Not started | | | | |
-| 4 | Cells & overlay editors | _Unassigned_ | [ ] Not started | | | | |
-| 5 | Supporting packages | _Unassigned_ | [ ] Not started | | | | |
-| 6 | Documentation & Storybook | _Unassigned_ | [ ] Not started | | | | |
-| 7 | Cleanup & release | _Unassigned_ | [ ] Not started | | | | |
-| 8 | Ongoing tracking & QA | _Unassigned_ | [ ] Not started | | | | |
+| 0 | Environment preparation | _Unassigned_ | [~] In progress | 2025-09-29 | | | Vue toolchain scaffolding in progress |
+| 1 | Shared logic extraction | _Unassigned_ | [ ] Not started | 2025-09-29 | Phase 0 | Vue toolchain scaffolding committed (deps, Storybook Vue, vitest config). | Install deps and validate new scripts |
+| 2 | Vue data grid foundations | _Unassigned_ | [ ] Not started | 2025-09-29 | Phase 0 | Vue toolchain scaffolding committed (deps, Storybook Vue, vitest config). | Install deps and validate new scripts |
+| 3 | DataEditor container migration | _Unassigned_ | [ ] Not started | 2025-09-29 | Phase 0 | Vue toolchain scaffolding committed (deps, Storybook Vue, vitest config). | Install deps and validate new scripts |
+| 4 | Cells & overlay editors | _Unassigned_ | [ ] Not started | 2025-09-29 | Phase 0 | Vue toolchain scaffolding committed (deps, Storybook Vue, vitest config). | Install deps and validate new scripts |
+| 5 | Supporting packages | _Unassigned_ | [ ] Not started | 2025-09-29 | Phase 0 | Vue toolchain scaffolding committed (deps, Storybook Vue, vitest config). | Install deps and validate new scripts |
+| 6 | Documentation & Storybook | _Unassigned_ | [ ] Not started | 2025-09-29 | Phase 0 | Vue toolchain scaffolding committed (deps, Storybook Vue, vitest config). | Install deps and validate new scripts |
+| 7 | Cleanup & release | _Unassigned_ | [ ] Not started | 2025-09-29 | Phase 0 | Vue toolchain scaffolding committed (deps, Storybook Vue, vitest config). | Install deps and validate new scripts |
+| 8 | Ongoing tracking & QA | _Unassigned_ | [ ] Not started | 2025-09-29 | Phase 0 | Vue toolchain scaffolding committed (deps, Storybook Vue, vitest config). | Install deps and validate new scripts |
 
 _Use `[ ] Not started`, `[~] In progress`, or `[x] Complete` to indicate phase status._
 
@@ -22,9 +22,9 @@ _Use `[ ] Not started`, `[~] In progress`, or `[x] Complete` to indicate phase s
 
 ### Phase 0 - Environment Preparation
 - **Milestones:** Tooling inventory, Vue stack bootstrap, regression verification.
-- **Latest Update:** _TBD_
-- **Risks/Blockers:** _TBD_
-- **Next Actions:** _TBD_
+- **Latest Update:** Vue dependencies, configs, and placeholder component added to validate the new toolchain.
+- **Risks/Blockers:** Pending dependency install and validation runs; no blocking issues identified.
+- **Next Actions:** Install updated deps, exercise `npm run storybook:vue` and `npm run test:vue`, start extracting shared React/Vue utilities.
 
 ### Phase 1 - Shared Logic Extraction
 - **Milestones:** Shared module scaffolding, React/Vue adapters, shared tests.
@@ -78,6 +78,8 @@ _Use `[ ] Not started`, `[~] In progress`, or `[x] Complete` to indicate phase s
 
 | Date | Phase(s) Touched | Summary | Action Items |
 | --- | --- | --- | --- |
-| | | | |
+| 2025-09-29 | Phase 0 | Vue toolchain scaffolding committed (deps, Storybook Vue, vitest config). | Install deps and validate new scripts |
 
 _Add a new row after every sync or review to capture progress and decisions._
+
+
