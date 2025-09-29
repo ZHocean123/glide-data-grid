@@ -1,4 +1,4 @@
-<template>
+﻿<template>
     <div
         ref="rootEl"
         class="gdg-vue-grid"
@@ -37,15 +37,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onBeforeUnmount, ref, toRefs, watchEffect } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, toRefs, watchEffect } from "vue";
 import type { GetCellRendererCallback } from "../../cells/cell-types.js";
 import { RenderStateProvider } from "../../common/render-state-provider.js";
 import { getDataEditorTheme, makeCSSStyle, mergeAndRealizeTheme, type FullTheme, type Theme } from "../../common/styles.js";
 import { drawGrid } from "../../internal/data-grid/render/data-grid-render.js";
 import type { HoverValues } from "../../internal/data-grid/animation-manager.js";
 import type { SpriteManager } from "../../internal/data-grid/data-grid-sprites.js";
-import { CompactSelection, DEFAULT_FILL_HANDLE, GridCellKind, type GridSelection, type InnerGridCell, type InnerGridColumn, type Item } from "../../internal/data-grid/data-grid-types.js";
+import { CompactSelection, DEFAULT_FILL_HANDLE, GridCellKind, type GridSelection, type Highlight, type InnerGridCell, type InnerGridColumn, type Item } from "../../internal/data-grid/data-grid-types.js";
 import type { ImageWindowLoader } from "../../internal/data-grid/image-window-loader-interface.js";
+import type { HoverInfo } from "../../internal/data-grid/render/draw-grid-arg.js";
 import { useGridGeometry } from "../composables/useGridGeometry.js";
 import { useMappedColumns } from "../composables/useMappedColumns.js";
 
@@ -66,6 +67,13 @@ interface DataGridProps {
     rowHeight?: number | ((index: number) => number);
     enableGroups?: boolean;
     themeOverrides?: Partial<Theme>;
+    selection?: GridSelection;
+    getCellContent?: (cell: Item) => InnerGridCell;
+    spriteManager?: SpriteManager;
+    imageWindowLoader?: ImageWindowLoader;
+    hoverValues?: HoverValues;
+    hoverInfo?: HoverInfo;
+    highlightRegions?: readonly Highlight[];
 }
 
 const props = withDefaults(defineProps<DataGridProps>(), {
@@ -80,6 +88,13 @@ const props = withDefaults(defineProps<DataGridProps>(), {
     rowHeight: 24,
     enableGroups: false,
     themeOverrides: undefined,
+    selection: undefined,
+    getCellContent: undefined,
+    spriteManager: undefined,
+    imageWindowLoader: undefined,
+    hoverValues: undefined,
+    hoverInfo: undefined,
+    highlightRegions: undefined,
 });
 
 const {
@@ -109,41 +124,32 @@ const devicePixelRatio = ref(getDevicePixelRatio());
 
 const renderStateProvider = new RenderStateProvider();
 const theme = computed<FullTheme>(() => mergeAndRealizeTheme(getDataEditorTheme(), props.themeOverrides));
-const emptySelection: GridSelection = {
-    current: undefined,
-    columns: CompactSelection.empty(),
-    rows: CompactSelection.empty(),
-};
-const fallbackCell: InnerGridCell = {
+const selection = computed<GridSelection>(() => props.selection ?? emptySelection());
+const spriteManager = computed<SpriteManager>(() => props.spriteManager ?? spriteManagerStub);
+const imageWindowLoader = computed<ImageWindowLoader>(() => props.imageWindowLoader ?? imageLoaderStub);
+const hoverValues = computed<HoverValues>(() => props.hoverValues ?? hoverValuesStub);
+const hoverInfo = computed<HoverInfo | undefined>(() => props.hoverInfo);
+const highlightRegions = computed(() => props.highlightRegions);
+
+const defaultCell = (cell: Item): InnerGridCell => ({
     kind: GridCellKind.Text,
     allowOverlay: false,
-    data: "",
-    displayData: "",
-};
-const hoverValuesStub: HoverValues = [] as HoverValues;
-const spriteManagerStub = { drawSprite: () => {} } as unknown as SpriteManager;
-const imageLoaderStub: ImageWindowLoader = {
-    setWindow() {},
-    loadOrGetImage() {
-        return undefined;
-    },
-    setCallback() {},
-};
-const lastBlitData = { current: undefined } as { current: undefined };
-const getCellRendererStub: GetCellRendererCallback = () => undefined as any;
-const getCellContent = (_cell: Item): InnerGridCell => fallbackCell;
-const overrideCursor = () => {};
-const enqueueStub = () => {};
-const getGroupDetailsStub = () => undefined;
-const verticalBorderStub = () => false;
+    data: `${cell[0]},${cell[1]}`,
+    displayData: `${cell[0]},${cell[1]}`,
+});
 
-function getDevicePixelRatio() {
-    return typeof window === "undefined" ? 1 : window.devicePixelRatio || 1;
-}
+const getCellContent = (cell: Item): InnerGridCell => props.getCellContent?.(cell) ?? defaultCell(cell);
 
-function handleWindowDprChange() {
-    devicePixelRatio.value = getDevicePixelRatio();
-}
+const freezeRows = computed(() => {
+    const trailing = freezeTrailingRows.value;
+    if (trailing <= 0 || rows.value <= 0) return [] as number[];
+    const start = Math.max(rows.value - trailing, 0);
+    const result: number[] = [];
+    for (let r = start; r < rows.value; r++) {
+        result.push(r);
+    }
+    return result;
+});
 
 watchEffect(() => {
     const el = rootEl.value;
@@ -202,6 +208,38 @@ const gridStyle = computed<Record<string, string>>(() => ({
 
 const bodyHeight = computed(() => Math.max(height.value - totalHeaderHeight.value, 0));
 
+function getDevicePixelRatio() {
+    return typeof window === "undefined" ? 1 : window.devicePixelRatio || 1;
+}
+
+function handleWindowDprChange() {
+    devicePixelRatio.value = getDevicePixelRatio();
+}
+
+function emptySelection(): GridSelection {
+    return {
+        current: undefined,
+        columns: CompactSelection.empty(),
+        rows: CompactSelection.empty(),
+    };
+}
+
+const hoverValuesStub: HoverValues = [] as HoverValues;
+const spriteManagerStub = { drawSprite: () => {} } as unknown as SpriteManager;
+const imageLoaderStub: ImageWindowLoader = {
+    setWindow() {},
+    loadOrGetImage() {
+        return undefined;
+    },
+    setCallback() {},
+};
+const overrideCursor = () => {};
+const enqueueStub = () => {};
+const getGroupDetailsStub = () => undefined;
+const verticalBorderStub = () => false;
+const lastBlitData = { current: undefined } as { current: undefined };
+const getCellRendererStub: GetCellRendererCallback = () => undefined as any;
+
 function renderPlaceholder(ctx: CanvasRenderingContext2D, dpr: number) {
     ctx.save();
     ctx.scale(dpr, dpr);
@@ -235,8 +273,16 @@ watchEffect(() => {
     canvas.style.width = `${width.value}px`;
     canvas.style.height = `${bodyHeight.value}px`;
 
-    const ctx = canvas.getContext("2d");
-    if (ctx === null) return;
+    let ctx: CanvasRenderingContext2D | null = null;
+    try {
+        ctx = canvas.getContext("2d");
+    } catch {
+        ctx = null;
+    }
+
+    if (ctx === null) {
+        return;
+    }
 
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
@@ -246,6 +292,17 @@ watchEffect(() => {
     }
 
     try {
+        renderStateProvider.setWindow(
+            {
+                x: cellXOffset.value,
+                y: cellYOffset.value,
+                width: effectiveColumns.value.length,
+                height: Math.max(rows.value - cellYOffset.value, 0),
+            },
+            freezeColumns.value,
+            freezeRows.value
+        );
+
         const drawArgs = {
             canvasCtx: ctx,
             headerCanvasCtx: ctx,
@@ -271,7 +328,7 @@ watchEffect(() => {
             resizeCol: undefined,
             isFocused: false,
             drawFocus: false,
-            selection: emptySelection,
+            selection: selection.value,
             fillHandle: DEFAULT_FILL_HANDLE,
             freezeTrailingRows: freezeTrailingRows.value,
             hasAppendRow: false,
@@ -284,13 +341,13 @@ watchEffect(() => {
             drawHeaderCallback: undefined,
             drawCellCallback: undefined,
             prelightCells: undefined,
-            highlightRegions: undefined,
-            imageLoader: imageLoaderStub,
+            highlightRegions: highlightRegions.value,
+            imageLoader: imageWindowLoader.value,
             lastBlitData,
             damage: undefined,
-            hoverValues: hoverValuesStub,
-            hoverInfo: undefined,
-            spriteManager: spriteManagerStub,
+            hoverValues: hoverValues.value,
+            hoverInfo: hoverInfo.value,
+            spriteManager: spriteManager.value,
             maxScaleFactor: 1,
             touchMode: false,
             renderStrategy: "direct",
