@@ -1,3 +1,4 @@
+export { default as DataGrid } from "./components/DataGrid.vue";
 export { default as HelloGrid } from "./components/HelloGrid.vue";
 
 /**

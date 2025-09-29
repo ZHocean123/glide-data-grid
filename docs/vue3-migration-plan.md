@@ -95,3 +95,4 @@ This document outlines the step-by-step approach for migrating Glide Data Grid f
 ## Progress Log
 
 - 2025-09-29: Shared bounds/geometry/column helpers are now consumed from Vue through new `useGridGeometry` and `useMappedColumns` composables. Added Vue Vitest coverage (`use-mapped-columns.test.ts`) to document behaviour while continuing Phase 2 foundations.
+- 2025-09-29: Vue DataGrid component skeleton renders mapped headers via shared composables; added `data-grid.test.ts` to capture width/sticky metrics.
