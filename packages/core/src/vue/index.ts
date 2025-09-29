@@ -5,3 +5,4 @@ export { default as HelloGrid } from "./components/HelloGrid.vue";
 the migration.
  */
 export const version = "0.0.0-vue-preview";
+export { useGridGeometry } from "./composables/useGridGeometry.js";
