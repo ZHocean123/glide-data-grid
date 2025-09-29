@@ -38,7 +38,7 @@
         </div>
         <div class="gdg-vue-grid-body" role="presentation" :style="{ height: `${bodyHeight}px` }">
             <canvas ref="gridCanvas" class="gdg-vue-grid-canvas"></canvas>
-            <div class="gdg-vue-grid-body-placeholder">Vue canvas rendering port in progress.</div>
+            <canvas ref="overlayCanvas" class="gdg-vue-grid-overlay-canvas"></canvas>
         </div>
     </div>
 </template>
@@ -160,6 +160,7 @@ const translateXValue = computed(() => translateX.value ?? 0);
 
 const rootEl = ref<HTMLDivElement | null>(null);
 const gridCanvas = ref<HTMLCanvasElement | null>(null);
+const overlayCanvas = ref<HTMLCanvasElement | null>(null);
 const devicePixelRatio = ref(getDevicePixelRatio());
 
 const renderStateProvider = new RenderStateProvider();
@@ -558,30 +559,46 @@ function renderPlaceholder(ctx: CanvasRenderingContext2D, dpr: number) {
 
 watchEffect(() => {
     const canvas = gridCanvas.value;
+    const overlay = overlayCanvas.value;
     spriteManagerVersion.value;
-    if (canvas === null) return;
+    if (canvas === null || overlay === null) return;
 
     const dpr = devicePixelRatio.value;
     const canvasWidth = Math.max(Math.floor(width.value * dpr), 1);
     const canvasHeight = Math.max(Math.floor(bodyHeight.value * dpr), 1);
 
+    // 设置主canvas尺寸
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
     canvas.style.width = `${width.value}px`;
     canvas.style.height = `${bodyHeight.value}px`;
 
+    // 设置overlay canvas尺寸 - overlay只需要覆盖header区域
+    const overlayCanvasWidth = Math.max(Math.floor(width.value * dpr), 1);
+    const overlayCanvasHeight = Math.max(Math.floor(totalHeaderHeight.value * dpr), 1);
+    
+    overlay.width = overlayCanvasWidth;
+    overlay.height = overlayCanvasHeight;
+    overlay.style.width = `${width.value}px`;
+    overlay.style.height = `${totalHeaderHeight.value}px`;
+
     let ctx: CanvasRenderingContext2D | null = null;
+    let overlayCtx: CanvasRenderingContext2D | null = null;
+    
     try {
-        ctx = canvas.getContext("2d");
+        ctx = canvas.getContext("2d", { alpha: false });
+        overlayCtx = overlay.getContext("2d", { alpha: false });
     } catch {
         ctx = null;
+        overlayCtx = null;
     }
 
-    if (ctx === null) {
+    if (ctx === null || overlayCtx === null) {
         return;
     }
 
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    overlayCtx.clearRect(0, 0, overlayCanvasWidth, overlayCanvasHeight);
 
     if (typeof navigator !== "undefined" && /jsdom/i.test(navigator.userAgent ?? "")) {
         renderPlaceholder(ctx, dpr);
@@ -607,7 +624,7 @@ watchEffect(() => {
 
         const drawArgs = {
             canvasCtx: ctx,
-            headerCanvasCtx: ctx,
+            headerCanvasCtx: overlayCtx,
             bufferACtx: ctx,
             bufferBCtx: ctx,
             width: width.value,
@@ -877,6 +894,17 @@ function handleKeyUp(event: KeyboardEvent) {
     width: 100%;
     height: 100%;
     display: block;
+    z-index: 1;
+}
+
+.gdg-vue-grid-overlay-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    z-index: 2;
+    pointer-events: none;
 }
 
 .gdg-vue-grid-body-placeholder {

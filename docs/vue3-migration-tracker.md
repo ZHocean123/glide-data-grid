@@ -162,10 +162,18 @@ _Add a new row after every sync or review to capture progress and decisions._
 ### Checkpoint Log – Phase 6（Storybook Vue3 验证与增强）
 - 扩展 KeyboardEvents 故事：新增四个 UI 开关（取消 KeyDown、停止传播 KeyDown、取消 KeyUp、停止传播 KeyUp），用于手动验证键盘事件的取消与传播逻辑是否正确；在事件文本中追加状态标记，便于观察影响效果。
 - Storybook 预览正常：在 `http://localhost:65251/?path=/story/vue-datagrid--keyboard-events` 加载该故事，点击网格使其获取焦点（tabindex=0），勾选对应开关后按下方向键或其他键，事件文本区域可显示 KeyDown/KeyUp 以及位置（location）与状态标记。
+- Vue DataGrid overlay canvas实现：成功为Vue DataGrid组件添加了overlay canvas，参考React版本的实现，用于渲染header和其他overlay元素。包括：
+  - 在模板中添加了`overlayCanvas` ref和对应的canvas元素
+  - 更新了渲染逻辑以同时初始化主canvas和overlay canvas
+  - 将`headerCanvasCtx`参数正确指向overlay canvas的上下文
+  - 添加了适当的CSS样式确保overlay canvas正确叠加在主canvas之上（z-index: 2, pointer-events: none）
+  - 验证了overlay canvas的正常工作，尺寸为655x344（主canvas）和655x77（overlay canvas）
 - 风险点：
   - 事件取消/传播与网格内部导航、选区变化存在耦合，需谨慎验证对选择移动与编辑器激活的影响；
-  - 浏览器模拟事件与真实键盘事件在一些环境下可能存在差异，建议以人工交互为准。
+  - 浏览器模拟事件与真实键盘事件在一些环境下可能存在差异，建议以人工交互为准；
+  - overlay canvas的渲染性能需要进一步优化和测试。
 - 后续行动：
   - 在 Pointer/Keyboard 故事中补充更多热键场景（如 Home/End、PageUp/PageDown、Ctrl/Shift 组合键），并覆盖取消/传播的组合路径；
   - 验证选择与编辑器耦合路径（选择移动、进入编辑、提交/取消编辑）在取消/传播下的行为一致性；
-  - 按需将 `.storybook-vue` 配置继续优化（如升级 Storybook 版本并清理潜在弃用 API），保持构建与预览稳定。
+  - 按需将 `.storybook-vue` 配置继续优化（如升级 Storybook 版本并清理潜在弃用 API），保持构建与预览稳定；
+  - 启动Phase 3 DataEditor容器迁移工作。
