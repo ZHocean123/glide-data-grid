@@ -17,6 +17,7 @@ const meta: Meta<typeof DataGrid> = {
         translateX: { control: { type: "number", min: -200, max: 200, step: 10 } },
         translateY: { control: { type: "number", min: -200, max: 200, step: 10 } },
         enableGroups: { control: "boolean" },
+        themeOverrides: { control: "object" },
     },
 };
 
@@ -55,5 +56,17 @@ export const EmptyColumns: Story = {
     args: {
         columns: [],
         rows: 0,
+    },
+};
+
+export const CustomTheme: Story = {
+    args: {
+        columns,
+        freezeColumns: 1,
+        themeOverrides: {
+            bgHeader: "#0f172a",
+            textHeader: "#f8fafc",
+            borderColor: "#1e293b",
+        },
     },
 };

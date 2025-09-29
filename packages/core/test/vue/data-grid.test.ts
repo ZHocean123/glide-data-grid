@@ -46,6 +46,26 @@ describe("DataGrid", () => {
         expect(canvas.height).toBeGreaterThan(0);
     });
 
+    it("applies theme overrides to CSS variables", async () => {
+        const wrapper = mount(DataGrid, {
+            props: {
+                width: 320,
+                height: 200,
+                rows: 1,
+                columns,
+                themeOverrides: {
+                    bgHeader: "#0f172a",
+                    textHeader: "#e2e8f0",
+                },
+            },
+        });
+
+        await nextTick();
+        const gridEl = wrapper.get(".gdg-vue-grid").element as HTMLElement;
+        expect(gridEl.style.getPropertyValue("--gdg-bg-header")).toBe("#0f172a");
+        expect(gridEl.style.getPropertyValue("--gdg-text-header")).toBe("#e2e8f0");
+    });
+
     it("shows placeholder when no columns are provided", () => {
         const wrapper = mount(DataGrid, {
             props: {

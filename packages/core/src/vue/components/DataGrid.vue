@@ -1,5 +1,6 @@
 ﻿<template>
     <div
+        ref="rootEl"
         class="gdg-vue-grid"
         :style="gridStyle"
         :data-first-header-x="sampleBounds?.x ?? 0"
@@ -40,6 +41,7 @@ import { computed, onMounted, onBeforeUnmount, toRefs, ref, watchEffect } from "
 import type { InnerGridColumn } from "../../internal/data-grid/data-grid-types.js";
 import { useMappedColumns } from "../composables/useMappedColumns.js";
 import { useGridGeometry } from "../composables/useGridGeometry.js";
+import { getDataEditorTheme, makeCSSStyle, mergeAndRealizeTheme, type Theme, type FullTheme } from "../../common/styles.js";
 
 interface DataGridProps {
     width: number;
@@ -57,6 +59,7 @@ interface DataGridProps {
     headerHeight?: number;
     rowHeight?: number | ((index: number) => number);
     enableGroups?: boolean;
+    themeOverrides?: Partial<Theme>;
 }
 
 const props = withDefaults(defineProps<DataGridProps>(), {
@@ -70,6 +73,7 @@ const props = withDefaults(defineProps<DataGridProps>(), {
     headerHeight: 36,
     rowHeight: 24,
     enableGroups: false,
+    themeOverrides: undefined,
 });
 
 const {
@@ -93,6 +97,7 @@ const {
 const viewport = computed(() => viewportWidth.value ?? width.value);
 const translateXValue = computed(() => translateX.value ?? 0);
 
+const rootEl = ref<HTMLDivElement | null>(null);
 const gridCanvas = ref<HTMLCanvasElement | null>(null);
 const devicePixelRatio = ref(getDevicePixelRatio());
 
@@ -103,6 +108,17 @@ function getDevicePixelRatio() {
 function handleWindowDprChange() {
     devicePixelRatio.value = getDevicePixelRatio();
 }
+
+const theme = computed<FullTheme>(() => mergeAndRealizeTheme(getDataEditorTheme(), props.themeOverrides));
+
+watchEffect(() => {
+    const el = rootEl.value;
+    if (el === null) return;
+    const cssVars = makeCSSStyle(theme.value);
+    for (const [key, value] of Object.entries(cssVars)) {
+        el.style.setProperty(key, value);
+    }
+});
 
 const { mappedColumns, effectiveColumns, stickyWidth } = useMappedColumns({
     columns,
@@ -169,12 +185,7 @@ watchEffect(() => {
         return;
     }
 
-    let ctx: CanvasRenderingContext2D | null = null;
-    try {
-        ctx = canvas.getContext("2d");
-    } catch {
-        ctx = null;
-    }
+    const ctx = canvas.getContext("2d");
     if (ctx === null) return;
 
     ctx.save();
