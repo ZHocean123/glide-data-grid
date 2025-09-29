@@ -154,3 +154,4 @@ _Add a new row after every sync or review to capture progress and decisions._
 | 2025-09-29 | Phase 2 | Pointer down/up/context menu wired via shared helper; new vitest file covers pointer capture + preventDefault. | Expand pointer path to click/drag + selection integration |
 | 2025-09-29 | Phase 2 | Storybook pointer events story highlights selection updates driven by Vue callbacks. | Align hover/drag UX with React parity |
 | 2025-09-29 | Phase 2 | Vue DataGrid resolves built-in vs custom cell renderers using shared AllCellRenderers; vitest covers default, override, and additional renderer paths. | Wire DataEditor Vue adapter to supply sprite manager and renderer configs |
+| 2025-09-29 | Phase 2 | Vue DataGrid spawns default SpriteManager from shared header icons when one is not provided; vitest asserts provided managers and spies are forwarded. | Hook compose DataEditor Vue wrapper to deliver header icon maps & sprite loader |

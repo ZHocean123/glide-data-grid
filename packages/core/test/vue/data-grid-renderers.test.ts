@@ -4,6 +4,7 @@ import { nextTick } from "vue";
 import type { CustomRenderer } from "../../src/cells/cell-types.js";
 import DataGrid from "../../src/vue/components/DataGrid.vue";
 import { GridCellKind, type CustomCell, type InnerGridCell, type InnerGridColumn } from "../../src/internal/data-grid/data-grid-types.js";
+import type { SpriteManager } from "../../src/internal/data-grid/data-grid-sprites.js";
 
 const drawGridMock = vi.fn();
 
@@ -153,6 +154,37 @@ describe("DataGrid cell renderer resolution", () => {
         const renderer = drawArgs.getCellRenderer(cell);
         expect(renderer).toBe(overrideRenderer);
         expect(getCellRenderer).toHaveBeenCalledWith(cell);
+
+        wrapper.unmount();
+    });
+    it("passes through supplied sprite manager", async () => {
+        const cell = {
+            kind: GridCellKind.Text,
+            data: "value",
+            displayData: "value",
+            allowOverlay: false,
+        } as InnerGridCell;
+
+        const spriteManager = { drawSprite: vi.fn() } as unknown as SpriteManager;
+
+        const wrapper = mount(DataGrid, {
+            props: {
+                width: 240,
+                height: 140,
+                rows: 1,
+                columns,
+                getCellContent: () => cell,
+                spriteManager,
+            },
+        });
+
+        await nextTick();
+        await nextTick();
+
+        expect(drawGridMock).toHaveBeenCalled();
+        const drawArgs = drawGridMock.mock.calls[drawGridMock.mock.calls.length - 1][0];
+        expect(drawArgs.spriteManager).toBeDefined();
+        expect(drawArgs.spriteManager.drawSprite).toBe(spriteManager.drawSprite);
 
         wrapper.unmount();
     });

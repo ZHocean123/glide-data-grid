@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, toRefs, watchEffect } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, shallowRef, toRefs, watch, watchEffect } from "vue";
 import type { CustomRenderer, GetCellRendererCallback, InternalCellRenderer } from "../../cells/cell-types.js";
 import { AllCellRenderers } from "../../cells/index.js";
 import { RenderStateProvider } from "../../common/render-state-provider.js";
@@ -50,7 +50,7 @@ import { getMouseEventArgs } from "../../shared/mouse.js";
 import type { GridMouseEventArgs } from "../../internal/data-grid/event-args.js";
 import { drawGrid } from "../../internal/data-grid/render/data-grid-render.js";
 import type { HoverValues } from "../../internal/data-grid/animation-manager.js";
-import type { SpriteManager } from "../../internal/data-grid/data-grid-sprites.js";
+import { SpriteManager, type SpriteMap } from "../../internal/data-grid/data-grid-sprites.js";
 import { CompactSelection, DEFAULT_FILL_HANDLE, GridCellKind, type GridSelection, type Highlight, type InnerGridCell, type InnerGridColumn, type Item } from "../../internal/data-grid/data-grid-types.js";
 import type { ImageWindowLoader } from "../../internal/data-grid/image-window-loader-interface.js";
 import type { HoverInfo } from "../../internal/data-grid/render/draw-grid-arg.js";
@@ -79,6 +79,7 @@ interface DataGridProps {
     getCellRenderer?: GetCellRendererCallback;
     renderers?: readonly InternalCellRenderer<InnerGridCell>[];
     additionalRenderers?: readonly CustomRenderer[];
+    headerIcons?: SpriteMap;
     spriteManager?: SpriteManager;
     imageWindowLoader?: ImageWindowLoader;
     hoverValues?: HoverValues;
@@ -108,6 +109,7 @@ const props = withDefaults(defineProps<DataGridProps>(), {
     getCellRenderer: undefined,
     renderers: undefined,
     additionalRenderers: undefined,
+    headerIcons: undefined,
     spriteManager: undefined,
     imageWindowLoader: undefined,
     hoverValues: undefined,
@@ -134,6 +136,7 @@ const {
     headerHeight,
     rowHeight,
     enableGroups,
+    headerIcons,
 } = toRefs(props);
 
 const viewport = computed(() => viewportWidth.value ?? width.value);
@@ -144,9 +147,48 @@ const gridCanvas = ref<HTMLCanvasElement | null>(null);
 const devicePixelRatio = ref(getDevicePixelRatio());
 
 const renderStateProvider = new RenderStateProvider();
+const hoverValuesStub: HoverValues = [] as HoverValues;
+const spriteManagerStub = { drawSprite: () => {} } as unknown as SpriteManager;
+const imageLoaderStub: ImageWindowLoader = {
+    setWindow() {},
+    loadOrGetImage() {
+        return undefined;
+    },
+    setCallback() {},
+};
+const overrideCursor = () => {};
+const enqueueStub = () => {};
+const getGroupDetailsStub = () => undefined;
+const verticalBorderStub = () => false;
+const lastBlitData = { current: undefined } as { current: undefined };
 const theme = computed<FullTheme>(() => mergeAndRealizeTheme(getDataEditorTheme(), props.themeOverrides));
 const selection = computed<GridSelection>(() => props.selection ?? emptySelection());
-const spriteManager = computed<SpriteManager>(() => props.spriteManager ?? spriteManagerStub);
+const spriteManagerVersion = ref(0);
+const defaultSpriteManager = shallowRef<SpriteManager | undefined>(undefined);
+
+watch(
+    () => [headerIcons.value, props.spriteManager] as const,
+    ([icons, provided]) => {
+        if (provided !== undefined) {
+            spriteManagerVersion.value++;
+            return;
+        }
+
+        if (typeof window === "undefined" || typeof document === "undefined") {
+            defaultSpriteManager.value = undefined;
+            spriteManagerVersion.value++;
+            return;
+        }
+
+        defaultSpriteManager.value = new SpriteManager(icons, () => {
+            spriteManagerVersion.value++;
+        });
+        spriteManagerVersion.value++;
+    },
+    { immediate: true }
+);
+
+const spriteManager = computed<SpriteManager>(() => props.spriteManager ?? defaultSpriteManager.value ?? spriteManagerStub);
 const imageWindowLoader = computed<ImageWindowLoader>(() => props.imageWindowLoader ?? imageLoaderStub);
 const hoverValues = computed<HoverValues>(() => props.hoverValues ?? hoverValuesStub);
 const hoverInfo = computed<HoverInfo | undefined>(() => props.hoverInfo);
@@ -470,20 +512,7 @@ function emptySelection(): GridSelection {
     };
 }
 
-const hoverValuesStub: HoverValues = [] as HoverValues;
-const spriteManagerStub = { drawSprite: () => {} } as unknown as SpriteManager;
-const imageLoaderStub: ImageWindowLoader = {
-    setWindow() {},
-    loadOrGetImage() {
-        return undefined;
-    },
-    setCallback() {},
-};
-const overrideCursor = () => {};
-const enqueueStub = () => {};
-const getGroupDetailsStub = () => undefined;
-const verticalBorderStub = () => false;
-const lastBlitData = { current: undefined } as { current: undefined };
+
 
 function renderPlaceholder(ctx: CanvasRenderingContext2D, dpr: number) {
     ctx.save();
@@ -507,6 +536,7 @@ function renderPlaceholder(ctx: CanvasRenderingContext2D, dpr: number) {
 
 watchEffect(() => {
     const canvas = gridCanvas.value;
+    spriteManagerVersion.value;
     if (canvas === null) return;
 
     const dpr = devicePixelRatio.value;
