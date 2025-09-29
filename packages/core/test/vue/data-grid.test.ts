@@ -1,5 +1,5 @@
 ﻿import { mount } from "@vue/test-utils";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
 import DataGrid from "../../src/vue/components/DataGrid.vue";
 import type { InnerGridColumn } from "../../src/internal/data-grid/data-grid-types.js";
@@ -80,5 +80,46 @@ describe("DataGrid", () => {
         expect(wrapper.findAll(".gdg-vue-grid-header-cell")).toHaveLength(0);
         expect(wrapper.get(".gdg-vue-grid-header-empty").text()).toContain("No columns mapped yet");
         expect(wrapper.get(".gdg-vue-grid-body-placeholder").text()).toContain("Vue canvas rendering port in progress");
+    });
+
+    it("invokes onMouseMove handler with grid coordinates", async () => {
+        const onMouseMove = vi.fn();
+        const wrapper = mount(DataGrid, {
+            props: {
+                width: 400,
+                height: 220,
+                rows: 12,
+                columns,
+                headerHeight: 36,
+                onMouseMove,
+            },
+        });
+
+        const canvas = wrapper.get("canvas").element as HTMLCanvasElement;
+        canvas.getBoundingClientRect = () => ({
+            x: 0,
+            y: 0,
+            left: 0,
+            top: 0,
+            right: 400,
+            bottom: 184,
+            width: 400,
+            height: 184,
+            toJSON: () => {},
+        });
+
+        await wrapper.trigger("pointermove", {
+            clientX: 140,
+            clientY: 90,
+            pointerType: "mouse",
+            button: 0,
+            buttons: 1,
+        });
+
+        expect(onMouseMove).toHaveBeenCalledTimes(1);
+        const args = onMouseMove.mock.calls[0][0];
+        expect(args.kind).toBe("cell");
+        expect(args.location[0]).toBeGreaterThanOrEqual(0);
+        expect(args.location[1]).toBeGreaterThanOrEqual(0);
     });
 });

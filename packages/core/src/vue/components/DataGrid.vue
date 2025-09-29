@@ -5,6 +5,7 @@
         :style="gridStyle"
         :data-first-header-x="sampleBounds?.x ?? 0"
         :data-first-header-width="sampleBounds?.width ?? 0"
+        @pointermove="handlePointerMove"
     >
         <div
             v-if="enableGroups && groupHeaderHeight > 0"
@@ -41,6 +42,8 @@ import { computed, onBeforeUnmount, onMounted, ref, toRefs, watchEffect } from "
 import type { GetCellRendererCallback } from "../../cells/cell-types.js";
 import { RenderStateProvider } from "../../common/render-state-provider.js";
 import { getDataEditorTheme, makeCSSStyle, mergeAndRealizeTheme, type FullTheme, type Theme } from "../../common/styles.js";
+import { getMouseEventArgs } from "../../shared/mouse.js";
+import type { GridMouseEventArgs } from "../../internal/data-grid/event-args.js";
 import { drawGrid } from "../../internal/data-grid/render/data-grid-render.js";
 import type { HoverValues } from "../../internal/data-grid/animation-manager.js";
 import type { SpriteManager } from "../../internal/data-grid/data-grid-sprites.js";
@@ -74,6 +77,8 @@ interface DataGridProps {
     hoverValues?: HoverValues;
     hoverInfo?: HoverInfo;
     highlightRegions?: readonly Highlight[];
+    onMouseMove?: (args: GridMouseEventArgs) => void;
+    onMouseMoveRaw?: (event: MouseEvent) => void;
 }
 
 const props = withDefaults(defineProps<DataGridProps>(), {
@@ -199,6 +204,88 @@ const sampleBounds = computed(() => {
         rows.value
     );
 });
+
+function handlePointerMove(event: PointerEvent | MouseEvent) {
+    const canvas = gridCanvas.value;
+    if (canvas === null || mappedColumns.value.length === 0) {
+        props.onMouseMoveRaw?.(event as MouseEvent);
+        return;
+    }
+
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width === 0 || width.value === 0) {
+        return;
+    }
+
+    const scale = rect.width / width.value;
+    const x = (event.clientX - rect.left) / scale;
+    const y = (event.clientY - rect.top) / scale;
+
+    const toClientBounds = (col: number, row: number) => {
+        if (col < 0 || col >= mappedColumns.value.length) return undefined;
+        if (row >= rows.value) return undefined;
+
+        const base = boundsForCell(
+            col,
+            row,
+            width.value,
+            height.value,
+            cellXOffset.value,
+            cellYOffset.value,
+            translateXValue.value,
+            translateY.value ?? 0,
+            rows.value
+        );
+
+        return {
+            x: rect.left + base.x * scale,
+            y: rect.top + base.y * scale,
+            width: base.width * scale,
+            height: base.height * scale,
+        };
+    };
+
+    const pointerEvent = typeof PointerEvent !== "undefined" && event instanceof PointerEvent ? event : undefined;
+    const isTouch = pointerEvent?.pointerType === "touch";
+    const isMouse = pointerEvent?.pointerType === "mouse" || event instanceof MouseEvent;
+
+    const button = isMouse ? ("button" in event ? event.button : 0) : 0;
+    const buttons = isMouse ? ("buttons" in event ? event.buttons ?? 0 : 0) : 0;
+
+    const { args } = getMouseEventArgs({
+        x,
+        y,
+        clientX: event.clientX,
+        clientY: event.clientY,
+        width: width.value,
+        height: height.value,
+        enableGroups: enableGroups.value,
+        headerHeight: headerHeight.value,
+        groupHeaderHeight: groupHeaderHeight.value,
+        totalHeaderHeight: totalHeaderHeight.value,
+        rows: rows.value,
+        rowHeight: rowHeight.value,
+        cellXOffset: cellXOffset.value,
+        cellYOffset: cellYOffset.value,
+        translateX: translateXValue.value,
+        translateY: translateY.value ?? 0,
+        freezeTrailingRows: freezeTrailingRows.value,
+        mappedColumns: mappedColumns.value,
+        effectiveColumns: effectiveColumns.value,
+        selection: selection.value,
+        fillHandle: DEFAULT_FILL_HANDLE,
+        shiftKey: event.shiftKey,
+        ctrlKey: event.ctrlKey,
+        metaKey: event.metaKey,
+        isTouch: Boolean(isTouch),
+        button,
+        buttons,
+        getBounds: toClientBounds,
+    });
+
+    props.onMouseMoveRaw?.(event as MouseEvent);
+    props.onMouseMove?.(args);
+}
 
 const gridStyle = computed<Record<string, string>>(() => ({
     width: `${width.value}px`,

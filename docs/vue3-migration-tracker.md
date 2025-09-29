@@ -15,6 +15,7 @@
 | 2025-09-29 | Phase 2 | Vue `useGridGeometry` composable now accepts reactive inputs; added Vue vitest `npm run test:vue -- test/vue/use-grid-geometry.test.ts`. | Hook geometry outputs into canvas draw pipeline |
 | 2025-09-29 | Phase 2 | Vue DataGrid canvas scaffold adds DPR-aware sizing and Storybook controls; vitest `npm run test:vue -- test/vue/data-grid.test.ts`. | Integrate shared drawGrid renderer |
 | 2025-09-29 | Phase 2 | Vue DataGrid applies theme overrides via shared `makeCSSStyle`; tests assert CSS vars while canvas stubs remain. | Wire shared theme + drawGrid integration |
+| 2025-09-29 | Phase 2 | Shared mouse hit-testing helper powers Vue `onMouseMove`; pointer vitest covers emitted coordinates. | Hook up click/drag events and hover state next |
 | 2 | Vue data grid foundations | _Unassigned_ | [~] In progress | 2025-09-29 | Phase 0 | Vue composable scaffolding underway (HelloGrid, useGridGeometry, useMappedColumns). | Continue migrating render math & build Vue adapters |\n| 2025-09-29 | Phase 0 | `npm install` completed; `npm run test:vue` green. | Exercise Storybook Vue build; start shared extraction |\n| 2025-09-29 | Phases 0 & 1 | React + Vue vitest suites passing after extracting `mapColumns` into shared helpers. | Run Storybook Vue; plan next shared refactors |\n| 2025-09-29 | Phase 0 | Vue Storybook build succeeded via `npx storybook@9 build -c .storybook-vue`. | Continue shared extraction work |\n| 2025-09-29 | Phase 1 | Shared selection helpers extracted; React & Vue vitest suites green. | Plan next shared migrations / add unit coverage |\n| 2025-09-29 | Phase 1 | Column geometry helpers moved to `src/shared/columns.ts`; both test suites still green. | Add direct tests for shared helpers |
 | 2025-09-29 | Phase 1 | Geometry helpers extracted (`getColumnIndexForX`, `getRowIndexForY`) and covered by shared tests. | Plan computeBounds extraction next |
 | 2025-09-29 | Phases 1 & 2 | `computeBounds` moved to shared layer with tests; Vue `useGridGeometry` composable scaffolded. | Continue migrating render math & build Vue adapters |
@@ -147,3 +148,4 @@ _Add a new row after every sync or review to capture progress and decisions._
 
 
 | 2025-09-29 | Phase 2 | Vue DataGrid invokes shared `drawGrid` with stubbed render state while Vue-specific wiring migrates. | Replace placeholders with real data/interaction handlers |
+| 2025-09-29 | Phase 2 | Shared mouse helper drives Vue `onMouseMove`; pointer vitest ensures emitted locations. | Port click/drag handlers and hover state wiring |

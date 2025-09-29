@@ -6,7 +6,6 @@ import {
     getEffectiveColumns,
     getRowIndexForY,
     getStickyWidth,
-    rectBottomRight,
     useMappedColumns,
 } from "./render/data-grid-lib.js";
 import {
@@ -35,6 +34,7 @@ import { drawGrid } from "./render/data-grid-render.js";
 import { type BlitData } from "./render/data-grid-render.blit.js";
 import { AnimationManager, type StepCallback } from "./animation-manager.js";
 import { RenderStateProvider, packColRowToNumber } from "../../common/render-state-provider.js";
+import { getMouseEventArgs } from "../../shared/mouse.js";
 import { browserIsFirefox, browserIsSafari } from "../../common/browser-detect.js";
 import { type EnqueueCallback, useAnimationQueue } from "./use-animation-queue.js";
 import { assert } from "../../common/support.js";
@@ -45,7 +45,6 @@ import {
     type GridMouseEventArgs,
     type GridKeyEventArgs,
     type GridDragEventArgs,
-    OutOfBoundsRegionAxis,
     outOfBoundsKind,
     groupHeaderKind,
     headerKind,
@@ -524,186 +523,60 @@ const DataGrid: React.ForwardRefRenderFunction<DataGridRef, DataGridProps> = (p,
             const scale = rect.width / width;
             const x = (posX - rect.left) / scale;
             const y = (posY - rect.top) / scale;
-            const edgeDetectionBuffer = 5;
 
             const effectiveCols = getEffectiveColumns(mappedColumns, cellXOffset, width, undefined, translateX);
 
             let button = 0;
             let buttons = 0;
+            let isTouch = false;
 
-            const isMouse =
-                (typeof PointerEvent !== "undefined" && ev instanceof PointerEvent && ev.pointerType === "mouse") ||
-                (typeof MouseEvent !== "undefined" && ev instanceof MouseEvent);
+            if (ev !== undefined) {
+                const isMouse =
+                    (typeof PointerEvent !== "undefined" && ev instanceof PointerEvent && ev.pointerType === "mouse") ||
+                    (typeof MouseEvent !== "undefined" && ev instanceof MouseEvent);
 
-            const isTouch =
-                (typeof PointerEvent !== "undefined" && ev instanceof PointerEvent && ev.pointerType === "touch") ||
-                (typeof TouchEvent !== "undefined" && ev instanceof TouchEvent);
+                isTouch =
+                    (typeof PointerEvent !== "undefined" && ev instanceof PointerEvent && ev.pointerType === "touch") ||
+                    (typeof TouchEvent !== "undefined" && ev instanceof TouchEvent);
 
-            if (isMouse) {
-                button = ev.button;
-                buttons = ev.buttons;
+                if (isMouse) {
+                    button = ev.button;
+                    buttons = ev.buttons;
+                }
             }
 
-            // -1 === off right edge
-            const col = getColumnIndexForX(x, effectiveCols, translateX);
-
-            // -1: header or above
-            // undefined: offbottom
-            const row = getRowIndexForY(
+            const { args } = getMouseEventArgs({
+                x,
                 y,
+                clientX: posX,
+                clientY: posY,
+                width,
                 height,
                 enableGroups,
                 headerHeight,
                 groupHeaderHeight,
+                totalHeaderHeight,
                 rows,
                 rowHeight,
+                cellXOffset,
                 cellYOffset,
+                translateX,
                 translateY,
-                freezeTrailingRows
-            );
+                freezeTrailingRows,
+                mappedColumns,
+                effectiveColumns: effectiveCols,
+                selection,
+                fillHandle,
+                shiftKey: ev?.shiftKey === true,
+                ctrlKey: ev?.ctrlKey === true,
+                metaKey: ev?.metaKey === true,
+                isTouch,
+                button,
+                buttons,
+                getBounds: (col, row) => getBoundsForItem(canvas, col, row),
+            });
 
-            const shiftKey = ev?.shiftKey === true;
-            const ctrlKey = ev?.ctrlKey === true;
-            const metaKey = ev?.metaKey === true;
-
-            const scrollEdge: GridMouseEventArgs["scrollEdge"] = [
-                x < 0 ? -1 : width < x ? 1 : 0,
-                y < totalHeaderHeight ? -1 : height < y ? 1 : 0,
-            ];
-
-            let result: GridMouseEventArgs;
-            if (col === -1 || y < 0 || x < 0 || row === undefined || x > width || y > height) {
-                const horizontal = x > width ? 1 : x < 0 ? -1 : 0;
-                const vertical = y > height ? 1 : y < 0 ? -1 : 0;
-
-                let innerHorizontal: OutOfBoundsRegionAxis = horizontal * 2;
-                let innerVertical: OutOfBoundsRegionAxis = vertical * 2;
-                if (horizontal === 0)
-                    innerHorizontal = col === -1 ? OutOfBoundsRegionAxis.EndPadding : OutOfBoundsRegionAxis.Center;
-                if (vertical === 0)
-                    innerVertical = row === undefined ? OutOfBoundsRegionAxis.EndPadding : OutOfBoundsRegionAxis.Center;
-
-                let isEdge = false;
-                if (col === -1 && row === -1) {
-                    const b = getBoundsForItem(canvas, mappedColumns.length - 1, -1);
-                    assert(b !== undefined);
-                    isEdge = posX < b.x + b.width + edgeDetectionBuffer;
-                }
-
-                // This is used to ensure that clicking on the scrollbar doesn't unset the selection.
-                // Unfortunately this doesn't work for overlay scrollbars because they are just a broken interaction
-                // by design.
-                const isMaybeScrollbar =
-                    (x > width && x < width + getScrollBarWidth()) || (y > height && y < height + getScrollBarWidth());
-
-                result = {
-                    kind: outOfBoundsKind,
-                    location: [col !== -1 ? col : x < 0 ? 0 : mappedColumns.length - 1, row ?? rows - 1],
-                    region: [innerHorizontal, innerVertical],
-                    shiftKey,
-                    ctrlKey,
-                    metaKey,
-                    isEdge,
-                    isTouch,
-                    button,
-                    buttons,
-                    scrollEdge,
-                    isMaybeScrollbar,
-                };
-            } else if (row <= -1) {
-                let bounds = getBoundsForItem(canvas, col, row);
-                assert(bounds !== undefined);
-                let isEdge = bounds !== undefined && bounds.x + bounds.width - posX <= edgeDetectionBuffer;
-
-                const previousCol = col - 1;
-                if (posX - bounds.x <= edgeDetectionBuffer && previousCol >= 0) {
-                    isEdge = true;
-                    bounds = getBoundsForItem(canvas, previousCol, row);
-                    assert(bounds !== undefined);
-                    result = {
-                        kind: enableGroups && row === -2 ? groupHeaderKind : headerKind,
-                        location: [previousCol, row] as any,
-                        bounds: bounds,
-                        group: mappedColumns[previousCol].group ?? "",
-                        isEdge,
-                        shiftKey,
-                        ctrlKey,
-                        metaKey,
-                        isTouch,
-                        localEventX: posX - bounds.x,
-                        localEventY: posY - bounds.y,
-                        button,
-                        buttons,
-                        scrollEdge,
-                    };
-                } else {
-                    result = {
-                        kind: enableGroups && row === -2 ? groupHeaderKind : headerKind,
-                        group: mappedColumns[col].group ?? "",
-                        location: [col, row] as any,
-                        bounds: bounds,
-                        isEdge,
-                        shiftKey,
-                        ctrlKey,
-                        metaKey,
-                        isTouch,
-                        localEventX: posX - bounds.x,
-                        localEventY: posY - bounds.y,
-                        button,
-                        buttons,
-                        scrollEdge,
-                    };
-                }
-            } else {
-                const bounds = getBoundsForItem(canvas, col, row);
-                assert(bounds !== undefined);
-                const isEdge = bounds !== undefined && bounds.x + bounds.width - posX < edgeDetectionBuffer;
-
-                let isFillHandle = false;
-                const drawFill = fillHandle !== false && fillHandle !== undefined;
-                if (drawFill && selection.current !== undefined) {
-                    const fill =
-                        typeof fillHandle === "object"
-                            ? { ...DEFAULT_FILL_HANDLE, ...fillHandle }
-                            : DEFAULT_FILL_HANDLE;
-
-                    const fillHandleClickSize = fill.size;
-                    const half = fillHandleClickSize / 2;
-
-                    const fillHandleLocation = rectBottomRight(selection.current.range);
-                    const fillBounds = getBoundsForItem(canvas, fillHandleLocation[0], fillHandleLocation[1]);
-
-                    if (fillBounds !== undefined) {
-                        // Handle center sits exactly on the bottom-right corner of the cell.
-                        // Offset by half pixel to align with grid lines.
-                        const centerX = fillBounds.x + fillBounds.width + fill.offsetX - half + 0.5;
-                        const centerY = fillBounds.y + fillBounds.height + fill.offsetY - half + 0.5;
-
-                        // Check if posX and posY are within fillHandleClickSize from handleLogicalCenter
-                        isFillHandle =
-                            Math.abs(centerX - posX) < fillHandleClickSize &&
-                            Math.abs(centerY - posY) < fillHandleClickSize;
-                    }
-                }
-
-                result = {
-                    kind: "cell",
-                    location: [col, row],
-                    bounds: bounds,
-                    isEdge,
-                    shiftKey,
-                    ctrlKey,
-                    isFillHandle,
-                    metaKey,
-                    isTouch,
-                    localEventX: posX - bounds.x,
-                    localEventY: posY - bounds.y,
-                    button,
-                    buttons,
-                    scrollEdge,
-                };
-            }
-            return result;
+            return args;
         },
         [
             width,
