@@ -1,4 +1,4 @@
-﻿import { Meta, StoryObj } from "@storybook/vue3";
+﻿import type { Meta, StoryObj } from "@storybook/vue3";
 import DataGrid from "../components/DataGrid.vue";
 import type { InnerGridColumn } from "../../internal/data-grid/data-grid-types.js";
 

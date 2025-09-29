@@ -101,3 +101,4 @@ This document outlines the step-by-step approach for migrating Glide Data Grid f
 - 2025-09-29: Theme overrides now flow through the Vue DataGrid root, applying CSS variables via shared `makeCSSStyle` for upcoming canvas rendering work.
 - 2025-09-29: Vue DataGrid now invokes shared `drawGrid` with stubbed render state, setting the stage for real canvas rendering.
 - 2025-09-29: Shared mouse hit-testing helper exported; React `DataGrid` and Vue port share it. Vue grid emits `onMouseMove` with pointer vitest coverage validating emitted coordinates.
+- 2025-09-29: Pointer down/up/context menu events routed through shared helper in Vue DataGrid; added pointer event vitest to validate payloads and preventDefault plumbing.

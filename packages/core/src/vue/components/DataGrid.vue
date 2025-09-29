@@ -6,6 +6,9 @@
         :data-first-header-x="sampleBounds?.x ?? 0"
         :data-first-header-width="sampleBounds?.width ?? 0"
         @pointermove="handlePointerMove"
+        @pointerdown="handlePointerDown"
+        @pointerup="handlePointerUp"
+        @contextmenu="handleContextMenu"
     >
         <div
             v-if="enableGroups && groupHeaderHeight > 0"
@@ -79,6 +82,9 @@ interface DataGridProps {
     highlightRegions?: readonly Highlight[];
     onMouseMove?: (args: GridMouseEventArgs) => void;
     onMouseMoveRaw?: (event: MouseEvent) => void;
+    onMouseDown?: (args: GridMouseEventArgs) => void;
+    onMouseUp?: (args: GridMouseEventArgs, isOutside: boolean) => void;
+    onContextMenu?: (args: GridMouseEventArgs, preventDefault: () => void) => void;
 }
 
 const props = withDefaults(defineProps<DataGridProps>(), {
@@ -100,6 +106,9 @@ const props = withDefaults(defineProps<DataGridProps>(), {
     hoverValues: undefined,
     hoverInfo: undefined,
     highlightRegions: undefined,
+    onMouseDown: undefined,
+    onMouseUp: undefined,
+    onContextMenu: undefined,
 });
 
 const {
@@ -205,21 +214,33 @@ const sampleBounds = computed(() => {
     );
 });
 
-function handlePointerMove(event: PointerEvent | MouseEvent) {
+let lastPointerUpTime = 0;
+let lastTouchDownTime = 0;
+let activePointerId: number | undefined;
+
+function resolveMouseArgs(event: PointerEvent | MouseEvent) {
     const canvas = gridCanvas.value;
-    if (canvas === null || mappedColumns.value.length === 0) {
-        props.onMouseMoveRaw?.(event as MouseEvent);
-        return;
+    if (canvas === null || mappedColumns.value.length === 0 || width.value === 0) {
+        return undefined;
     }
 
     const rect = canvas.getBoundingClientRect();
-    if (rect.width === 0 || width.value === 0) {
-        return;
+    if (rect.width === 0) {
+        return undefined;
     }
 
     const scale = rect.width / width.value;
     const x = (event.clientX - rect.left) / scale;
     const y = (event.clientY - rect.top) / scale;
+
+    const pointerEvent =
+        typeof PointerEvent !== "undefined" && event instanceof PointerEvent ? event : undefined;
+    const pointerType = pointerEvent?.pointerType;
+    const isTouch = pointerType === "touch";
+    const isMouse = pointerType === "mouse" || event instanceof MouseEvent;
+
+    const button = isMouse && "button" in event ? event.button ?? 0 : 0;
+    const buttons = isMouse && "buttons" in event ? event.buttons ?? 0 : 0;
 
     const toClientBounds = (col: number, row: number) => {
         if (col < 0 || col >= mappedColumns.value.length) return undefined;
@@ -245,14 +266,7 @@ function handlePointerMove(event: PointerEvent | MouseEvent) {
         };
     };
 
-    const pointerEvent = typeof PointerEvent !== "undefined" && event instanceof PointerEvent ? event : undefined;
-    const isTouch = pointerEvent?.pointerType === "touch";
-    const isMouse = pointerEvent?.pointerType === "mouse" || event instanceof MouseEvent;
-
-    const button = isMouse ? ("button" in event ? event.button : 0) : 0;
-    const buttons = isMouse ? ("buttons" in event ? event.buttons ?? 0 : 0) : 0;
-
-    const { args } = getMouseEventArgs({
+    return getMouseEventArgs({
         x,
         y,
         clientX: event.clientX,
@@ -282,9 +296,121 @@ function handlePointerMove(event: PointerEvent | MouseEvent) {
         buttons,
         getBounds: toClientBounds,
     });
+}
 
+function handlePointerMove(event: PointerEvent | MouseEvent) {
     props.onMouseMoveRaw?.(event as MouseEvent);
-    props.onMouseMove?.(args);
+    const result = resolveMouseArgs(event);
+    if (result === undefined) {
+        return;
+    }
+
+    props.onMouseMove?.(result.args);
+}
+
+function handlePointerDown(event: PointerEvent | MouseEvent) {
+    const result = resolveMouseArgs(event);
+    if (result === undefined) {
+        return;
+    }
+
+    const pointerEvent =
+        typeof PointerEvent !== "undefined" && event instanceof PointerEvent ? event : undefined;
+    if (pointerEvent !== undefined) {
+        try {
+            gridCanvas.value?.setPointerCapture?.(pointerEvent.pointerId);
+            activePointerId = pointerEvent.pointerId;
+        } catch {
+            activePointerId = undefined;
+        }
+    }
+
+    if (result.args.isTouch) {
+        lastTouchDownTime = Date.now();
+    } else {
+        lastTouchDownTime = 0;
+    }
+
+    if (!result.args.isTouch && "button" in event && event.cancelable) {
+        const button = (event as MouseEvent).button;
+        if (button < 3 && button !== 1) {
+            event.preventDefault();
+        }
+    }
+
+    props.onMouseDown?.(result.args);
+}
+
+function handlePointerUp(event: PointerEvent | MouseEvent) {
+    const result = resolveMouseArgs(event);
+    if (result === undefined) {
+        return;
+    }
+
+    const pointerEvent =
+        typeof PointerEvent !== "undefined" && event instanceof PointerEvent ? event : undefined;
+    if (pointerEvent !== undefined && activePointerId === pointerEvent.pointerId) {
+        try {
+            gridCanvas.value?.releasePointerCapture?.(pointerEvent.pointerId);
+        } catch {
+            // ignore
+        }
+        activePointerId = undefined;
+    }
+
+    if (props.onMouseUp === undefined) {
+        lastPointerUpTime = Date.now();
+        lastTouchDownTime = 0;
+        return;
+    }
+
+    let args = result.args;
+    const now = Date.now();
+
+    if (args.isTouch && lastTouchDownTime !== 0 && now - lastTouchDownTime > 500) {
+        args = { ...args, isLongTouch: true };
+    }
+
+    if (lastPointerUpTime !== 0) {
+        const threshold = args.isTouch ? 1000 : 500;
+        if (now - lastPointerUpTime < threshold) {
+            args = { ...args, isDoubleClick: true };
+        }
+    }
+
+    lastPointerUpTime = now;
+    lastTouchDownTime = 0;
+
+    const root = rootEl.value;
+    const target = event.target;
+    const isInside = root !== null && target instanceof Node && root.contains(target);
+    const isOutside = !isInside;
+
+    if (!isOutside && event.cancelable) {
+        const canCancel = pointerEvent?.pointerType === "mouse" ? pointerEvent.button < 3 : true;
+        if (canCancel) {
+            event.preventDefault();
+        }
+    }
+
+    props.onMouseUp?.(args, isOutside);
+}
+
+function handleContextMenu(event: MouseEvent) {
+    if (props.onContextMenu === undefined) {
+        return;
+    }
+
+    const result = resolveMouseArgs(event);
+    if (result === undefined) {
+        return;
+    }
+
+    props.onContextMenu(result.args, () => {
+        if (event.cancelable) {
+            event.preventDefault();
+        }
+    });
 }
 
 const gridStyle = computed<Record<string, string>>(() => ({
@@ -459,12 +585,14 @@ watchEffect(() => {
 onMounted(() => {
     if (typeof window !== "undefined") {
         window.addEventListener("resize", handleWindowDprChange, { passive: true });
+        window.addEventListener("pointerup", handlePointerUp, { passive: false });
     }
 });
 
 onBeforeUnmount(() => {
     if (typeof window !== "undefined") {
         window.removeEventListener("resize", handleWindowDprChange);
+        window.removeEventListener("pointerup", handlePointerUp);
     }
 });
 </script>
