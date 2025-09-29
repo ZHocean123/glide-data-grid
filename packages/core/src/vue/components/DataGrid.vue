@@ -9,6 +9,9 @@
         @pointerdown="handlePointerDown"
         @pointerup="handlePointerUp"
         @contextmenu="handleContextMenu"
+        tabindex="0"
+        @keydown="handleKeyDown"
+        @keyup="handleKeyUp"
     >
         <div
             v-if="enableGroups && groupHeaderHeight > 0"
@@ -48,6 +51,7 @@ import { RenderStateProvider } from "../../common/render-state-provider.js";
 import { getDataEditorTheme, makeCSSStyle, mergeAndRealizeTheme, type FullTheme, type Theme } from "../../common/styles.js";
 import { getMouseEventArgs } from "../../shared/mouse.js";
 import type { GridMouseEventArgs } from "../../internal/data-grid/event-args.js";
+import type { GridKeyEventArgs } from "../../internal/data-grid/event-args.js";
 import { drawGrid } from "../../internal/data-grid/render/data-grid-render.js";
 import type { HoverValues } from "../../internal/data-grid/animation-manager.js";
 import { SpriteManager, type SpriteMap } from "../../internal/data-grid/data-grid-sprites.js";
@@ -90,6 +94,16 @@ interface DataGridProps {
     onMouseDown?: (args: GridMouseEventArgs) => void;
     onMouseUp?: (args: GridMouseEventArgs, isOutside: boolean) => void;
     onContextMenu?: (args: GridMouseEventArgs, preventDefault: () => void) => void;
+    /**
+     * 键盘按下事件回调（Vue 版本迁移新增）
+     * 提供与 React 端一致的 GridKeyEventArgs 参数结构
+     */
+    onKeyDown?: (args: GridKeyEventArgs) => void;
+    /**
+     * 键盘弹起事件回调（Vue 版本迁移新增）
+     * 提供与 React 端一致的 GridKeyEventArgs 参数结构
+     */
+    onKeyUp?: (args: GridKeyEventArgs) => void;
 }
 
 const props = withDefaults(defineProps<DataGridProps>(), {
@@ -118,6 +132,8 @@ const props = withDefaults(defineProps<DataGridProps>(), {
     onMouseDown: undefined,
     onMouseUp: undefined,
     onContextMenu: undefined,
+    onKeyDown: undefined,
+    onKeyUp: undefined,
 });
 
 const {
@@ -384,6 +400,12 @@ function handlePointerMove(event: PointerEvent | MouseEvent) {
 }
 
 function handlePointerDown(event: PointerEvent | MouseEvent) {
+    // 在指针按下时尝试聚焦根元素，确保后续能接收键盘事件
+    try {
+        rootEl.value?.focus?.({ preventScroll: true } as any);
+    } catch {
+        // 忽略聚焦失败
+    }
     const result = resolveMouseArgs(event);
     if (result === undefined) {
         return;
@@ -657,6 +679,125 @@ onBeforeUnmount(() => {
         window.removeEventListener("pointerup", handlePointerUp);
     }
 });
+// 键盘事件 keyCode 兼容处理：在现代浏览器中 keyCode 已废弃，这里提供向后兼容的映射
+function normalizeKeyCode(e: KeyboardEvent): number {
+    const kc = (e as any).keyCode as number | undefined;
+    if (typeof kc === "number" && kc !== 0) return kc;
+    switch (e.key) {
+        case "Enter":
+            return 13;
+        case "Escape":
+            return 27;
+        case "Tab":
+            return 9;
+        case "ArrowLeft":
+            return 37;
+        case "ArrowUp":
+            return 38;
+        case "ArrowRight":
+            return 39;
+        case "ArrowDown":
+            return 40;
+        case "Delete":
+            return 46;
+        case "Backspace":
+            return 8;
+        case " ":
+        case "Spacebar":
+            return 32;
+        default:
+            return 0;
+    }
+}
+
+/**
+ * 将原生 KeyboardEvent 解析为 GridKeyEventArgs
+ * - location：来自当前 selection.current.cell
+ * - bounds：通过 boundsForCell 计算得到网格坐标系矩形
+ */
+function resolveKeyArgs(event: KeyboardEvent): GridKeyEventArgs {
+    let bounds: any | undefined = undefined;
+    let location: any | undefined = undefined;
+
+    const sel = selection.value?.current;
+    if (sel !== undefined) {
+        const [col, row] = sel.cell;
+        location = sel.cell;
+        try {
+            bounds = boundsForCell(
+                col,
+                row,
+                width.value,
+                height.value,
+                cellXOffset.value,
+                cellYOffset.value,
+                translateXValue.value,
+                translateY.value ?? 0,
+                rows.value
+            );
+        } catch {
+            bounds = undefined;
+        }
+    }
+
+    const preventDefault = () => {
+        try {
+            if (event.cancelable) event.preventDefault();
+        } catch {}
+    };
+    const stopPropagation = () => {
+        try {
+            event.stopPropagation();
+        } catch {}
+    };
+    const cancel = () => {
+        preventDefault();
+        stopPropagation();
+    };
+
+    return {
+        bounds,
+        key: event.key,
+        keyCode: normalizeKeyCode(event),
+        altKey: event.altKey,
+        shiftKey: event.shiftKey,
+        ctrlKey: event.ctrlKey,
+        metaKey: event.metaKey,
+        cancel,
+        stopPropagation,
+        preventDefault,
+        rawEvent: undefined,
+        location,
+    };
+}
+
+/**
+ * 键盘按下事件处理
+ * - 解析为 GridKeyEventArgs
+ * - 调用用户提供的 onKeyDown 回调
+ * - 具备基础错误处理与日志
+ */
+function handleKeyDown(event: KeyboardEvent) {
+    try {
+        const args = resolveKeyArgs(event);
+        props.onKeyDown?.(args);
+    } catch (err) {
+        // 在测试与生产环境中避免抛出到全局
+        console.error("DataGrid.vue handleKeyDown 调用失败:", err);
+    }
+}
+
+/**
+ * 键盘弹起事件处理
+ */
+function handleKeyUp(event: KeyboardEvent) {
+    try {
+        const args = resolveKeyArgs(event);
+        props.onKeyUp?.(args);
+    } catch (err) {
+        console.error("DataGrid.vue handleKeyUp 调用失败:", err);
+    }
+}
 </script>
 
 <style scoped>

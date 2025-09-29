@@ -93,9 +93,9 @@ _Use `[ ] Not started`, `[~] In progress`, or `[x] Complete` to indicate phase s
 
 ### Phase 2 - Vue Data Grid Foundations
 - **Milestones:** Vue entry point, DataGrid.vue port, canvas parity tests.
-- **Latest Update:** _TBD_
-- **Risks/Blockers:** _TBD_
-- **Next Actions:** _TBD_
+- **Latest Update:** DataGrid.vue 已添加键盘事件绑定（tabindex、keydown/keyup）并通过新建 vitest 用例验证 GridKeyEventArgs 解析（bounds/location/key/keyCode）及 cancel/stopPropagation 行为；指针事件与渲染管线仍在持续完善。
+- **Risks/Blockers:** 需在 Storybook Vue 手动验证键盘导航与可聚焦性；后续与选择行为和编辑器交互可能存在耦合风险。
+- **Next Actions:** 启动 Storybook Vue 进行键盘交互手动检查；继续完善选择/拖拽与渲染集成，并补充更多键盘快捷键覆盖。
 
 ### Phase 3 - DataEditor Container Migration
 - **Milestones:** Vue DataEditor core, hook conversions, feature regression tests.
@@ -154,4 +154,18 @@ _Add a new row after every sync or review to capture progress and decisions._
 | 2025-09-29 | Phase 2 | Pointer down/up/context menu wired via shared helper; new vitest file covers pointer capture + preventDefault. | Expand pointer path to click/drag + selection integration |
 | 2025-09-29 | Phase 2 | Storybook pointer events story highlights selection updates driven by Vue callbacks. | Align hover/drag UX with React parity |
 | 2025-09-29 | Phase 2 | Vue DataGrid resolves built-in vs custom cell renderers using shared AllCellRenderers; vitest covers default, override, and additional renderer paths. | Wire DataEditor Vue adapter to supply sprite manager and renderer configs |
+| 2025-09-29 | Phase 2 | DataGrid.vue 键盘事件（tabindex、keydown/keyup）迁移完成；新增 vitest：data-grid-key-events.test.ts 验证 GridKeyEventArgs 与 cancel/stopPropagation。 | 启动 Storybook Vue 手动检查键盘导航与焦点，扩展快捷键覆盖 |
 | 2025-09-29 | Phase 2 | Vue DataGrid spawns default SpriteManager from shared header icons when one is not provided; vitest asserts provided managers and spies are forwarded. | Hook compose DataEditor Vue wrapper to deliver header icon maps & sprite loader |
+| 2025-09-29 | Phase 2 | Storybook Vue3 添加 KeyboardEvents 故事；手动验证：点击网格可获得焦点（tabindex=0），按下方向键/Enter/TAB 等触发 onKeyDown/onKeyUp，事件面板显示 key/keyCode/location（示例：ArrowRight→code=39, location=(1,1)）。同时注意到 .storybook-vue/main.cjs 在 Vite 下的 CommonJS 警告。 | 在 docs 记录验证结果；迁移 .storybook-vue/main.cjs 至 ESM（main.ts）以消除警告；扩展快捷键覆盖与取消逻辑的 Story；验证 selection 与编辑器耦合路径 |
+| 2025-09-29 | Phase 6 | .storybook-vue/main.cjs 已迁移为 ESM main.ts；重新启动 Storybook（http://localhost:65251/）后 UI 正常，侧边栏加载 Vue/DataGrid 的所有故事，Keyboard events 能显示 KeyUp 文本与焦点提示。 | 升级 storybook@latest（可选）；继续在 Pointer/Keyboard 故事中覆盖取消/阻止传播与选择交互场景 |
+
+### Checkpoint Log – Phase 6（Storybook Vue3 验证与增强）
+- 扩展 KeyboardEvents 故事：新增四个 UI 开关（取消 KeyDown、停止传播 KeyDown、取消 KeyUp、停止传播 KeyUp），用于手动验证键盘事件的取消与传播逻辑是否正确；在事件文本中追加状态标记，便于观察影响效果。
+- Storybook 预览正常：在 `http://localhost:65251/?path=/story/vue-datagrid--keyboard-events` 加载该故事，点击网格使其获取焦点（tabindex=0），勾选对应开关后按下方向键或其他键，事件文本区域可显示 KeyDown/KeyUp 以及位置（location）与状态标记。
+- 风险点：
+  - 事件取消/传播与网格内部导航、选区变化存在耦合，需谨慎验证对选择移动与编辑器激活的影响；
+  - 浏览器模拟事件与真实键盘事件在一些环境下可能存在差异，建议以人工交互为准。
+- 后续行动：
+  - 在 Pointer/Keyboard 故事中补充更多热键场景（如 Home/End、PageUp/PageDown、Ctrl/Shift 组合键），并覆盖取消/传播的组合路径；
+  - 验证选择与编辑器耦合路径（选择移动、进入编辑、提交/取消编辑）在取消/传播下的行为一致性；
+  - 按需将 `.storybook-vue` 配置继续优化（如升级 Storybook 版本并清理潜在弃用 API），保持构建与预览稳定。
