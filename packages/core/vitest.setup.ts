@@ -5,9 +5,9 @@ import { vi } from "vitest";
 global.jest = vi;
 
 global.ResizeObserver = vi.fn().mockImplementation(() => ({
-    observe: jest.fn(),
-    unobserve: jest.fn(),
-    disconnect: jest.fn(),
+    observe: vi.fn(),
+    unobserve: vi.fn(),
+    disconnect: vi.fn(),
 }));
 
 Image.prototype.decode = () => new Promise(resolve => window.setTimeout(resolve, 10));
