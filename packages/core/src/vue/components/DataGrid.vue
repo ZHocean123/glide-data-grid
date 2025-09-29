@@ -42,7 +42,8 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, toRefs, watchEffect } from "vue";
-import type { GetCellRendererCallback } from "../../cells/cell-types.js";
+import type { CustomRenderer, GetCellRendererCallback, InternalCellRenderer } from "../../cells/cell-types.js";
+import { AllCellRenderers } from "../../cells/index.js";
 import { RenderStateProvider } from "../../common/render-state-provider.js";
 import { getDataEditorTheme, makeCSSStyle, mergeAndRealizeTheme, type FullTheme, type Theme } from "../../common/styles.js";
 import { getMouseEventArgs } from "../../shared/mouse.js";
@@ -75,6 +76,9 @@ interface DataGridProps {
     themeOverrides?: Partial<Theme>;
     selection?: GridSelection;
     getCellContent?: (cell: Item) => InnerGridCell;
+    getCellRenderer?: GetCellRendererCallback;
+    renderers?: readonly InternalCellRenderer<InnerGridCell>[];
+    additionalRenderers?: readonly CustomRenderer[];
     spriteManager?: SpriteManager;
     imageWindowLoader?: ImageWindowLoader;
     hoverValues?: HoverValues;
@@ -101,6 +105,9 @@ const props = withDefaults(defineProps<DataGridProps>(), {
     themeOverrides: undefined,
     selection: undefined,
     getCellContent: undefined,
+    getCellRenderer: undefined,
+    renderers: undefined,
+    additionalRenderers: undefined,
     spriteManager: undefined,
     imageWindowLoader: undefined,
     hoverValues: undefined,
@@ -144,6 +151,32 @@ const imageWindowLoader = computed<ImageWindowLoader>(() => props.imageWindowLoa
 const hoverValues = computed<HoverValues>(() => props.hoverValues ?? hoverValuesStub);
 const hoverInfo = computed<HoverInfo | undefined>(() => props.hoverInfo);
 const highlightRegions = computed(() => props.highlightRegions);
+
+const rendererList = computed(() => props.renderers ?? AllCellRenderers);
+const rendererMap = computed(() => {
+    const map = new Map<GridCellKind, InternalCellRenderer<InnerGridCell>>();
+    for (const renderer of rendererList.value) {
+        map.set(renderer.kind as GridCellKind, renderer as InternalCellRenderer<InnerGridCell>);
+    }
+    return map;
+});
+const customRenderers = computed(() => props.additionalRenderers ?? []);
+
+const resolveCellRenderer: GetCellRendererCallback = cell => {
+    const provided = props.getCellRenderer?.(cell);
+    if (provided !== undefined) {
+        return provided;
+    }
+    if (cell.kind === GridCellKind.Custom) {
+        for (const renderer of customRenderers.value) {
+            if (renderer.isMatch(cell)) {
+                return renderer as any;
+            }
+        }
+        return undefined;
+    }
+    return rendererMap.value.get(cell.kind as GridCellKind) as any;
+};
 
 const defaultCell = (cell: Item): InnerGridCell => ({
     kind: GridCellKind.Text,
@@ -451,7 +484,6 @@ const enqueueStub = () => {};
 const getGroupDetailsStub = () => undefined;
 const verticalBorderStub = () => false;
 const lastBlitData = { current: undefined } as { current: undefined };
-const getCellRendererStub: GetCellRendererCallback = () => undefined as any;
 
 function renderPlaceholder(ctx: CanvasRenderingContext2D, dpr: number) {
     ctx.save();
@@ -571,7 +603,7 @@ watchEffect(() => {
             renderStrategy: "direct",
             enqueue: enqueueStub,
             renderStateProvider,
-            getCellRenderer: getCellRendererStub,
+            getCellRenderer: resolveCellRenderer,
             minimumCellWidth: 0,
             resizeIndicator: "none",
         } as Parameters<typeof drawGrid>[0];
