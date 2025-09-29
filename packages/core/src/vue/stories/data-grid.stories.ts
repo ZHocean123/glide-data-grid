@@ -1,4 +1,4 @@
-﻿import type { Meta, StoryObj } from "@storybook/vue3";
+﻿import { Meta, StoryObj } from "@storybook/vue3";
 import DataGrid from "../components/DataGrid.vue";
 import type { InnerGridColumn } from "../../internal/data-grid/data-grid-types.js";
 
@@ -6,13 +6,23 @@ const meta: Meta<typeof DataGrid> = {
     title: "Vue/DataGrid",
     component: DataGrid,
     args: {
-        width: 600,
-        height: 320,
+        width: 720,
+        height: 360,
         rows: 100,
+        headerHeight: 44,
+    },
+    argTypes: {
+        freezeColumns: { control: { type: "number", min: 0, max: 4, step: 1 } },
+        cellXOffset: { control: { type: "number", min: 0, max: 10, step: 1 } },
+        translateX: { control: { type: "number", min: -200, max: 200, step: 10 } },
+        translateY: { control: { type: "number", min: -200, max: 200, step: 10 } },
+        enableGroups: { control: "boolean" },
     },
 };
 
 export default meta;
+
+type Story = StoryObj<typeof DataGrid>;
 
 const columns: InnerGridColumn[] = [
     { title: "ID", width: 80 },
@@ -21,18 +31,29 @@ const columns: InnerGridColumn[] = [
     { title: "Status", width: 120 },
 ];
 
-export const Basic: StoryObj<typeof DataGrid> = {
+export const Basic: Story = {
     args: {
         columns,
         freezeColumns: 1,
-        headerHeight: 44,
         groupHeaderHeight: 32,
         enableGroups: true,
     },
 };
 
-export const EmptyColumns: StoryObj<typeof DataGrid> = {
+export const Virtualized: Story = {
+    name: "Virtualized offset",
+    args: {
+        columns,
+        freezeColumns: 1,
+        cellXOffset: 1,
+        translateX: -60,
+        translateY: -20,
+    },
+};
+
+export const EmptyColumns: Story = {
     args: {
         columns: [],
+        rows: 0,
     },
 };

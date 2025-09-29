@@ -29,13 +29,14 @@
             </div>
         </div>
         <div class="gdg-vue-grid-body" role="presentation" :style="{ height: `${bodyHeight}px` }">
+            <canvas ref="gridCanvas" class="gdg-vue-grid-canvas"></canvas>
             <div class="gdg-vue-grid-body-placeholder">Vue canvas rendering port in progress.</div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { computed, toRefs } from "vue";
+import { computed, onMounted, onBeforeUnmount, toRefs, ref, watchEffect } from "vue";
 import type { InnerGridColumn } from "../../internal/data-grid/data-grid-types.js";
 import { useMappedColumns } from "../composables/useMappedColumns.js";
 import { useGridGeometry } from "../composables/useGridGeometry.js";
@@ -92,6 +93,17 @@ const {
 const viewport = computed(() => viewportWidth.value ?? width.value);
 const translateXValue = computed(() => translateX.value ?? 0);
 
+const gridCanvas = ref<HTMLCanvasElement | null>(null);
+const devicePixelRatio = ref(getDevicePixelRatio());
+
+function getDevicePixelRatio() {
+    return typeof window === "undefined" ? 1 : window.devicePixelRatio || 1;
+}
+
+function handleWindowDprChange() {
+    devicePixelRatio.value = getDevicePixelRatio();
+}
+
 const { mappedColumns, effectiveColumns, stickyWidth } = useMappedColumns({
     columns,
     freezeColumns,
@@ -139,6 +151,63 @@ const gridStyle = computed<Record<string, string>>(() => ({
 }));
 
 const bodyHeight = computed(() => Math.max(height.value - totalHeaderHeight.value, 0));
+
+watchEffect(() => {
+    const canvas = gridCanvas.value;
+    if (canvas === null) return;
+
+    const dpr = devicePixelRatio.value;
+    const canvasWidth = Math.max(Math.floor(width.value * dpr), 1);
+    const canvasHeight = Math.max(Math.floor(bodyHeight.value * dpr), 1);
+
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+    canvas.style.width = `${width.value}px`;
+    canvas.style.height = `${bodyHeight.value}px`;
+
+    if (typeof navigator !== "undefined" && /jsdom/i.test(navigator.userAgent ?? "")) {
+        return;
+    }
+
+    let ctx: CanvasRenderingContext2D | null = null;
+    try {
+        ctx = canvas.getContext("2d");
+    } catch {
+        ctx = null;
+    }
+    if (ctx === null) return;
+
+    ctx.save();
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, width.value, bodyHeight.value);
+
+    // Placeholder render while canvas port is in progress
+    const gradient = ctx.createLinearGradient(0, 0, width.value, bodyHeight.value);
+    gradient.addColorStop(0, "rgba(99, 102, 241, 0.08)");
+    gradient.addColorStop(1, "rgba(59, 130, 246, 0.12)");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width.value, bodyHeight.value);
+
+    ctx.fillStyle = "rgba(15, 23, 42, 0.6)";
+    ctx.font = "14px Inter, system-ui, sans-serif";
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "center";
+    ctx.fillText("Canvas renderer coming soon", width.value / 2, bodyHeight.value / 2);
+
+    ctx.restore();
+});
+
+onMounted(() => {
+    if (typeof window !== "undefined") {
+        window.addEventListener("resize", handleWindowDprChange, { passive: true });
+    }
+});
+
+onBeforeUnmount(() => {
+    if (typeof window !== "undefined") {
+        window.removeEventListener("resize", handleWindowDprChange);
+    }
+});
 </script>
 
 <style scoped>
@@ -202,6 +271,7 @@ const bodyHeight = computed(() => Math.max(height.value - totalHeaderHeight.valu
 }
 
 .gdg-vue-grid-body {
+    position: relative;
     flex: 1 1 auto;
     background: var(--gdg-bg-cell, #f8fafc);
     display: flex;
@@ -211,8 +281,18 @@ const bodyHeight = computed(() => Math.max(height.value - totalHeaderHeight.valu
     font-size: 0.85rem;
 }
 
+.gdg-vue-grid-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
 .gdg-vue-grid-body-placeholder {
+    position: relative;
     padding: 1rem;
     text-align: center;
+    pointer-events: none;
 }
 </style>

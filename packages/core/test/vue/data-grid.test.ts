@@ -1,5 +1,6 @@
 ﻿import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
+import { nextTick } from "vue";
 import DataGrid from "../../src/vue/components/DataGrid.vue";
 import type { InnerGridColumn } from "../../src/internal/data-grid/data-grid-types.js";
 
@@ -10,7 +11,7 @@ describe("DataGrid", () => {
         { title: "Value", width: 120 },
     ];
 
-    it("renders headers with mapped widths and sticky offset", () => {
+    it("renders headers with mapped widths and sticky offset", async () => {
         const wrapper = mount(DataGrid, {
             props: {
                 width: 400,
@@ -36,6 +37,13 @@ describe("DataGrid", () => {
 
         const body = wrapper.get(".gdg-vue-grid-body").element as HTMLElement;
         expect(body.style.height).toBe("160px");
+
+        await nextTick();
+        const canvas = wrapper.get("canvas").element as HTMLCanvasElement;
+        expect(canvas.style.width).toBe("400px");
+        expect(canvas.style.height).toBe("160px");
+        expect(canvas.width).toBeGreaterThan(0);
+        expect(canvas.height).toBeGreaterThan(0);
     });
 
     it("shows placeholder when no columns are provided", () => {
@@ -51,5 +59,6 @@ describe("DataGrid", () => {
 
         expect(wrapper.findAll(".gdg-vue-grid-header-cell")).toHaveLength(0);
         expect(wrapper.get(".gdg-vue-grid-header-empty").text()).toContain("No columns mapped yet");
+        expect(wrapper.get(".gdg-vue-grid-body-placeholder").text()).toContain("Vue canvas rendering port in progress");
     });
 });
