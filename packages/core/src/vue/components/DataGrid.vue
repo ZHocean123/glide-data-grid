@@ -163,6 +163,31 @@ const gridCanvas = ref<HTMLCanvasElement | null>(null);
 const overlayCanvas = ref<HTMLCanvasElement | null>(null);
 const devicePixelRatio = ref(getDevicePixelRatio());
 
+/**
+ * 创建离屏缓冲canvas用于双缓冲渲染
+ * bufferA和bufferB用于优化渲染性能，特别是在滚动时
+ */
+const [bufferACtx, bufferBCtx] = (() => {
+    const bufferA = document.createElement("canvas");
+    const bufferB = document.createElement("canvas");
+    
+    // 设置为不可见的离屏canvas
+    bufferA.style.display = "none";
+    bufferA.style.opacity = "0";
+    bufferA.style.position = "fixed";
+    bufferA.style.pointerEvents = "none";
+    
+    bufferB.style.display = "none";
+    bufferB.style.opacity = "0";
+    bufferB.style.position = "fixed";
+    bufferB.style.pointerEvents = "none";
+    
+    return [
+        bufferA.getContext("2d", { alpha: false }),
+        bufferB.getContext("2d", { alpha: false })
+    ];
+})();
+
 const renderStateProvider = new RenderStateProvider();
 const hoverValuesStub: HoverValues = [] as HoverValues;
 const spriteManagerStub = { drawSprite: () => {} } as unknown as SpriteManager;
@@ -625,8 +650,8 @@ watchEffect(() => {
         const drawArgs = {
             canvasCtx: ctx,
             headerCanvasCtx: overlayCtx,
-            bufferACtx: ctx,
-            bufferBCtx: ctx,
+            bufferACtx: bufferACtx!,
+            bufferBCtx: bufferBCtx!,
             width: width.value,
             height: height.value,
             cellXOffset: cellXOffset.value,
@@ -669,7 +694,7 @@ watchEffect(() => {
             spriteManager: spriteManager.value,
             maxScaleFactor: 1,
             touchMode: false,
-            renderStrategy: "direct",
+            renderStrategy: "single-buffer",
             enqueue: enqueueStub,
             renderStateProvider,
             getCellRenderer: resolveCellRenderer,
@@ -683,10 +708,18 @@ watchEffect(() => {
     }
 });
 
+/**
+ * 管理离屏缓冲canvas的生命周期
+ * 将bufferA和bufferB添加到DOM中以确保它们能正常工作
+ */
 onMounted(() => {
     if (typeof window !== "undefined") {
         window.addEventListener("resize", handleWindowDprChange, { passive: true });
         window.addEventListener("pointerup", handlePointerUp, { passive: false });
+    }
+    if (bufferACtx && bufferBCtx) {
+        document.documentElement.append(bufferACtx.canvas);
+        document.documentElement.append(bufferBCtx.canvas);
     }
 });
 
@@ -694,6 +727,10 @@ onBeforeUnmount(() => {
     if (typeof window !== "undefined") {
         window.removeEventListener("resize", handleWindowDprChange);
         window.removeEventListener("pointerup", handlePointerUp);
+    }
+        if (bufferACtx && bufferBCtx) {
+        bufferACtx.canvas.remove();
+        bufferBCtx.canvas.remove();
     }
 });
 // 键盘事件 keyCode 兼容处理：在现代浏览器中 keyCode 已废弃，这里提供向后兼容的映射
