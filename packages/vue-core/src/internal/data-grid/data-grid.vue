@@ -625,4 +625,885 @@ const accessibilityTree = computed(() => {
 // to convert all the React hooks and complex event handling to Vue 3 patterns.
 // The core functionality has been migrated, but some advanced features may need
 // additional implementation.
+
+// -----------------------------
+// Migrated logic from React core
+// -----------------------------
+
+/**
+ * 计算指定单元格的屏幕边界矩形。
+ * 对齐 React 版本逻辑，考虑缩放与冻结列等因素。
+ */
+const getBoundsForItem = (
+    canvas: HTMLCanvasElement,
+    col: number,
+    row: number
+): Rectangle | undefined => {
+    const rect = canvas.getBoundingClientRect();
+    if (col >= mappedColumns.value.length || row >= props.rows) return undefined;
+
+    const scale = rect.width / props.width;
+
+    const result = computeBounds(
+        col,
+        row,
+        props.width,
+        props.height,
+        props.groupHeaderHeight,
+        totalHeaderHeight.value,
+        cellXOffset.value,
+        props.cellYOffset,
+        translateX.value,
+        translateY.value,
+        props.rows,
+        props.freezeColumns,
+        props.freezeTrailingRows,
+        mappedColumns.value,
+        props.rowHeight
+    );
+
+    if (scale !== 1) {
+        result.x *= scale;
+        result.y *= scale;
+        result.width *= scale;
+        result.height *= scale;
+    }
+    result.x += rect.x;
+    result.y += rect.y;
+    return result;
+};
+
+/**
+ * 依据鼠标/触摸位置构造 GridMouseEventArgs。
+ * 与 React 版本保持一致，包含边缘检测与填充柄识别。
+ */
+const getMouseArgsForPositionImpl = (
+    canvas: HTMLCanvasElement,
+    posX: number,
+    posY: number,
+    ev?: PointerEvent | MouseEvent | TouchEvent
+): GridMouseEventArgs => {
+    const rect = canvas.getBoundingClientRect();
+    const scale = rect.width / props.width;
+    const x = (posX - rect.left) / scale;
+    const y = (posY - rect.top) / scale;
+    const edgeDetectionBuffer = 5;
+
+    const effectiveCols = getEffectiveColumns(
+        mappedColumns.value,
+        cellXOffset.value,
+        props.width,
+        undefined,
+        translateX.value
+    );
+
+    let button = 0;
+    let buttons = 0;
+
+    const isMouse =
+        (typeof PointerEvent !== "undefined" && ev instanceof PointerEvent && ev.pointerType === "mouse") ||
+        (typeof MouseEvent !== "undefined" && ev instanceof MouseEvent);
+    const isTouch =
+        (typeof PointerEvent !== "undefined" && ev instanceof PointerEvent && ev.pointerType === "touch") ||
+        (typeof TouchEvent !== "undefined" && ev instanceof TouchEvent);
+
+    if (isMouse) {
+        // @ts-expect-error button/buttons 在 PointerEvent/MouseEvent 上存在
+        button = ev.button;
+        // @ts-expect-error
+        buttons = ev.buttons;
+    }
+
+    const col = getColumnIndexForX(x, effectiveCols, translateX.value);
+    const row = getRowIndexForY(
+        y,
+        props.height,
+        props.enableGroups,
+        props.headerHeight,
+        props.groupHeaderHeight,
+        props.rows,
+        props.rowHeight,
+        props.cellYOffset,
+        translateY.value,
+        props.freezeTrailingRows
+    );
+
+    const shiftKey = (ev as any)?.shiftKey === true;
+    const ctrlKey = (ev as any)?.ctrlKey === true;
+    const metaKey = (ev as any)?.metaKey === true;
+
+    const scrollEdge: GridMouseEventArgs["scrollEdge"] = [
+        x < 0 ? -1 : props.width < x ? 1 : 0,
+        y < totalHeaderHeight.value ? -1 : props.height < y ? 1 : 0,
+    ];
+
+    let result: GridMouseEventArgs;
+    if (col === -1 || y < 0 || x < 0 || row === undefined || x > props.width || y > props.height) {
+        const horizontal = x > props.width ? 1 : x < 0 ? -1 : 0;
+        const vertical = y > props.height ? 1 : y < 0 ? -1 : 0;
+
+        let innerHorizontal: OutOfBoundsRegionAxis = horizontal * 2;
+        let innerVertical: OutOfBoundsRegionAxis = vertical * 2;
+        if (horizontal === 0)
+            innerHorizontal = col === -1 ? OutOfBoundsRegionAxis.EndPadding : OutOfBoundsRegionAxis.Center;
+        if (vertical === 0)
+            innerVertical = row === undefined ? OutOfBoundsRegionAxis.EndPadding : OutOfBoundsRegionAxis.Center;
+
+        let isEdge = false;
+        if (col === -1 && row === -1) {
+            const b = getBoundsForItem(canvas, mappedColumns.value.length - 1, -1);
+            assert(b !== undefined);
+            isEdge = posX < (b!.x + b!.width + edgeDetectionBuffer);
+        }
+
+        const isMaybeScrollbar =
+            (x > props.width && x < props.width + getScrollBarWidth()) ||
+            (y > props.height && y < props.height + getScrollBarWidth());
+
+        result = {
+            kind: outOfBoundsKind,
+            location: [col !== -1 ? col : x < 0 ? 0 : mappedColumns.value.length - 1, row ?? props.rows - 1],
+            region: [innerHorizontal, innerVertical],
+            shiftKey,
+            ctrlKey,
+            metaKey,
+            isEdge,
+            isTouch,
+            button,
+            buttons,
+            scrollEdge,
+            isMaybeScrollbar,
+        } as any;
+    } else if (row <= -1) {
+        let bounds = getBoundsForItem(canvas, col, row);
+        assert(bounds !== undefined);
+        let isEdge = bounds !== undefined && bounds.x + bounds.width - posX <= edgeDetectionBuffer;
+
+        const previousCol = col - 1;
+        if (posX - (bounds?.x ?? 0) <= edgeDetectionBuffer && previousCol >= 0) {
+            isEdge = true;
+            bounds = getBoundsForItem(canvas, previousCol, row);
+            assert(bounds !== undefined);
+            result = {
+                kind: props.enableGroups && row === -2 ? groupHeaderKind : headerKind,
+                location: [previousCol, row] as any,
+                bounds: bounds!,
+                group: mappedColumns.value[previousCol].group ?? "",
+                isEdge,
+                shiftKey,
+                ctrlKey,
+                metaKey,
+                isTouch,
+                localEventX: posX - bounds!.x,
+                localEventY: posY - bounds!.y,
+                button,
+                buttons,
+                scrollEdge,
+            } as any;
+        } else {
+            result = {
+                kind: props.enableGroups && row === -2 ? groupHeaderKind : headerKind,
+                group: mappedColumns.value[col].group ?? "",
+                location: [col, row] as any,
+                bounds: bounds!,
+                isEdge,
+                shiftKey,
+                ctrlKey,
+                metaKey,
+                isTouch,
+                localEventX: posX - bounds!.x,
+                localEventY: posY - bounds!.y,
+                button,
+                buttons,
+                scrollEdge,
+            } as any;
+        }
+    } else {
+        const bounds = getBoundsForItem(canvas, col, row);
+        assert(bounds !== undefined);
+        const isEdge = bounds !== undefined && bounds.x + bounds.width - posX < edgeDetectionBuffer;
+
+        let isFillHandle = false;
+        const drawFill = props.fillHandle !== false && props.fillHandle !== undefined;
+        if (drawFill && props.selection.current !== undefined) {
+            const fill = typeof props.fillHandle === "object" ? { ...DEFAULT_FILL_HANDLE, ...props.fillHandle } : DEFAULT_FILL_HANDLE;
+            const fillHandleClickSize = fill.size;
+            const half = fillHandleClickSize / 2;
+            const fillHandleLocation = rectBottomRight(props.selection.current.range);
+            const fillBounds = getBoundsForItem(canvas, fillHandleLocation[0], fillHandleLocation[1]);
+            if (fillBounds !== undefined) {
+                const centerX = fillBounds.x + fillBounds.width + fill.offsetX - half + 0.5;
+                const centerY = fillBounds.y + fillBounds.height + fill.offsetY - half + 0.5;
+                isFillHandle = Math.abs(centerX - posX) < fillHandleClickSize && Math.abs(centerY - posY) < fillHandleClickSize;
+            }
+        }
+
+        result = {
+            kind: "cell",
+            location: [col, row],
+            bounds: bounds!,
+            isEdge,
+            shiftKey,
+            ctrlKey,
+            isFillHandle,
+            metaKey,
+            isTouch,
+            localEventX: posX - bounds!.x,
+            localEventY: posY - bounds!.y,
+            button,
+            buttons,
+            scrollEdge,
+        } as any;
+    }
+    return result;
+};
+
+/**
+ * 将损坏区域（需重绘的单元格）入队并触发重绘。
+ */
+const damageInternal = (locations: CellSet) => {
+    damageRegion.value = locations;
+    lastDrawRef.value();
+    damageRegion.value = undefined;
+};
+
+// 动画队列（Hover 等）
+const enqueue = useAnimationQueue(damageInternal);
+enqueueRef.value = enqueue;
+
+// 初始化离屏缓冲区（双缓冲）
+onMounted(() => {
+    const a = document.createElement("canvas");
+    const b = document.createElement("canvas");
+    a.style.display = "none";
+    a.style.opacity = "0";
+    a.style.position = "fixed";
+    b.style.display = "none";
+    b.style.opacity = "0";
+    b.style.position = "fixed";
+    bufferACtx.value = a.getContext("2d", { alpha: false });
+    bufferBCtx.value = b.getContext("2d", { alpha: false });
+    if (bufferACtx.value !== null && bufferBCtx.value !== null) {
+        document.documentElement.append(bufferACtx.value.canvas);
+        document.documentElement.append(bufferBCtx.value.canvas);
+    }
+});
+
+onUnmounted(() => {
+    bufferACtx.value?.canvas.remove();
+    bufferBCtx.value?.canvas.remove();
+});
+
+// 渲染状态提供者
+const renderStateProvider = new RenderStateProvider();
+
+// Firefox/Safari 滚动模式下的缩放上限
+const maxDPR = computed(() => (enableFirefoxRescaling && scrolling.value ? 1 : enableSafariRescaling && scrolling.value ? 2 : 5));
+const minimumCellWidth = computed(() => (props.experimental?.disableMinimumCellWidth === true ? 1 : 10));
+
+/**
+ * 核心绘制方法：准备上下文与参数，再调用 drawGrid。
+ */
+const draw = () => {
+    const canvas = canvasRef.value;
+    const overlay = overlayRef.value;
+    if (canvas === null || overlay === null) return;
+
+    if (canvasCtx.value === null) {
+        canvasCtx.value = canvas.getContext("2d", { alpha: false });
+        canvas.width = 0;
+        canvas.height = 0;
+    }
+    if (overlayCtx.value === null) {
+        overlayCtx.value = overlay.getContext("2d", { alpha: false });
+        overlay.width = 0;
+        overlay.height = 0;
+    }
+    if (canvasCtx.value === null || overlayCtx.value === null || bufferACtx.value === null || bufferBCtx.value === null) return;
+
+    let didOverride = false;
+    const overrideCursor = (cursor: string) => {
+        didOverride = true;
+        drawCursorOverride.value = cursor;
+    };
+
+    const last = lastArgsRef.value;
+    const current: DrawGridArg = {
+        headerCanvasCtx: overlayCtx.value,
+        canvasCtx: canvasCtx.value!,
+        bufferACtx: bufferACtx.value!,
+        bufferBCtx: bufferBCtx.value!,
+        width: props.width,
+        height: props.height,
+        cellXOffset: cellXOffset.value,
+        cellYOffset: props.cellYOffset,
+        translateX: Math.round(translateX.value),
+        translateY: Math.round(translateY.value),
+        mappedColumns: mappedColumns.value,
+        enableGroups: props.enableGroups,
+        freezeColumns: props.freezeColumns,
+        dragAndDropState: props.dragAndDropState,
+        theme: props.theme,
+        headerHeight: props.headerHeight,
+        groupHeaderHeight: props.groupHeaderHeight,
+        disabledRows: props.disabledRows ?? CompactSelection.empty(),
+        rowHeight: props.rowHeight,
+        verticalBorder: props.verticalBorder,
+        isResizing: props.isResizing,
+        resizeCol: props.resizeColumn,
+        isFocused: props.isFocused,
+        selection: props.selection,
+        fillHandle: props.fillHandle,
+        drawCellCallback: props.drawCell,
+        hasAppendRow: props.hasAppendRow,
+        overrideCursor,
+        maxScaleFactor: maxDPR.value,
+        freezeTrailingRows: props.freezeTrailingRows,
+        rows: props.rows,
+        drawFocus: props.drawFocusRing,
+        getCellContent: props.getCellContent,
+        getGroupDetails: props.getGroupDetails ?? (name => ({ name })),
+        getRowThemeOverride: props.getRowThemeOverride,
+        drawHeaderCallback: props.drawHeader,
+        prelightCells: props.prelightCells,
+        highlightRegions: props.highlightRegions,
+        imageLoader: imageLoader,
+        lastBlitData,
+        damage: damageRegion.value,
+        hoverValues: hoverValues.value,
+        hoverInfo: hoveredItemInfo.value,
+        spriteManager: spriteManager.value,
+        scrolling: scrolling.value,
+        hyperWrapping: props.experimental?.hyperWrapping ?? false,
+        touchMode: lastWasTouch.value,
+        enqueue: enqueueRef.value,
+        renderStateProvider,
+        renderStrategy: props.experimental?.renderStrategy ?? (browserIsSafari.value ? "double-buffer" : "single-buffer"),
+        getCellRenderer: props.getCellRenderer,
+        minimumCellWidth: minimumCellWidth.value,
+        resizeIndicator: props.resizeIndicator,
+    } as any;
+
+    if (current.damage === undefined) {
+        lastArgsRef.value = current;
+        drawGrid(current, last);
+    } else {
+        drawGrid(current, undefined);
+    }
+
+    if (!didOverride && (current.damage === undefined || current.damage.has(hoveredItemInfo.value?.[0]))) {
+        drawCursorOverride.value = undefined;
+    }
+};
+
+// 初次与依赖变更时重绘
+onMounted(() => {
+    draw();
+    lastDrawRef.value = draw;
+});
+
+watch(
+    [
+        () => props.width,
+        () => props.height,
+        () => cellXOffset.value,
+        () => props.cellYOffset,
+        () => translateX.value,
+        () => translateY.value,
+        () => props.columns,
+        () => props.rows,
+        () => props.isResizing,
+        () => props.resizeColumn,
+        () => props.selection,
+        () => props.dragAndDropState,
+        () => props.theme,
+        () => props.headerHeight,
+        () => props.groupHeaderHeight,
+        () => props.rowHeight,
+        () => props.freezeColumns,
+        () => props.freezeTrailingRows,
+        () => props.drawFocusRing,
+        () => props.getCellContent,
+        () => props.getGroupDetails,
+        () => props.getRowThemeOverride,
+        () => props.drawCell,
+        () => props.drawHeader,
+        () => props.prelightCells,
+        () => props.highlightRegions,
+        () => props.experimental?.hyperWrapping,
+        () => props.experimental?.renderStrategy,
+        () => props.getCellRenderer,
+        () => minimumCellWidth.value,
+        () => props.resizeIndicator,
+        () => scrolling.value,
+    ],
+    () => lastDrawRef.value(),
+    { deep: false }
+);
+
+// 处理字体加载完成后的重绘
+onMounted(() => {
+    const fn = async () => {
+        // @ts-expect-error fonts 可能不存在
+        if (document?.fonts?.ready === undefined) return;
+        await (document as any).fonts.ready;
+        lastArgsRef.value = undefined;
+        lastDrawRef.value();
+    };
+    void fn();
+});
+
+// 滚动缩放效果，避免重绘闪烁
+watch([
+    () => props.cellYOffset,
+    () => cellXOffset.value,
+    () => translateX.value,
+    () => translateY.value,
+    () => enableFirefoxRescaling,
+    () => enableSafariRescaling,
+], () => {
+    if (window.devicePixelRatio === 1 || (!enableFirefoxRescaling && !enableSafariRescaling)) return;
+    if (scrollingStopRef.value !== -1) scrolling.value = true;
+    window.clearTimeout(scrollingStopRef.value);
+    scrollingStopRef.value = window.setTimeout(() => {
+        scrolling.value = false;
+        scrollingStopRef.value = -1;
+    }, 200);
+});
+
+// 光标同步到自定义事件目标（若提供）
+watch(
+    () => computedCursor.value,
+    cursor => {
+        const target = props.eventTargetRef?.value;
+        if (target !== null && target !== undefined) {
+            (target as HTMLElement).style.cursor = cursor;
+        }
+    }
+);
+
+// 图片加载窗口回调：损坏单元格触发重绘
+imageLoader.setCallback(damageInternal);
+
+// 组头动作区域识别
+const groupHeaderActionForEvent = (
+    group: string,
+    bounds: Rectangle,
+    localEventX: number,
+    localEventY: number
+) => {
+    if (props.getGroupDetails === undefined) return undefined;
+    const groupDesc = props.getGroupDetails(group);
+    if (groupDesc.actions !== undefined) {
+        const boxes = getActionBoundsForGroup(bounds, groupDesc.actions);
+        for (const [i, box] of boxes.entries()) {
+            if (pointInRect(box, localEventX + bounds.x, localEventY + box.y)) {
+                return groupDesc.actions[i];
+            }
+        }
+    }
+    return undefined;
+};
+
+// 判断是否位于 Header 的菜单/指示器元素
+const isOverHeaderElement = (
+    canvas: HTMLCanvasElement,
+    col: number,
+    clientX: number,
+    clientY: number
+): { area: "menu" | "indicator"; bounds: Rectangle } | undefined => {
+    const header = mappedColumns.value[col];
+    if (!props.isDragging && !props.isResizing && !(hoveredOnEdge.value ?? false)) {
+        const headerBounds = getBoundsForItem(canvas, col, -1);
+        assert(headerBounds !== undefined);
+        const headerLayout = computeHeaderLayout(
+            undefined,
+            header,
+            headerBounds!.x,
+            headerBounds!.y,
+            headerBounds!.width,
+            headerBounds!.height,
+            props.theme,
+            direction(header.title) === "rtl"
+        );
+        if (header.hasMenu === true && headerLayout.menuBounds !== undefined && pointInRect(headerLayout.menuBounds, clientX, clientY)) {
+            return { area: "menu", bounds: headerLayout.menuBounds };
+        } else if (header.indicatorIcon !== undefined && headerLayout.indicatorIconBounds !== undefined && pointInRect(headerLayout.indicatorIconBounds, clientX, clientY)) {
+            return { area: "indicator", bounds: headerLayout.indicatorIconBounds };
+        }
+    }
+    return undefined;
+};
+
+// 指针事件状态
+const downTime = ref(0);
+const downPosition = ref<Item>();
+const mouseDown = ref(false);
+const lastWasTouchRef = ref(lastWasTouch.value);
+watch(() => lastWasTouch.value, v => (lastWasTouchRef.value = v));
+
+// pointerdown
+const onPointerDown = (ev: PointerEvent) => {
+    const canvas = canvasRef.value;
+    const eventTarget = props.eventTargetRef?.value ?? null;
+    if (canvas === null || (ev.target !== canvas && ev.target !== eventTarget)) return;
+    mouseDown.value = true;
+
+    const clientX = ev.clientX;
+    const clientY = ev.clientY;
+    if (ev.target === eventTarget && eventTarget !== null) {
+        const bounds = (eventTarget as HTMLElement).getBoundingClientRect();
+        if (clientX > bounds.right || clientY > bounds.bottom) return;
+    }
+
+    const args = getMouseArgsForPositionImpl(canvas, clientX, clientY, ev);
+    downPosition.value = args.location;
+
+    if (args.isTouch) downTime.value = Date.now();
+    if (lastWasTouchRef.value !== args.isTouch) lastWasTouch.value = args.isTouch;
+
+    if (args.kind === headerKind && isOverHeaderElement(canvas, args.location[0], clientX, clientY) !== undefined) {
+        return;
+    } else if (args.kind === groupHeaderKind) {
+        const action = groupHeaderActionForEvent(args.group!, args.bounds!, args.localEventX!, args.localEventY!);
+        if (action !== undefined) return;
+    }
+
+    emit("mouse-down", args);
+    if (!args.isTouch && props.isDraggable !== true && props.isDraggable !== (args.kind as any) && ev.button < 3 && ev.button !== 1) {
+        ev.preventDefault();
+    }
+};
+useEventListener("pointerdown", onPointerDown, windowEventTarget, false);
+
+// pointerup
+const lastUpTime = ref(0);
+const onPointerUp = (ev: PointerEvent) => {
+    const lastUpTimeValue = lastUpTime.value;
+    lastUpTime.value = Date.now();
+    const canvas = canvasRef.value;
+    mouseDown.value = false;
+    if (canvas === null) return;
+    const eventTarget = props.eventTargetRef?.value ?? null;
+    const isOutside = ev.target !== canvas && ev.target !== eventTarget;
+    const clientX = ev.clientX;
+    const clientY = ev.clientY;
+    const canCancel = ev.pointerType === "mouse" ? ev.button < 3 : true;
+
+    let args = getMouseArgsForPositionImpl(canvas, clientX, clientY, ev);
+    if (args.isTouch && downTime.value !== 0 && Date.now() - downTime.value > 500) {
+        args = { ...args, isLongTouch: true } as any;
+    }
+    if (lastUpTimeValue !== 0 && Date.now() - lastUpTimeValue < (args.isTouch ? 1000 : 500)) {
+        args = { ...args, isDoubleClick: true } as any;
+    }
+    if (lastWasTouchRef.value !== args.isTouch) lastWasTouch.value = args.isTouch;
+    if (!isOutside && ev.cancelable && canCancel) ev.preventDefault();
+
+    const [col] = args.location;
+    const headerBounds = isOverHeaderElement(canvas, col, clientX, clientY);
+    if (args.kind === headerKind && headerBounds !== undefined) {
+        if (ev.button !== 0 || downPosition.value?.[0] !== col || downPosition.value?.[1] !== -1) {
+            emit("mouse-up", args, true);
+        }
+        return;
+    } else if (args.kind === groupHeaderKind) {
+        const action = groupHeaderActionForEvent(args.group!, args.bounds!, args.localEventX!, args.localEventY!);
+        if (action !== undefined) {
+            if (ev.button === 0) action.onClick(args as any);
+            return;
+        }
+    }
+    emit("mouse-up", args, isOutside);
+};
+useEventListener("pointerup", onPointerUp, windowEventTarget, false);
+
+// click
+const onClickImplVue = (ev: MouseEvent | TouchEvent) => {
+    const canvas = canvasRef.value;
+    if (canvas === null) return;
+    const eventTarget = props.eventTargetRef?.value ?? null;
+    const isOutside = ev.target !== canvas && ev.target !== eventTarget;
+
+    let clientX: number;
+    let clientY: number;
+    let canCancel = true;
+    if (ev instanceof MouseEvent) {
+        clientX = ev.clientX;
+        clientY = ev.clientY;
+        canCancel = ev.button < 3;
+    } else {
+        clientX = (ev as TouchEvent).changedTouches[0].clientX;
+        clientY = (ev as TouchEvent).changedTouches[0].clientY;
+    }
+
+    const args = getMouseArgsForPositionImpl(canvas, clientX, clientY, ev as any);
+    if (lastWasTouchRef.value !== args.isTouch) lastWasTouch.value = args.isTouch;
+    if (!isOutside && (ev as any).cancelable && canCancel) (ev as any).preventDefault();
+
+    const [col] = args.location;
+    if (args.kind === headerKind) {
+        const headerBounds = isOverHeaderElement(canvas, col, clientX, clientY);
+        if (headerBounds !== undefined && args.button === 0 && downPosition.value?.[0] === col && downPosition.value?.[1] === -1) {
+            if (headerBounds.area === "menu") {
+                emit("header-menu-click", col, headerBounds.bounds);
+            } else if (headerBounds.area === "indicator") {
+                emit("header-indicator-click", col, headerBounds.bounds);
+            }
+        }
+    }
+};
+useEventListener("click", onClickImplVue, windowEventTarget, false);
+
+// contextmenu
+const onContextMenuImplVue = (ev: MouseEvent) => {
+    const canvas = canvasRef.value;
+    const eventTarget = props.eventTargetRef?.value ?? null;
+    if (canvas === null || (ev.target !== canvas && ev.target !== eventTarget)) return;
+    const args = getMouseArgsForPositionImpl(canvas, ev.clientX, ev.clientY, ev);
+    emit("context-menu", args, () => {
+        if (ev.cancelable) ev.preventDefault();
+    });
+};
+useEventListener("contextmenu", onContextMenuImplVue, props.eventTargetRef?.value ?? null, false);
+
+// 动画帧回调：Hover 动画
+const onAnimationFrame: StepCallback = values => {
+    damageRegion.value = new CellSet(values.map(x => x.item));
+    hoverValues.value = values;
+    lastDrawRef.value();
+    damageRegion.value = undefined;
+};
+animationManager.value = new AnimationManager(onAnimationFrame);
+
+// hover 更新逻辑（根据单元格渲染器是否需要 hover）
+watch(
+    () => hoveredItemInfo.value,
+    val => {
+        const am = animationManager.value!;
+        const hoveredItem = val?.[0];
+        if (hoveredItem === undefined || hoveredItem[1] < 0) {
+            am.setHovered(hoveredItem as any);
+            return;
+        }
+        const cell = props.getCellContent(hoveredItem as [number, number], true);
+        const r = props.getCellRenderer(cell);
+        const cellNeedsHover =
+            (r === undefined && cell.kind === GridCellKind.Custom) ||
+            (r?.needsHover !== undefined && (typeof r.needsHover === "boolean" ? r.needsHover : (r as any).needsHover(cell)));
+        am.setHovered(cellNeedsHover ? (hoveredItem as any) : undefined);
+    }
+);
+
+// 指针移动与悬停逻辑
+const hoveredRef = ref<GridMouseEventArgs>();
+const onPointerMove = (ev: MouseEvent) => {
+    const canvas = canvasRef.value;
+    if (canvas === null) return;
+    const eventTarget = props.eventTargetRef?.value ?? null;
+    const isIndirect = ev.target !== canvas && ev.target !== eventTarget;
+    const args = getMouseArgsForPositionImpl(canvas, ev.clientX, ev.clientY, ev);
+    if (args.kind !== "out-of-bounds" && isIndirect && !mouseDown.value && !args.isTouch) return;
+
+    const maybeSetHoveredInfo = (newVal: typeof hoveredItemInfo.value, needPosition: boolean) => {
+        const cv = hoveredItemInfo.value;
+        if (cv === newVal) return;
+        if (
+            cv?.[0][0] === newVal?.[0][0] &&
+            cv?.[0][1] === newVal?.[0][1] &&
+            ((cv?.[1][0] === newVal?.[1][0] && cv?.[1][1] === newVal?.[1][1]) || !needPosition)
+        ) {
+            return;
+        }
+        hoveredItemInfo.value = newVal;
+    };
+
+    if (!mouseEventArgsAreEqual(args, hoveredRef.value)) {
+        drawCursorOverride.value = undefined;
+        emit("item-hovered", args);
+        maybeSetHoveredInfo(args.kind === outOfBoundsKind ? undefined : [args.location, [args.localEventX!, args.localEventY!]], true);
+        hoveredRef.value = args;
+    } else if (args.kind === "cell" || args.kind === headerKind || args.kind === groupHeaderKind) {
+        let needsDamageCell = false;
+        let needsHoverPosition = true;
+        if (args.kind === "cell") {
+            const toCheck = props.getCellContent(args.location);
+            const rendererNeeds = props.getCellRenderer(toCheck)?.needsHoverPosition;
+            needsHoverPosition = rendererNeeds ?? toCheck.kind === GridCellKind.Custom;
+            needsDamageCell = needsHoverPosition;
+        } else {
+            needsDamageCell = true;
+        }
+        const newInfo: typeof hoveredItemInfo.value = [args.location, [args.localEventX!, args.localEventY!]];
+        maybeSetHoveredInfo(newInfo, needsHoverPosition);
+        if (needsDamageCell) damageInternal(new CellSet([args.location]));
+    }
+
+    const notRowMarkerCol = args.location[0] >= (props.firstColAccessible ? 0 : 1);
+    hoveredOnEdge.value = args.kind === headerKind && args.isEdge && notRowMarkerCol && props.allowResize === true;
+    overFill.value = args.kind === "cell" && (args as any).isFillHandle;
+    emit("mouse-move-raw", ev);
+    emit("mouse-move", args);
+};
+useEventListener("pointermove", onPointerMove, windowEventTarget, true);
+
+// Drag & Drop 相关
+const activeDropTarget = ref<Item | undefined>();
+const onDragStartImpl = (event: DragEvent) => {
+    const canvas = canvasRef.value;
+    if (canvas === null || props.isDraggable === false || props.isResizing) {
+        event.preventDefault();
+        return;
+    }
+    let dragMime: string | undefined;
+    let dragData: string | undefined;
+    const args = getMouseArgsForPositionImpl(canvas, event.clientX, event.clientY);
+    if (props.isDraggable !== true && args.kind !== props.isDraggable) {
+        event.preventDefault();
+        return;
+    }
+    const setData = (mime: string, payload: string) => { dragMime = mime; dragData = payload; };
+    let dragImage: Element | undefined; let dragImageX: number | undefined; let dragImageY: number | undefined;
+    const setDragImage = (image: Element, x: number, y: number) => { dragImage = image; dragImageX = x; dragImageY = y; };
+    let prevented = false;
+    emit("drag-start", { ...args, setData, setDragImage, preventDefault: () => (prevented = true), defaultPrevented: () => prevented } as any);
+    if (!prevented && dragMime !== undefined && dragData !== undefined && event.dataTransfer !== null) {
+        event.dataTransfer.setData(dragMime, dragData);
+        event.dataTransfer.effectAllowed = "copyLink";
+        if (dragImage !== undefined && dragImageX !== undefined && dragImageY !== undefined) {
+            event.dataTransfer.setDragImage(dragImage, dragImageX, dragImageY);
+        } else {
+            const [col, row] = args.location;
+            if (row !== undefined) {
+                const offscreen = document.createElement("canvas");
+                const boundsForDragTarget = getBoundsForItem(canvas, col, row)!;
+                const dpr = Math.ceil(window.devicePixelRatio ?? 1);
+                offscreen.width = boundsForDragTarget.width * dpr;
+                offscreen.height = boundsForDragTarget.height * dpr;
+                const ctx = offscreen.getContext("2d");
+                if (ctx !== null) {
+                    ctx.scale(dpr, dpr);
+                    ctx.textBaseline = "middle";
+                    if (row === -1) {
+                        ctx.font = props.theme.headerFontFull;
+                        ctx.fillStyle = props.theme.bgHeader;
+                        ctx.fillRect(0, 0, offscreen.width, offscreen.height);
+                        drawHeader(
+                            ctx,
+                            0,
+                            0,
+                            boundsForDragTarget.width,
+                            boundsForDragTarget.height,
+                            mappedColumns.value[col],
+                            false,
+                            props.theme,
+                            false,
+                            undefined,
+                            undefined,
+                            false,
+                            0,
+                            spriteManager.value,
+                            props.drawHeader,
+                            false
+                        );
+                    } else {
+                        ctx.font = props.theme.baseFontFull;
+                        ctx.fillStyle = props.theme.bgCell;
+                        ctx.fillRect(0, 0, offscreen.width, offscreen.height);
+                        drawCell(
+                            ctx,
+                            props.getCellContent([col, row]),
+                            0,
+                            row,
+                            false,
+                            false,
+                            0,
+                            0,
+                            boundsForDragTarget.width,
+                            boundsForDragTarget.height,
+                            false,
+                            props.theme,
+                            props.theme.bgCell,
+                            imageLoader,
+                            spriteManager.value,
+                            1,
+                            undefined,
+                            false,
+                            0,
+                            undefined,
+                            undefined,
+                            undefined,
+                            renderStateProvider,
+                            props.getCellRenderer,
+                            () => undefined
+                        );
+                    }
+                }
+                offscreen.style.left = "-100%";
+                offscreen.style.position = "absolute";
+                offscreen.style.width = `${boundsForDragTarget.width}px`;
+                offscreen.style.height = `${boundsForDragTarget.height}px`;
+                document.body.append(offscreen);
+                event.dataTransfer.setDragImage(offscreen, boundsForDragTarget.width / 2, boundsForDragTarget.height / 2);
+                window.setTimeout(() => offscreen.remove(), 0);
+            }
+        }
+    } else {
+        event.preventDefault();
+    }
+};
+useEventListener("dragstart", onDragStartImpl, props.eventTargetRef?.value ?? null, false, false);
+
+const onDragOverImpl = (event: DragEvent) => {
+    const canvas = canvasRef.value;
+    if (props.onDrop !== undefined) event.preventDefault();
+    if (canvas === null || props.onDragOverCell === undefined) return;
+    const args = getMouseArgsForPositionImpl(canvas, event.clientX, event.clientY);
+    const [rawCol, row] = args.location;
+    const col = rawCol - (props.firstColAccessible ? 0 : 1);
+    const [activeCol, activeRow] = activeDropTarget.value ?? [];
+    if (activeCol !== col || activeRow !== row) {
+        activeDropTarget.value = [col, row];
+        props.onDragOverCell?.([col, row], event.dataTransfer);
+    }
+};
+useEventListener("dragover", onDragOverImpl, props.eventTargetRef?.value ?? null, false, false);
+
+const onDragEndImpl = () => {
+    activeDropTarget.value = undefined;
+    emit("drag-end");
+};
+useEventListener("dragend", onDragEndImpl, props.eventTargetRef?.value ?? null, false, false);
+
+const onDropImpl = (event: DragEvent) => {
+    const canvas = canvasRef.value;
+    if (canvas === null || props.onDrop === undefined) return;
+    event.preventDefault();
+    const args = getMouseArgsForPositionImpl(canvas, event.clientX, event.clientY);
+    const [rawCol, row] = args.location;
+    const col = rawCol - (props.firstColAccessible ? 0 : 1);
+    props.onDrop([col, row], event.dataTransfer);
+};
+useEventListener("drop", onDropImpl, props.eventTargetRef?.value ?? null, false, false);
+
+const onDragLeaveImpl = () => emit("drag-leave");
+useEventListener("dragleave", onDragLeaveImpl, props.eventTargetRef?.value ?? null, false, false);
+
+// 暴露组件方法（对齐 React 的 DataGridRef）
+defineExpose<DataGridRef>({
+    focus: () => {
+        canvasRef.value?.focus({ preventScroll: true });
+    },
+    getBounds: (col?: number, row?: number) => {
+        if (canvasRef.value === null) return undefined;
+        return getBoundsForItem(canvasRef.value, col ?? 0, row ?? -1);
+    },
+    damage: (cells: DamageUpdateList) => {
+        damageInternal(new CellSet(cells.map(x => x.cell)));
+    },
+    getMouseArgsForPosition: (posX: number, posY: number, ev?: MouseEvent | TouchEvent) => {
+        if (canvasRef.value === null) return undefined;
+        return getMouseArgsForPositionImpl(canvasRef.value, posX, posY, ev);
+    },
+});
 </script>
