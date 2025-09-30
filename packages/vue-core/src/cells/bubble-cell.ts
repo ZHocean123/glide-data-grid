@@ -1,9 +1,9 @@
 import { h } from 'vue';
 import BubblesOverlayEditor from '../internal/data-grid-overlay-editor/private/bubbles-overlay-editor.vue';
-import { getMiddleCenterBias, measureTextCached, roundedRect } from '../internal/data-grid/render/data-grid-lib.js';
 import { GridCellKind, type BubbleCell } from '../internal/data-grid/data-grid-types.js';
 import type { BaseDrawArgs, InternalCellRenderer } from './cell-types.js';
 import { makeAccessibilityStringForArray } from '../common/utils.js';
+import { measureTextCached, getMiddleCenterBias, roundedRect } from '../internal/data-grid/render/data-grid-lib.js';
 
 export const bubbleCellRenderer: InternalCellRenderer<BubbleCell> = {
     getAccessibilityString: c => makeAccessibilityStringForArray(c.data),
