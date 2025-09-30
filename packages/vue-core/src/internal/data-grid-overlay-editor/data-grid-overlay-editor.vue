@@ -8,7 +8,7 @@
         :isOutsideClick="isOutsideClick"
         :customEventTarget="customEventTarget"
       >
-        <DataGridOverlayEditorStyle
+        <div class="DataGridOverlayEditorStyle"
           ref="editorRef"
           :id="id"
           :class="classWrap"
@@ -39,7 +39,7 @@
               :theme="theme"
             />
           </div>
-        </DataGridOverlayEditorStyle>
+        </div>
       </ClickOutsideContainer>
     </ThemeContext.Provider>
   </Teleport>
@@ -65,8 +65,6 @@ import {
 } from '../data-grid/data-grid-types.js';
 
 import type { CellActivatedEventArgs } from '../data-grid/event-args.js';
-import { DataGridOverlayEditorStyle } from './data-grid-overlay-editor-style.js';
-import type { OverlayImageEditorProps } from './private/image-overlay-editor.vue';
 import { useStayOnScreen } from './use-stay-on-screen.js';
 
 type ImageEditorType = any;
@@ -103,10 +101,10 @@ const props = defineProps<DataGridOverlayEditorProps>();
 const tempValue = ref<GridCell | undefined>(props.forceEditMode ? props.content : undefined);
 const lastValueRef = ref(tempValue.value ?? props.content);
 
-const isValid = ref(() => {
+const isValid = ref<boolean>((() => {
   if (props.validateCell === undefined) return true;
   return !(isEditableGridCell(props.content) && props.validateCell?.(props.cell, props.content, lastValueRef.value) === false);
-});
+})());
 
 const finished = ref(false);
 const customMotion = ref<[-1 | 0 | 1, -1 | 0 | 1] | undefined>(undefined);
@@ -116,7 +114,7 @@ const { style: stayOnScreenStyle } = useStayOnScreen(editorRef);
 
 const targetValue = computed(() => tempValue.value ?? props.content);
 
-const [editorProvider, useLabel] = computed((): [ProvideEditorCallbackResult<GridCell>, boolean] | [] => {
+const editorProviderParams = computed((): [ProvideEditorCallbackResult<GridCell>, boolean] | [] => {
   if (isInnerOnlyCell(props.content)) return [];
   const cellWithLocation = { ...props.content, location: props.cell, activation: props.activation } as GridCell & {
       location: Item;
@@ -127,18 +125,21 @@ const [editorProvider, useLabel] = computed((): [ProvideEditorCallbackResult<Gri
   return [props.getCellRenderer(props.content)?.provideEditor?.(cellWithLocation), false];
 });
 
+const editorProvider = computed(()=> editorProviderParams.value[0]);
+const useLabel = computed(()=> editorProviderParams.value[1]);
+
 const editorComponent = computed(() => {
   if (!editorProvider.value) return null;
-  const isObjectEditor = isObjectEditorCallbackResult(editorProvider.value[0]);
-  return isObjectEditor ? editorProvider.value[0].editor : editorProvider.value[0];
+  const isObjectEditor = isObjectEditorCallbackResult(editorProvider.value);
+  return isObjectEditor ? editorProvider.value.editor : editorProvider.value;
 });
 
-const pad = computed(() => editorProvider.value?.[0]?.disablePadding !== true);
-const style = computed(() => editorProvider.value?.[0]?.disableStyling !== true);
+const pad = computed(() => editorProvider.value?.disablePadding !== true);
+const style = computed(() => editorProvider.value?.disableStyling !== true);
 
 const styleOverride = computed(() => {
-  const baseStyle = editorProvider.value && isObjectEditorCallbackResult(editorProvider.value[0])
-    ? editorProvider.value[0].styleOverride
+  const baseStyle = editorProvider.value && isObjectEditorCallbackResult(editorProvider.value)
+    ? editorProvider.value.styleOverride
     : {};
   return { ...baseStyle, ...stayOnScreenStyle.value };
 });
@@ -228,4 +229,88 @@ onMounted(() => {
       );
   }
 });
+
+const targetX = computed(() => `${props.target.x - bloomX.value}px`);
+const targetY = computed(() => `${props.target.y - bloomY.value}px`);
+const targetWidth = computed(() => `${props.target.width + bloomX.value * 2}px`);
+const targetHeight = computed(() => `${props.target.height + bloomY.value * 2}px`);
+const paddingTop = computed(() => `${Math.max(0, (props.target.height - 28) / 2)}px`);
+const maxHeight = computed(() => `calc(100vh - ${targetY.value}px)`);
 </script>
+<style lang="scss" scoped>
+.DataGridOverlayEditorStyle {
+   position: absolute;
+
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-sizing: border-box;
+
+    --overlay-top: ${p => p.targetY}px;
+
+    left: v-bind(targetX);
+    top: v-bind(targetY);
+    min-width: v-bind(targetWidth);
+    min-height: v-bind(targetHeight);
+    width: max-content;
+    max-width: 400px;
+    max-height: v-bind(maxHeight);
+
+    font-family: var(--gdg-font-family);
+    font-size: var(--gdg-editor-font-size);
+
+    @keyframes glide_fade_in {
+        from {
+            opacity: 0%;
+        }
+
+        to {
+            opacity: 100%;
+        }
+    }
+
+    &.gdg-style {
+        border-radius: 2px;
+        background-color: var(--gdg-bg-cell);
+
+        box-shadow:
+            0 0 0 1px var(--gdg-accent-color),
+            0px 0px 1px rgba(62, 65, 86, 0.4),
+            0px 6px 12px rgba(62, 65, 86, 0.15);
+
+        animation: glide_fade_in 60ms 1;
+    }
+
+    &.gdg-pad {
+        padding: v-bind(paddingTop) 8.5px 3px;
+    }
+
+    .gdg-clip-region {
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        overflow-x: hidden;
+        border-radius: 2px;
+        flex-grow: 1;
+
+        .gdg-growing-entry {
+            height: 100%;
+        }
+
+        & input.gdg-input {
+            width: 100%;
+            border: none;
+            border-width: 0;
+            outline: none;
+        }
+
+        & textarea.gdg-input {
+            border: none;
+            border-width: 0;
+            outline: none;
+        }
+    }
+
+    text-align: start;
+}
+}
