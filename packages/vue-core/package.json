@@ -56,7 +56,7 @@
   },
   "homepage": "https://grid.glideapps.com",
   "dependencies": {
-    "@linaria/vue": "^6.3.0",
+    "vue3-carousel": "^0.16.0",
     "canvas-hypertxt": "^1.0.3",
     "vue": "^3.4.0"
   },

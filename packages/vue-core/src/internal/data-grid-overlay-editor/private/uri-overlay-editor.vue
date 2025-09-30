@@ -25,8 +25,8 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { EditPencil } from '../../../common/utils.js';
-import { GrowingEntry } from '../../growing-entry/growing-entry.vue';
-import { UriOverlayEditorStyle } from './uri-overlay-editor-style.js';
+import GrowingEntry from '../../growing-entry/growing-entry.vue';
+import UriOverlayEditorStyle from './uri-overlay-editor-style.vue';
 import type { SelectionRange } from '../../data-grid/data-grid-types.js';
 
 interface Props {

@@ -1,5 +1,5 @@
 <template>
-  <DrilldownOverlayEditorStyle>
+  <div class="DrilldownOverlayEditorStyle">
     <div
       v-for="(d, i) in drilldowns"
       :key="i"
@@ -8,20 +8,18 @@
       <img v-if="d.img !== undefined" :src="d.img" />
       <div>{{ d.text }}</div>
     </div>
-  </DrilldownOverlayEditorStyle>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { styled } from '@linaria/vue';
 import type { DrilldownCellData } from '../../data-grid/data-grid-types.js';
-
-interface Props {
-  readonly drilldowns: readonly DrilldownCellData[];
-}
-
-const props = defineProps<Props>();
-
-const DrilldownOverlayEditorStyle = styled.div`
+ 
+defineProps<{
+  drilldowns: DrilldownCellData[];
+}>()
+</script>
+<style lang="scss">
+.DrilldownOverlayEditorStyle {
     display: flex;
     flex-wrap: wrap;
 
@@ -60,5 +58,5 @@ const DrilldownOverlayEditorStyle = styled.div`
 
         opacity: 0;
     }
-`;
-</script>
+}
+</style>

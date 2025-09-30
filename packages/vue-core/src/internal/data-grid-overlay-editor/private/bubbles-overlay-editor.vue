@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import { BubblesOverlayEditorStyle } from './bubbles-overlay-editor-style.js';
+import BubblesOverlayEditorStyle from './bubbles-overlay-editor-style.vue';
 
 interface Props {
   readonly bubbles: readonly string[];

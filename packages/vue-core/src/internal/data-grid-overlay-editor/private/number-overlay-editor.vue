@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
 import { ref, onUpdated } from 'vue';
-import { NumberOverlayEditorStyle } from './number-overlay-editor-style.js';
+import NumberOverlayEditorStyle from './number-overlay-editor-style.vue';
 import { VueNumberFormat } from 'vue-number-format';
 import type { SelectionRange } from '../../data-grid/data-grid-types.js';
 import type { NumberFormatValues } from 'vue-number-format/types/types.js';

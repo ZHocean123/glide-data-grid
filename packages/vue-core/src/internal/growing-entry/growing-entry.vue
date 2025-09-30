@@ -1,8 +1,9 @@
 <template>
-  <GrowingEntryStyle class="gdg-growing-entry">
-    <ShadowBox :class="className">{{ useText + '\n' }}</ShadowBox>
-    <InputBox
-      :class="(className ?? '') + ' gdg-input'"
+  <div class="gdg-growing-entry">
+    <div class="shadow-box" :class="className">{{ useText + '\n' }}</div>
+    <textarea
+      class="input-box gdg-input"
+      :class="className"
       :id="inputID"
       ref="inputRef"
       :value="useText"
@@ -12,12 +13,11 @@
       @input="handleInput"
       v-bind="restProps"
     />
-  </GrowingEntryStyle>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onUpdated, computed } from 'vue';
-import { GrowingEntryStyle, ShadowBox, InputBox } from './growing-entry-style.js';
 import { assert } from '../../common/support.js';
 import type { SelectionRange } from '../data-grid/data-grid-types.js';
 
@@ -79,3 +79,65 @@ const restProps = computed(() => {
   return rest;
 });
 </script>
+<style lang="scss">
+.gdg-growing-entry {
+  position: relative;
+    margin-top: 6px;
+
+
+.shadow-box {
+  visibility: hidden;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+
+    width: max-content;
+    max-width: 100%;
+
+    min-width: 100%;
+
+    font-size: var(--gdg-editor-font-size);
+    line-height: 16px;
+    font-family: var(--gdg-font-family);
+    color: var(--gdg-text-dark);
+    padding: 0;
+    margin: 0;
+
+    padding-bottom: 2px;
+}
+.input-box {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+
+    border-radius: 0px;
+
+    resize: none;
+    white-space: pre-wrap;
+    min-width: 100%;
+    overflow: hidden;
+    border: 0;
+    background-color: transparent;
+
+    ::placeholder {
+        color: var(--gdg-text-light);
+    }
+
+    font-size: var(--gdg-editor-font-size);
+    line-height: 16px;
+    font-family: var(--gdg-font-family);
+    -webkit-text-fill-color: var(--gdg-text-dark);
+    color: var(--gdg-text-dark);
+    padding: 0;
+    margin: 0;
+
+    .gdg-invalid & {
+        text-decoration: underline;
+        text-decoration-color: #d60606;
+    }
+}
+}
+</style>

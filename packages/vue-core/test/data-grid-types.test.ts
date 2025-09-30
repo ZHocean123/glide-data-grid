@@ -20,7 +20,7 @@ import {
     type DrilldownCell,
     BooleanEmpty,
     BooleanIndeterminate
-} from '../src/internal/data-grid/data-grid-types';
+} from '../src/internal/data-grid/data-grid-types.js';
 
 describe('Data Grid Types', () => {
     describe('CompactSelection', () => {

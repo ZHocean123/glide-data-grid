@@ -1,5 +1,5 @@
 <template>
-  <ImageOverlayEditorStyle v-if="filtered.length > 0" data-testid="GDG-default-image-overlay-editor">
+  <div class="ImageOverlayEditorStyle" v-if="filtered.length > 0" data-testid="GDG-default-image-overlay-editor">
     <Carousel
       :showArrows="allowMove"
       :showThumbs="false"
@@ -7,14 +7,15 @@
       :emulateTouch="allowMove"
       :infiniteLoop="allowMove"
     >
-      <div
+      <Slide
         v-for="url in filtered"
         :key="url"
         class="gdg-centering-container"
       >
-        <slot v-if="$slots.renderImage" :name="renderImage" :url="url" />
-        <img v-else draggable="false" :src="url" />
-      </div>
+        <slot name="renderImage" :url="url">
+          <img draggable="false" :src="url" />
+        </slot>
+      </Slide>
     </Carousel>
     <button
       v-if="canWrite && onEditClick"
@@ -23,13 +24,12 @@
     >
       <EditPencil />
     </button>
-  </ImageOverlayEditorStyle>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { ImageOverlayEditorStyle } from './image-overlay-editor-style.js';
-import { Carousel } from 'vue-responsive-carousel';
+import { Carousel, Slide  } from 'vue3-carousel';
 import { EditPencil } from '../../../common/utils.js';
 
 /** @category Types */
@@ -48,5 +48,58 @@ const filtered = computed(() => props.urls.filter(u => u !== ""));
 const allowMove = computed(() => filtered.value.length > 1);
 
 // Import carousel styles
-import 'vue-responsive-carousel/lib/carousel/carousel.css';
+import 'vue3-carousel/carousel.css'
 </script>
+.ImageOverlayEditorStyle {
+    display: flex;
+    height: 100%;
+
+    .gdg-centering-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        height: 100%;
+
+        img,
+        canvas {
+            max-height: calc(100vh - var(--overlay-top) - 20px);
+            object-fit: contain;
+            user-select: none;
+        }
+
+        canvas {
+            max-width: 380px;
+        }
+    }
+
+    .gdg-edit-icon {
+        position: absolute;
+        top: 12px;
+        right: 0;
+        width: 48px;
+        height: 48px;
+        color: var(--gdg-accent-color);
+
+        cursor: pointer;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        >* {
+            width: 24px;
+            height: 24px;
+        }
+    }
+
+    textarea {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 0px;
+        height: 0px;
+
+        opacity: 0;
+    }
+}

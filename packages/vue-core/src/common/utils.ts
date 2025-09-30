@@ -1,4 +1,4 @@
-import { ref, watch, onMounted, onUnmounted, type Ref } from 'vue';
+import { ref, watch, onMounted, onUnmounted, type Ref, defineComponent } from 'vue';
 import debounce from 'lodash/debounce.js';
 import { deepEqual } from './support.js';
 
@@ -81,13 +81,14 @@ export interface SpriteProps {
     bgColor: string;
 }
 
-export const EditPencil = (props: Partial<SpriteProps>) => {
-    const fg = props.fgColor ?? "currentColor";
-    return (
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+export const EditPencil = defineComponent({
+    setup() {
+        defineProps<Partial<SpriteProps>>()
+    },
+    template:`<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
                 d="M12.7073 7.05029C7.87391 11.8837 10.4544 9.30322 6.03024 13.7273C5.77392 13.9836 5.58981 14.3071 5.50189 14.6587L4.52521 18.5655C4.38789 19.1148 4.88543 19.6123 5.43472 19.475L9.34146 18.4983C9.69313 18.4104 10.0143 18.2286 10.2706 17.9722L16.9499 11.2929"
-                stroke={fg}
+                :stroke="fgColor ?? 'currentColor'"
                 strokeWidth="1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -96,33 +97,33 @@ export const EditPencil = (props: Partial<SpriteProps>) => {
             />
             <path
                 d="M20.4854 4.92901L19.0712 3.5148C18.2901 2.73375 17.0238 2.73375 16.2428 3.5148L14.475 5.28257C15.5326 7.71912 16.4736 8.6278 18.7176 9.52521L20.4854 7.75744C21.2665 6.97639 21.2665 5.71006 20.4854 4.92901Z"
-                stroke={fg}
+                :stroke="fgColor ?? 'currentColor'"
                 strokeWidth="1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 fill="none"
                 vectorEffect="non-scaling-stroke"
             />
-        </svg>
-    );
-};
+        </svg>`
+    
+})
 
-export const Checkmark = (props: Partial<SpriteProps>) => {
-    const fg = props.fgColor ?? "currentColor";
-
-    return (
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+export const Checkmark = defineComponent({
+    setup() {
+        defineProps<Partial<SpriteProps>>()
+    },
+    template:`<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
                 d="M19 6L10.3802 17L5.34071 11.8758"
                 vectorEffect="non-scaling-stroke"
-                stroke={fg}
+                :stroke="fgColor ?? 'currentColor'"
                 strokeWidth="1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
             />
-        </svg>
-    );
-};
+        </svg>`
+    
+});
 
 export function useDebouncedMemo<T>(factory: () => T, deps: any[], time: number): Ref<T> {
     const state = ref(factory()) as Ref<T>;

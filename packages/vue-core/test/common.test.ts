@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { degreesToRadians, getSquareBB, pointIsWithinBB, direction } from '../src/common/utils';
-import { getScrollBarWidth } from '../src/common/utils';
+import { degreesToRadians, getSquareBB, pointIsWithinBB, direction } from '../src/common/utils.js';
+import { getScrollBarWidth } from '../src/common/utils.js';
 
 describe('Common Utilities', () => {
     describe('degreesToRadians', () => {

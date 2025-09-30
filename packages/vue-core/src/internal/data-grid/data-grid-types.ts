@@ -3,7 +3,7 @@ import type React from "react";
 import type { CSSProperties } from "react";
 import type { Theme } from "../../common/styles.js";
 import { assertNever, proveType } from "../../common/support.js";
-import type { OverlayImageEditorProps } from "../data-grid-overlay-editor/private/image-overlay-editor.js";
+import type { OverlayImageEditorProps } from "../data-grid-overlay-editor/private/image-overlay-editor.vue";
 import type { SpriteManager } from "./data-grid-sprites.js";
 import type { BaseGridMouseEventArgs, CellActivatedEventArgs } from "./event-args.js";
 import type { ImageWindowLoader } from "./image-window-loader-interface.js";
