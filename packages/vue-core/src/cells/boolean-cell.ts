@@ -1,67 +1,161 @@
-import type { BooleanCell } from '../internal/data-grid/data-grid-types.js'
-import type { InternalCellRenderer } from './cell-types.js'
+import type { FullTheme } from "../common/styles.js";
+import { getSquareWidth, getSquareXPosFromAlign, getSquareBB, pointIsWithinBB } from "../common/utils.js";
+import { toggleBoolean } from "../data-editor/data-editor-fns.js";
+import {
+    GridCellKind,
+    type BooleanCell,
+    booleanCellIsEditable,
+    BooleanEmpty,
+    BooleanIndeterminate,
+    type Rectangle,
+} from "../internal/data-grid/data-grid-types.js";
+import type { BaseDrawArgs, InternalCellRenderer } from "./cell-types.js";
+
+function isOverEditableRegion(e: {
+    readonly cell: BooleanCell;
+    readonly posX: number;
+    readonly posY: number;
+    readonly bounds: Rectangle;
+    readonly theme: FullTheme;
+}): boolean {
+    const { cell, posX: pointerX, posY: pointerY, bounds, theme } = e;
+    const { width, height, x: cellX, y: cellY } = bounds;
+    const maxWidth = cell.maxSize ?? theme.checkboxMaxSize;
+    const cellCenterY = Math.floor(bounds.y + height / 2);
+    const checkBoxWidth = getSquareWidth(maxWidth, height, theme.cellVerticalPadding);
+    const posX = getSquareXPosFromAlign(
+        cell.contentAlign ?? "center",
+        cellX,
+        width,
+        theme.cellHorizontalPadding,
+        checkBoxWidth
+    );
+    const bb = getSquareBB(posX, cellCenterY, checkBoxWidth);
+    const checkBoxClicked = pointIsWithinBB(cellX + pointerX, cellY + pointerY, bb);
+
+    return booleanCellIsEditable(cell) && checkBoxClicked;
+}
 
 export const booleanCellRenderer: InternalCellRenderer<BooleanCell> = {
-  getAccessibilityString: c => {
-    if (c.data === true) return 'true'
-    if (c.data === false) return 'false'
-    return 'indeterminate'
-  },
-  kind: 'boolean',
-  needsHover: booleanCell => booleanCell.hoverEffect === true,
-  needsHoverPosition: false,
-  useLabel: false,
-  draw: (args) => {
-    const { cell, ctx, rect, theme } = args
+    getAccessibilityString: c => c.data?.toString() ?? "false",
+    kind: GridCellKind.Boolean,
+    needsHover: true,
+    useLabel: false,
+    needsHoverPosition: true,
+    measure: () => 50,
+    draw: a =>
+        drawBoolean(
+            a,
+            a.cell.data,
+            booleanCellIsEditable(a.cell),
+            a.cell.maxSize ?? a.theme.checkboxMaxSize,
+            a.cell.hoverEffectIntensity ?? 0.35
+        ),
+    onDelete: c => ({
+        ...c,
+        data: false,
+    }),
+    onSelect: e => {
+        if (isOverEditableRegion(e)) {
+            e.preventDefault();
+        }
+    },
+    onClick: e => {
+        if (isOverEditableRegion(e)) {
+            return {
+                ...e.cell,
+                data: toggleBoolean(e.cell.data),
+            };
+        }
+        return undefined;
+    },
+    onPaste: (toPaste, cell) => {
+        let newVal: boolean | BooleanEmpty | BooleanIndeterminate = BooleanEmpty;
+        if (toPaste.toLowerCase() === "true") {
+            newVal = true;
+        } else if (toPaste.toLowerCase() === "false") {
+            newVal = false;
+        } else if (toPaste.toLowerCase() === "indeterminate") {
+            newVal = BooleanIndeterminate;
+        }
+        return newVal === cell.data
+            ? undefined
+            : {
+                  ...cell,
+                  data: newVal,
+              };
+    },
+};
 
-    // 计算复选框位置和大小
-    const size = Math.min(rect.height - 8, 16)
-    const x = rect.x + (rect.width - size) / 2
-    const y = rect.y + (rect.height - size) / 2
+function drawBoolean(
+    args: BaseDrawArgs,
+    data: boolean | BooleanEmpty | BooleanIndeterminate,
+    canEdit: boolean,
+    maxSize: number,
+    hoverEffectIntensity: number
+) {
+    if (!canEdit && data === BooleanEmpty) {
+        return;
+    }
+    const {
+        ctx,
+        hoverAmount,
+        theme,
+        rect,
+        highlighted,
+        hoverX,
+        hoverY,
+        cell: { contentAlign },
+    } = args;
+    const { x, y, width: w, height: h } = rect;
+
+    // Don't set the global alpha unnecessarily
+    let shouldRestoreAlpha = false;
+    if (hoverEffectIntensity > 0) {
+        let alpha = canEdit ? 1 - hoverEffectIntensity + hoverEffectIntensity * hoverAmount : 0.4;
+        if (data === BooleanEmpty) {
+            alpha *= hoverAmount;
+        }
+        if (alpha === 0) {
+            return;
+        }
+
+        if (alpha < 1) {
+            shouldRestoreAlpha = true;
+            ctx.globalAlpha = alpha;
+        }
+    }
+
+    // drawCheckbox will be implemented in Vue
+    // drawCheckbox(ctx, theme, data, x, y, w, h, highlighted, hoverX, hoverY, maxSize, contentAlign);
+
+    // 临时实现
+    const size = Math.min(h - 8, 16);
+    const checkboxX = x + (w - size) / 2;
+    const checkboxY = y + (h - size) / 2;
 
     // 绘制复选框边框
-    ctx.strokeStyle = theme.textLight
-    ctx.lineWidth = 1
-    ctx.strokeRect(x, y, size, size)
+    ctx.strokeStyle = theme.textLight;
+    ctx.lineWidth = 1;
+    ctx.strokeRect(checkboxX, checkboxY, size, size);
 
     // 根据状态绘制内容
-    if (cell.data === true) {
-      // 绘制勾选状态
-      ctx.fillStyle = theme.accentColor
-      ctx.fillRect(x + 2, y + 2, size - 4, size - 4)
-
-      // 绘制对勾
-      ctx.strokeStyle = theme.textHeader
-      ctx.lineWidth = 2
-      ctx.beginPath()
-      ctx.moveTo(x + 4, y + size / 2)
-      ctx.lineTo(x + size / 2, y + size - 4)
-      ctx.lineTo(x + size - 4, y + 4)
-      ctx.stroke()
-    } else if (cell.data === false) {
-      // 不绘制内容，保持空框
+    if (data === true) {
+        ctx.fillStyle = theme.accentColor;
+        ctx.fillRect(checkboxX + 2, checkboxY + 2, size - 4, size - 4);
+    } else if (data === false) {
+        // 不绘制内容
     } else {
-      // 绘制不确定状态（横线）
-      ctx.strokeStyle = theme.textLight
-      ctx.lineWidth = 2
-      ctx.beginPath()
-      ctx.moveTo(x + 4, y + size / 2)
-      ctx.lineTo(x + size - 4, y + size / 2)
-      ctx.stroke()
+        // 绘制不确定状态
+        ctx.strokeStyle = theme.textLight;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(checkboxX + 4, checkboxY + size / 2);
+        ctx.lineTo(checkboxX + size - 4, checkboxY + size / 2);
+        ctx.stroke();
     }
-  },
-  measure: (ctx, cell, theme) => {
-    return 24 // 固定宽度
-  },
-  onDelete: c => ({
-    ...c,
-    data: false,
-  }),
-  provideEditor: cell => ({
-    disablePadding: true,
-    editor: (props) => {
-      // 在Vue中，编辑器将在覆盖编辑器中实现
-      return null
-    },
-  }),
+
+    if (shouldRestoreAlpha) {
+        ctx.globalAlpha = 1;
+    }
 }

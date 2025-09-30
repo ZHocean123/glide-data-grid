@@ -1,52 +1,123 @@
-import type { GridCell, InnerGridCell } from '../internal/data-grid/data-grid-types.js'
+import type { SpriteManager } from "../internal/data-grid/data-grid-sprites.js";
+import type {
+    InnerGridCell,
+    Rectangle,
+    CustomCell,
+    ProvideEditorCallback,
+    BooleanEmpty,
+    BooleanIndeterminate,
+    Item,
+} from "../internal/data-grid/data-grid-types.js";
+import type { FullTheme } from "../common/styles.js";
+import type { ImageWindowLoader } from "../internal/data-grid/image-window-loader-interface.js";
+import type { BaseGridMouseEventArgs } from "../internal/data-grid/event-args.js";
 
-export interface CellRenderer<T extends GridCell> {
-  getAccessibilityString: (cell: T) => string
-  kind: T['kind']
-  needsHover?: (cell: T) => boolean
-  needsHoverPosition?: boolean
-  drawPrep?: (ctx: CanvasRenderingContext2D, cell: T, theme: any) => void
-  useLabel?: boolean
-  draw: (args: DrawCellArgs<T>) => void
-  measure?: (ctx: CanvasRenderingContext2D, cell: T, theme: any) => number
-  onDelete?: (cell: T) => T
-  provideEditor?: (cell: T) => EditorResult<T>
+export interface BaseDrawArgs {
+    ctx: CanvasRenderingContext2D;
+    theme: FullTheme;
+    col: number;
+    row: number;
+    rect: Rectangle;
+    highlighted: boolean;
+    hoverAmount: number;
+    hoverX: number | undefined;
+    hoverY: number | undefined;
+    cellFillColor: string;
+    imageLoader: ImageWindowLoader;
+    spriteManager: SpriteManager;
+    hyperWrapping: boolean;
+    cell: InnerGridCell;
 }
 
-export interface InternalCellRenderer<T extends InnerGridCell> extends CellRenderer<T> {
-  // 内部渲染器特定属性
+/** @category Drawing */
+
+export type DrawStateTuple = [any, (state: any) => void];
+
+export interface DrawArgs<T extends InnerGridCell> extends BaseDrawArgs {
+    cell: T;
+    requestAnimationFrame: (state?: any) => void;
+    drawState: DrawStateTuple;
+    frameTime: number;
+    overrideCursor: ((cursor: string) => void) | undefined;
 }
 
-export interface DrawCellArgs<T extends GridCell> {
-  ctx: CanvasRenderingContext2D
-  cell: T
-  theme: any
-  rect: {
-    x: number
-    y: number
-    width: number
-    height: number
-  }
-  hoverAmount?: number
-  hyperWrapping?: boolean
-  overrideCursor?: (cursor: string) => void
+// intentionally mutable
+/** @category Drawing */
+export interface PrepResult {
+    font: string | undefined;
+    fillStyle: string | undefined;
+    renderer: {};
+    deprep: ((args: Pick<BaseDrawArgs, "ctx">) => void) | undefined;
 }
 
-export interface EditorResult<T extends GridCell> {
-  disablePadding?: boolean
-  editor: (props: EditorProps<T>) => any
+/** @category Renderers */
+export type DrawCallback<T extends InnerGridCell> = (args: DrawArgs<T>, cell: T) => void;
+type PrepCallback = (args: BaseDrawArgs, lastPrep?: PrepResult) => Partial<PrepResult>;
+
+interface BaseCellRenderer<T extends InnerGridCell> {
+    // drawing
+    readonly kind: T["kind"];
+    readonly draw: DrawCallback<T>;
+    readonly drawPrep?: PrepCallback;
+    readonly needsHover?: boolean | ((cell: T) => boolean);
+    readonly needsHoverPosition?: boolean;
+    readonly measure?: (ctx: CanvasRenderingContext2D, cell: T, theme: FullTheme) => number;
+
+    // editing
+    readonly provideEditor?: ProvideEditorCallback<T>;
+
+    // event callbacks
+    readonly onClick?: (
+        args: {
+            readonly cell: T;
+            readonly posX: number;
+            readonly posY: number;
+            readonly bounds: Rectangle;
+            readonly location: Item;
+            readonly theme: FullTheme;
+            readonly preventDefault: () => void;
+        } & BaseGridMouseEventArgs
+    ) => T | undefined;
+
+    readonly onSelect?: (
+        args: {
+            readonly cell: T;
+            readonly posX: number;
+            readonly posY: number;
+            readonly bounds: Rectangle;
+            readonly theme: FullTheme;
+            readonly preventDefault: () => void;
+        } & BaseGridMouseEventArgs
+    ) => void;
+    readonly onDelete?: (cell: T) => T | undefined;
 }
 
-export interface EditorProps<T extends GridCell> {
-  value: T
-  onChange: (newValue: T) => void
-  onFinishedEditing: (newValue?: T, movement?: [number, number]) => void
-  isHighlighted?: boolean
-  validatedSelection?: [number, number]
+/** @category Renderers */
+export interface InternalCellRenderer<T extends InnerGridCell> extends BaseCellRenderer<T> {
+    readonly useLabel?: boolean;
+    readonly getAccessibilityString: (cell: T) => string;
+    readonly onPaste: (
+        val: string,
+        cell: T,
+        details: {
+            // fixme this should become the only argument
+            readonly rawValue: string | string[] | number | boolean | BooleanEmpty | BooleanIndeterminate;
+            readonly formatted?: string | string[];
+            readonly formattedString?: string; // convenience
+        }
+    ) => T | undefined;
 }
 
-export interface CustomRenderer<T extends GridCell> {
-  draw: (args: DrawCellArgs<T>) => void
-  isMatch: (cell: GridCell) => cell is T
-  provideEditor?: (cell: T) => EditorResult<T>
+/** @category Renderers */
+export interface CustomRenderer<T extends CustomCell = CustomCell> extends BaseCellRenderer<T> {
+    readonly isMatch: (cell: CustomCell) => cell is T;
+    readonly onPaste?: (val: string, cellData: T["data"]) => T["data"] | undefined;
 }
+
+/** @category Renderers */
+export type CellRenderer<T extends InnerGridCell> = [T] extends [CustomCell<infer DataType>]
+    ? CustomRenderer<CustomCell<DataType>>
+    : InternalCellRenderer<T>;
+
+/** @category Renderers */
+export type GetCellRendererCallback = <T extends InnerGridCell>(cell: T) => CellRenderer<T> | undefined;
