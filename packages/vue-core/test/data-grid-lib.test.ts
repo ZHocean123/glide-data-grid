@@ -1,5 +1,4 @@
 /* eslint-disable sonarjs/no-duplicate-string */
-import type { BaseDrawArgs } from "../src/index.js";
 import { getDataEditorTheme, mergeAndRealizeTheme, type FullTheme } from "../src/common/styles.js";
 import {
     remapForDnDState,
@@ -10,6 +9,7 @@ import { GridCellKind, type Rectangle } from "../src/internal/data-grid/data-gri
 import { vi, type Mocked, expect, describe, test, it, beforeEach } from "vitest";
 import { drawImage } from "../src/cells/image-cell.js";
 import type { ImageWindowLoader } from "../src/internal/data-grid/image-window-loader-interface.js";
+import type { BaseDrawArgs } from "../src/cells/cell-types.js";
 
 function makeCol(title: string, sourceIndex: number, sticky: boolean, width: number): MappedGridColumn {
     return {

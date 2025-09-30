@@ -37,8 +37,8 @@ describe('Cell Renderers', () => {
                 allowOverlay: true
             };
 
-            const result = textCellRenderer.onDelete(cell);
-            expect(result.data).toBe('');
+            const result = textCellRenderer.onDelete?.(cell);
+            expect(result?.data).toBe('');
         });
     });
 
