@@ -1,0 +1,86 @@
+/* Vue Glide Data Grid 样式 */
+
+.glide-data-grid {
+  position: relative;
+  overflow: hidden;
+  outline: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.glide-data-grid canvas {
+  display: block;
+  outline: none;
+}
+
+/* 覆盖编辑器样式 */
+.overlay-editor {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  z-index: 1000;
+}
+
+.overlay-input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  padding: 0 8px;
+  font-family: inherit;
+  font-size: inherit;
+  background: transparent;
+  box-sizing: border-box;
+}
+
+/* 搜索组件样式 */
+.search-overlay {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1000;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 4px 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.search-input {
+  border: none;
+  outline: none;
+  padding: 4px;
+  font-size: 14px;
+  min-width: 200px;
+  background: transparent;
+}
+
+.search-close {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0 4px;
+  color: #666;
+  line-height: 1;
+}
+
+.search-close:hover {
+  color: #333;
+}
+
+/* 主题变量 */
+:root {
+  --gdg-accent-color: #007acc;
+  --gdg-accent-light: rgba(0, 122, 204, 0.1);
+  --gdg-bg-cell: #ffffff;
+  --gdg-bg-header: #f8f9fa;
+  --gdg-text-dark: #212529;
+  --gdg-text-light: #6c757d;
+  --gdg-border-color: #dee2e6;
+}
