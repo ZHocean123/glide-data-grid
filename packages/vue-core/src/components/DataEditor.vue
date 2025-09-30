@@ -1,5 +1,17 @@
 <template>
     <div ref="containerRef" :class="className" :style="containerStyle">
+        <canvas
+            ref="canvasRef"
+            tabindex="0"
+            :width="canvasWidth"
+            :height="canvasHeight"
+            @keydown="handleKeyDown"
+            @keyup="handleKeyUp"
+            @mousedown="handleMouseDown"
+            @mousemove="handleMouseMove"
+            @mouseup="handleMouseUp"
+            @contextmenu="handleContextMenu"
+        />
         <DataGrid
             ref="dataGridRef"
             :columns="innerColumns"
@@ -108,6 +120,8 @@ const emit = defineEmits<{
 const containerRef = ref<HTMLElement>();
 const dataGridRef = ref<InstanceType<typeof DataGrid>>();
 const searchComponent = ref<any>();
+const canvasRef = ref<HTMLCanvasElement>();
+const animationFrameId = ref<number>();
 
 // 状态
 const gridSelectionInner = ref<GridSelection>({ columns: [], rows: [] });
