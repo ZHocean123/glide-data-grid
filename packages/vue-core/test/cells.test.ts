@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { textCellRenderer } from '../src/cells/text-cell';
-import { numberCellRenderer } from '../src/cells/number-cell';
-import { booleanCellRenderer } from '../src/cells/boolean-cell';
-import { GridCellKind } from '../src/internal/data-grid/data-grid-types';
+import { textCellRenderer } from '../src/cells/text-cell.js';
+import { numberCellRenderer } from '../src/cells/number-cell.js';
+import { booleanCellRenderer } from '../src/cells/boolean-cell.js';
+import { GridCellKind } from '../src/internal/data-grid/data-grid-types.js';
 
 describe('Cell Renderers', () => {
     describe('Text Cell', () => {
