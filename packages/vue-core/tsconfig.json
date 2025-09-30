@@ -1,0 +1,21 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "composite": true,
+    "jsx": "preserve",
+    "moduleResolution": "Node16",
+    "module": "Node16",
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "skipLibCheck": true,
+    "verbatimModuleSyntax": true,
+    "noUnusedParameters": true,
+    "strict": true,
+    "target": "ES2022",
+    "types": ["vitest", "node", "vue"]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["src/**/*.stories.*", "src/**/*.test.*"]
+}
