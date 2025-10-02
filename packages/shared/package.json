@@ -36,6 +36,11 @@
             "types": "./dist/dts/animation/index.d.ts",
             "import": "./dist/esm/animation/index.js",
             "require": "./dist/cjs/animation/index.js"
+        },
+        "./selection": {
+            "types": "./dist/dts/selection/index.d.ts",
+            "import": "./dist/esm/selection/index.js",
+            "require": "./dist/cjs/selection/index.js"
         }
     },
     "files": [

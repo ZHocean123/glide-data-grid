@@ -1,4 +1,4 @@
-# Phase 0 – Discovery & Shared Infrastructure
+# Phase 0 ?Discovery & Shared Infrastructure
 
 ## Desired Outcomes
 - Map React-specific vs framework-agnostic logic across `packages/core`, `packages/cells`, and `packages/source`.
@@ -21,9 +21,9 @@
 
 ### 0.2 Identify Shared Module Strategy
 - Classify each module as:
-  - **Shared** – pure TS/JS logic that can be moved to `packages/shared` or re-exported from core.
-  - **Adapter** – requires thin React/Vue wrappers around shared logic.
-  - **Rewrite** – fundamentally React-specific and demands a Vue implementation.
+  - **Shared** ?pure TS/JS logic that can be moved to `packages/shared` or re-exported from core.
+  - **Adapter** ?requires thin React/Vue wrappers around shared logic.
+  - **Rewrite** ?fundamentally React-specific and demands a Vue implementation.
 - Propose directory layout for shared assets (e.g. `packages/core/src/common` vs new `packages/shared`).
 - Flag high-risk areas (focus management, clipboard, portal usage) for early spikes.
 
@@ -31,14 +31,14 @@
 - Evaluate naming options: `@glideapps/glide-data-grid-vue`, `@glideapps/glide-data-grid-core-vue`, etc.
 - Confirm bundling targets (ESM for bundlers, CJS compatibility, CSS distribution).
 - Align on versioning strategy (match React releases vs independent SemVer).
-- Draft release channel plan (alpha → beta → stable) and npm tag usage.
+- Draft release channel plan (alpha ?beta ?stable) and npm tag usage.
 
 ### 0.4 Tooling & Environment Decisions
 - Choose Vue build stack (Vite + Rollup + esbuild) and confirm compatibility with existing lint/test infra.
 - Define minimum supported Vue version (target Vue 3.4+ with `<script setup>` support).
 - Outline testing stack: `vitest`, `@vue/test-utils`, end-to-end via Playwright/Storybook testing library.
 
-## Findings — 2025-10-02 Audit
+## Findings ?2025-10-02 Audit
 
 ### Inventory Summary by Package
 
@@ -84,17 +84,11 @@
 - Minimum versions: Vue 3.4+, TypeScript 5.4+ (matching repo baseline), Node 20 per `.nvmrc`.
 
 
-## Progress – 2025-10-02
-- Extracted geometry helpers (getClosestRect, splitRectIntoRegions, etc.) into the shared workspace and repointed core + test imports to @glideapps/glide-data-grid-shared/geometry.
-- Moved the animation manager into the shared package (@glideapps/glide-data-grid-shared/animation) alongside shared grid item utilities to keep hover behaviors reusable.
-- Extracted geometry helpers (, , etc.) into the shared workspace and repointed core + test imports to .
-- Moved the animation manager into the shared package () alongside shared grid item utilities to keep hover behaviors reusable.
-- Extracted geometry helpers (, , etc.) into the shared workspace and repointed core + test imports to .
-- Moved the animation manager into the shared package () alongside shared grid item utilities for reuse across frameworks.
+## Progress - 2025-10-02
 - Created the `@glideapps/glide-data-grid-shared` workspace with TypeScript build outputs (ESM/CJS) and lint/test scaffolding ready for Vue consumption.
 - Migrated the color parsing utilities (`parseToRgba`, `withAlpha`, `blend`, `interpolateColors`, `getLuminance`) from `packages/core` into `packages/shared/src/color`.
-- Updated core imports, public exports, and unit tests to consume the shared package, adding a workspace dependency in `packages/core/package.json`.
-- Attempted the shared build via `npm run build -w packages/shared` (fails under Windows shells lacking `bash`); track follow-up to provide a cross-platform wrapper.
+- Extracted geometry helpers (`getClosestRect`, `splitRectIntoRegions`, etc.) into the shared workspace and repointed core + test imports to `@glideapps/glide-data-grid-shared/geometry`.
+- Moved the animation manager into the shared package (`@glideapps/glide-data-grid-shared/animation`) alongside shared grid item utilities to keep hover behaviors reusable.
 
 ## Risks & Follow-ups Identified
 - React-specific context patterns (DataEditor overlays, focus traps) need clear adapter design before Phase 2 kicks off.

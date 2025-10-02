@@ -7,6 +7,7 @@ import type { OverlayImageEditorProps } from "../data-grid-overlay-editor/privat
 import type { SpriteManager } from "./data-grid-sprites.js";
 import type { BaseGridMouseEventArgs, CellActivatedEventArgs } from "./event-args.js";
 import type { ImageWindowLoader } from "./image-window-loader-interface.js";
+import type { GridSelectionLike } from "@glideapps/glide-data-grid-shared/selection";
 import type { FillHandleDirection as SharedFillHandleDirection, Rectangle as SharedRectangle } from "@glideapps/glide-data-grid-shared/geometry";
 import type { GridItem as SharedGridItem } from "@glideapps/glide-data-grid-shared/types";
 
@@ -16,7 +17,7 @@ import type { GridItem as SharedGridItem } from "@glideapps/glide-data-grid-shar
 // how the range came to be selected. The rows/columns properties retain this essential
 // information.
 /** @category Selection */
-export interface GridSelection {
+export interface GridSelection extends GridSelectionLike {
     readonly current?: {
         readonly cell: Item;
         readonly range: Readonly<Rectangle>;

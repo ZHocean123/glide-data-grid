@@ -56,20 +56,7 @@ export function useMappedColumns(
 }
 
 export { itemIsInRect } from "@glideapps/glide-data-grid-shared/geometry";
-
-export function gridSelectionHasItem(sel: GridSelection, item: Item): boolean {
-    const [col, row] = item;
-    if (sel.columns.hasIndex(col) || sel.rows.hasIndex(row)) return true;
-    if (sel.current !== undefined) {
-        if (itemsAreEqual(sel.current.cell, item)) return true;
-        const toCheck = [sel.current.range, ...sel.current.rangeStack]; // FIXME: pointless alloc
-        for (const r of toCheck) {
-            // dont we have a function for this?
-            if (col >= r.x && col < r.x + r.width && row >= r.y && row < r.y + r.height) return true;
-        }
-    }
-    return false;
-}
+export { gridSelectionHasItem, itemsAreEqual } from "@glideapps/glide-data-grid-shared/selection";
 
 export function isGroupEqual(left: string | undefined, right: string | undefined): boolean {
     return (left ?? "") === (right ?? "");
