@@ -25,7 +25,8 @@
     "workspaces": [
         "./packages/core",
         "./packages/cells",
-        "./packages/source"
+        "./packages/source",
+        "./packages/shared"
     ],
     "devDependencies": {
         "@babel/cli": "^7.27.2",

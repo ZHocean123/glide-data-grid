@@ -3,7 +3,7 @@ import { mergeAndRealizeTheme, type FullTheme } from "../../../common/styles.js"
 import { direction } from "../../../common/utils.js";
 import type { HoverValues } from "../animation-manager.js";
 import type { CellSet } from "../cell-set.js";
-import { withAlpha } from "../color-parser.js";
+import { withAlpha } from "@glideapps/glide-data-grid-shared/color";
 import type { SpriteManager, SpriteVariant } from "../data-grid-sprites.js";
 import { GridColumnMenuIcon, type DrawHeaderCallback, type GridSelection, type Rectangle } from "../data-grid-types.js";
 import {

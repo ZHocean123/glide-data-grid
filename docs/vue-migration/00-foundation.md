@@ -83,7 +83,14 @@
 - Linting/Formatting: `eslint-plugin-vue`, reuse Prettier config, enable type-check via `vue-tsc --build` in CI.
 - Minimum versions: Vue 3.4+, TypeScript 5.4+ (matching repo baseline), Node 20 per `.nvmrc`.
 
-### Risks & Follow-ups Identified
+
+## Progress – 2025-10-02
+- Created the `@glideapps/glide-data-grid-shared` workspace with TypeScript build outputs (ESM/CJS) and lint/test scaffolding ready for Vue consumption.
+- Migrated the color parsing utilities (`parseToRgba`, `withAlpha`, `blend`, `interpolateColors`, `getLuminance`) from `packages/core` into `packages/shared/src/color`.
+- Updated core imports, public exports, and unit tests to consume the shared package, adding a workspace dependency in `packages/core/package.json`.
+- Attempted the shared build via `npm run build -w packages/shared` (fails under Windows shells lacking `bash`); track follow-up to provide a cross-platform wrapper.
+
+## Risks & Follow-ups Identified
 - React-specific context patterns (DataEditor overlays, focus traps) need clear adapter design before Phase 2 kicks off.
 - Some "shared" files import React (e.g. `common/styles.ts`) and must be refactored to drop React dependencies or wrapped per framework.
 - Third-party React-only dependencies (`@toast-ui/react-editor`, `react-select`) require Vue alternatives or neutral wrappers—tracked for Phase 3.

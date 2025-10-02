@@ -3,7 +3,7 @@
 import { type Rectangle } from "../data-grid-types.js";
 import { CellSet } from "../cell-set.js";
 import { getEffectiveColumns, type MappedGridColumn, rectBottomRight } from "./data-grid-lib.js";
-import { blend } from "../color-parser.js";
+import { blend } from "@glideapps/glide-data-grid-shared/color";
 import { assert } from "../../../common/support.js";
 import type { DrawGridArg } from "./draw-grid-arg.js";
 import { walkColumns, walkGroups, walkRowsInCol } from "./data-grid-render.walk.js";

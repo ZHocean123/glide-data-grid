@@ -3,7 +3,7 @@
 import { type GridSelection, type InnerGridCell, type Item, type FillHandle, DEFAULT_FILL_HANDLE } from "../data-grid-types.js";
 import { getStickyWidth, type MappedGridColumn, computeBounds, getFreezeTrailingHeight } from "./data-grid-lib.js";
 import { type FullTheme } from "../../../common/styles.js";
-import { blend, withAlpha } from "../color-parser.js";
+import { blend, withAlpha } from "@glideapps/glide-data-grid-shared/color";
 import { hugRectToTarget, intersectRect, rectContains, splitRectIntoRegions } from "../../../common/math.js";
 import { getSpanBounds, walkColumns, walkRowsInCol } from "./data-grid-render.walk.js";
 import { type Highlight } from "./data-grid-render.cells.js";

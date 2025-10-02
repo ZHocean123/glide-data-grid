@@ -24,7 +24,7 @@ import {
 } from "./data-grid-lib.js";
 import type { SpriteManager } from "../data-grid-sprites.js";
 import { mergeAndRealizeTheme, type FullTheme, type Theme } from "../../../common/styles.js";
-import { blend } from "../color-parser.js";
+import { blend } from "@glideapps/glide-data-grid-shared/color";
 import type { DrawArgs, DrawStateTuple, GetCellRendererCallback, PrepResult } from "../../../cells/cell-types.js";
 import type { HoverInfo } from "./draw-grid-arg.js";
 import type { EnqueueCallback } from "../use-animation-queue.js";

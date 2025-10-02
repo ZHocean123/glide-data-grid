@@ -59,7 +59,8 @@
     "dependencies": {
         "@linaria/react": "^6.3.0",
         "canvas-hypertxt": "^1.0.3",
-        "react-number-format": "^5.4.4"
+        "react-number-format": "^5.4.4",
+        "@glideapps/glide-data-grid-shared": "6.0.4-alpha23"
     },
     "peerDependencies": {
         "lodash": "^4.17.19",

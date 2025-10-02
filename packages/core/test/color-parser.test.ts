@@ -6,7 +6,7 @@ import {
     interpolateColors,
     parseToRgba,
     withAlpha,
-} from "../src/internal/data-grid/color-parser.js";
+} from "@glideapps/glide-data-grid-shared/color";
 
 describe("interpolateColors", () => {
     test("Smoke test", () => {

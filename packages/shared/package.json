@@ -1,0 +1,39 @@
+{
+    "name": "@glideapps/glide-data-grid-shared",
+    "version": "6.0.4-alpha23",
+    "description": "Shared utilities for Glide Data Grid across framework targets.",
+    "type": "module",
+    "main": "dist/cjs/index.js",
+    "module": "dist/esm/index.js",
+    "types": "dist/dts/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/dts/index.d.ts",
+            "import": "./dist/esm/index.js",
+            "require": "./dist/cjs/index.js"
+        },
+        "./color": {
+            "types": "./dist/dts/color/index.d.ts",
+            "import": "./dist/esm/color/index.js",
+            "require": "./dist/cjs/color/index.js"
+        }
+    },
+    "files": [
+        "dist"
+    ],
+    "sideEffects": false,
+    "scripts": {
+        "build": "./build.sh",
+        "lint": "eslint src --ext .ts",
+        "test": "vitest"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/glideapps/glide-data-grid.git",
+        "directory": "packages/shared"
+    },
+    "author": "Glide",
+    "license": "MIT",
+    "peerDependencies": {},
+    "devDependencies": {}
+}

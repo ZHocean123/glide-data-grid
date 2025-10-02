@@ -1,4 +1,4 @@
-import { withAlpha } from "../internal/data-grid/color-parser.js";
+import { withAlpha } from "@glideapps/glide-data-grid-shared/color";
 import { roundedRect } from "../internal/data-grid/render/data-grid-lib.js";
 import { GridCellKind, type LoadingCell } from "../internal/data-grid/data-grid-types.js";
 import type { InternalCellRenderer } from "./cell-types.js";

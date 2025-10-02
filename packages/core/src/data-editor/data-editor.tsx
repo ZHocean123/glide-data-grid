@@ -63,7 +63,7 @@ import { useAutoscroll } from "./use-autoscroll.js";
 import type { CustomRenderer, CellRenderer, InternalCellRenderer } from "../cells/cell-types.js";
 import { decodeHTML, type CopyBuffer } from "./copy-paste.js";
 import { useRemAdjuster } from "./use-rem-adjuster.js";
-import { withAlpha } from "../internal/data-grid/color-parser.js";
+import { withAlpha } from "@glideapps/glide-data-grid-shared/color";
 import { combineRects, getClosestRect, pointInRect } from "../common/math.js";
 import {
     type HeaderClickedEventArgs,

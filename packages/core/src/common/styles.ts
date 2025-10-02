@@ -1,5 +1,5 @@
 import React from "react";
-import { blend } from "../internal/data-grid/color-parser.js";
+import { blend } from "@glideapps/glide-data-grid-shared/color";
 
 // theme variable precidence
 

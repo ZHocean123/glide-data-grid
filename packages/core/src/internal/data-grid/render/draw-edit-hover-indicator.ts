@@ -1,7 +1,7 @@
 import type { FullTheme } from "../../../common/styles.js";
 import type { Rectangle, HoverEffectTheme } from "../../../index.js";
 import { roundedRect, measureTextCached } from "./data-grid-lib.js";
-import { withAlpha } from "../color-parser.js";
+import { withAlpha } from "@glideapps/glide-data-grid-shared/color";
 
 export function drawEditHoverIndicator(
     ctx: CanvasRenderingContext2D,
