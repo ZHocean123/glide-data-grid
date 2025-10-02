@@ -16,7 +16,7 @@ import {
 } from "../internal/data-grid/data-grid-types.js";
 import type { InternalCellRenderer } from "./cell-types.js";
 import type { FullTheme } from "../common/styles.js";
-import { pointInRect } from "../common/math.js";
+import { pointInRect } from "@glideapps/glide-data-grid-shared/geometry";
 
 function getTextRect(
     metrics: TextMetrics,

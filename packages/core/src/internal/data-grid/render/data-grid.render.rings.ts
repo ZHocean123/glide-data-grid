@@ -4,7 +4,7 @@ import { type GridSelection, type InnerGridCell, type Item, type FillHandle, DEF
 import { getStickyWidth, type MappedGridColumn, computeBounds, getFreezeTrailingHeight } from "./data-grid-lib.js";
 import { type FullTheme } from "../../../common/styles.js";
 import { blend, withAlpha } from "@glideapps/glide-data-grid-shared/color";
-import { hugRectToTarget, intersectRect, rectContains, splitRectIntoRegions } from "../../../common/math.js";
+import { hugRectToTarget, intersectRect, rectContains, splitRectIntoRegions } from "@glideapps/glide-data-grid-shared/geometry";
 import { getSpanBounds, walkColumns, walkRowsInCol } from "./data-grid-render.walk.js";
 import { type Highlight } from "./data-grid-render.cells.js";
 

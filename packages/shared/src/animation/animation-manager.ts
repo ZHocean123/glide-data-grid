@@ -1,8 +1,8 @@
 import clamp from "lodash/clamp.js";
-import type { Item } from "./data-grid-types.js";
-import { itemsAreEqual } from "./render/data-grid-lib.js";
+import type { GridItem } from "../types.js";
+import { itemsAreEqual } from "../grid/index.js";
 
-type StateItem = { item: Item; hoverAmount: number };
+type StateItem = { item: GridItem; hoverAmount: number };
 export type HoverValues = readonly Readonly<StateItem>[];
 export type StepCallback = (values: HoverValues) => void;
 
@@ -14,31 +14,23 @@ function easeOutCubic(x: number) {
 }
 
 export class AnimationManager {
-    constructor(private callback: StepCallback) {}
+    constructor(private readonly callback: StepCallback) {}
 
     private currentHoveredItem: StateItem | undefined = undefined;
     private leavingItems: StateItem[] = [];
-
     private lastAnimationTime: number | undefined;
 
     private addToLeavingItems = (item: StateItem) => {
         const isAlreadyLeaving = this.leavingItems.some(i => itemsAreEqual(i.item, item.item));
-
         if (isAlreadyLeaving) {
             return;
         }
-
         this.leavingItems.push(item);
     };
 
-    /**
-     * @returns the hover amount of the item, if it was leaving (0 if not).
-     */
-    private removeFromLeavingItems = (item: Item): number => {
+    private removeFromLeavingItems = (item: GridItem): number => {
         const leavingItem = this.leavingItems.find(e => itemsAreEqual(e.item, item));
-
         this.leavingItems = this.leavingItems.filter(i => i !== leavingItem);
-
         return leavingItem?.hoverAmount ?? 0;
     };
 
@@ -50,14 +42,10 @@ export class AnimationManager {
         const hasLeavingItems = this.leavingItems.length > 0;
         const currentHoveredIsAnimating =
             this.currentHoveredItem !== undefined && this.currentHoveredItem.hoverAmount < 1;
-
         return hasLeavingItems || currentHoveredIsAnimating;
     };
 
     private getAnimatingItems = (): StateItem[] => {
-        // this is horrible. We shoudl be mutating the array in place. The reason we don't right now is because the
-        // hoveramount is used as both the tweened value and the raw value. We should separate these two things.
-        // Then we can stop doing the allocation insanity dance.
         if (this.currentHoveredItem !== undefined) {
             return [...this.leavingItems, this.currentHoveredItem];
         }
@@ -93,7 +81,7 @@ export class AnimationManager {
         }
     };
 
-    public setHovered = (item: Item | undefined): void => {
+    public setHovered = (item: GridItem | undefined): void => {
         if (itemsAreEqual(this.currentHoveredItem?.item, item)) {
             return;
         }
@@ -104,10 +92,7 @@ export class AnimationManager {
 
         if (item !== undefined) {
             const hoverAmount = this.removeFromLeavingItems(item);
-            this.currentHoveredItem = {
-                item,
-                hoverAmount,
-            };
+            this.currentHoveredItem = { item, hoverAmount };
         } else {
             this.currentHoveredItem = undefined;
         }

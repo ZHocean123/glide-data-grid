@@ -7,6 +7,8 @@ import type { OverlayImageEditorProps } from "../data-grid-overlay-editor/privat
 import type { SpriteManager } from "./data-grid-sprites.js";
 import type { BaseGridMouseEventArgs, CellActivatedEventArgs } from "./event-args.js";
 import type { ImageWindowLoader } from "./image-window-loader-interface.js";
+import type { FillHandleDirection as SharedFillHandleDirection, Rectangle as SharedRectangle } from "@glideapps/glide-data-grid-shared/geometry";
+import type { GridItem as SharedGridItem } from "@glideapps/glide-data-grid-shared/types";
 
 // Thoughts:
 // rows/columns are called out as selected, but when selected they must also be added
@@ -143,7 +145,7 @@ export type CellArray = readonly (readonly GridCell[])[];
  *
  * @category Types
  */
-export type Item = readonly [col: number, row: number];
+export type Item = SharedGridItem;
 
 export interface BaseGridColumn {
     readonly title: string;
@@ -292,12 +294,7 @@ export type InnerGridCell = GridCell | InnerOnlyGridCell;
 export type CellList = readonly Item[];
 
 /** @category Types */
-export interface Rectangle {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-}
+export type Rectangle = SharedRectangle;
 
 export function isRectangleEqual(a: Rectangle | undefined, b: Rectangle | undefined): boolean {
     if (a === b) return true;
@@ -525,7 +522,7 @@ export type Slice = [start: number, end: number];
 /** @category Selection */
 export type CompactSelectionRanges = readonly Slice[];
 
-export type FillHandleDirection = "horizontal" | "vertical" | "orthogonal" | "any";
+export type FillHandleDirection = SharedFillHandleDirection;
 
 /**
  * Configuration options for the fill-handle (the little drag square in the bottom-right of a selection).

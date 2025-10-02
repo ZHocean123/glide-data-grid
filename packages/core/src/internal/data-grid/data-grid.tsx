@@ -33,7 +33,7 @@ import clamp from "lodash/clamp.js";
 import makeRange from "lodash/range.js";
 import { drawGrid } from "./render/data-grid-render.js";
 import { type BlitData } from "./render/data-grid-render.blit.js";
-import { AnimationManager, type StepCallback } from "./animation-manager.js";
+import { AnimationManager, type StepCallback } from "@glideapps/glide-data-grid-shared/animation";
 import { RenderStateProvider, packColRowToNumber } from "../../common/render-state-provider.js";
 import { browserIsFirefox, browserIsSafari } from "../../common/browser-detect.js";
 import { type EnqueueCallback, useAnimationQueue } from "./use-animation-queue.js";
@@ -51,7 +51,7 @@ import {
     headerKind,
     mouseEventArgsAreEqual,
 } from "./event-args.js";
-import { pointInRect } from "../../common/math.js";
+import { pointInRect } from "@glideapps/glide-data-grid-shared/geometry";
 import {
     type GroupDetailsCallback,
     type GetRowThemeCallback,

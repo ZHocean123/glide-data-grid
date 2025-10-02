@@ -1,4 +1,4 @@
-import { AnimationManager, type HoverValues } from "../src/internal/data-grid/animation-manager.js";
+import { AnimationManager, type HoverValues } from "@glideapps/glide-data-grid-shared/animation";
 import { vi, expect, describe, it, beforeEach, afterEach } from "vitest";
 
 // const OG_RAF = window.requestAnimationFrame;

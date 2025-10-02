@@ -9,6 +9,7 @@ import {
     type BaseGridCell,
 } from "../data-grid-types.js";
 import { direction } from "../../../common/utils.js";
+import { itemsAreEqual } from "@glideapps/glide-data-grid-shared/grid";
 import React from "react";
 import type { BaseDrawArgs, PrepResult } from "../../../cells/cell-types.js";
 import { split as splitText, clearCache } from "canvas-hypertxt";
@@ -54,6 +55,8 @@ export function useMappedColumns(
     );
 }
 
+export { itemIsInRect } from "@glideapps/glide-data-grid-shared/geometry";
+
 export function gridSelectionHasItem(sel: GridSelection, item: Item): boolean {
     const [col, row] = item;
     if (sel.columns.hasIndex(col) || sel.rows.hasIndex(row)) return true;
@@ -82,16 +85,6 @@ export function cellIsSelected(location: Item, cell: InnerGridCell, selection: G
     }
 
     return selection.current.cell[0] >= cell.span[0] && selection.current.cell[0] <= cell.span[1];
-}
-
-export function itemIsInRect(location: Item, rect: Rectangle): boolean {
-    const [x, y] = location;
-
-    return x >= rect.x && x < rect.x + rect.width && y >= rect.y && y < rect.y + rect.height;
-}
-
-export function itemsAreEqual(a: Item | undefined, b: Item | undefined): boolean {
-    return a?.[0] === b?.[0] && a?.[1] === b?.[1];
 }
 
 export function rectBottomRight(rect: Rectangle): Item {

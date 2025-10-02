@@ -48,7 +48,6 @@ import { getScrollBarWidth, useEventListener, whenDefined } from "../common/util
 import {
     isGroupEqual,
     itemsAreEqual,
-    itemIsInRect,
     gridSelectionHasItem,
     getFreezeTrailingHeight,
 } from "../internal/data-grid/render/data-grid-lib.js";
@@ -64,7 +63,7 @@ import type { CustomRenderer, CellRenderer, InternalCellRenderer } from "../cell
 import { decodeHTML, type CopyBuffer } from "./copy-paste.js";
 import { useRemAdjuster } from "./use-rem-adjuster.js";
 import { withAlpha } from "@glideapps/glide-data-grid-shared/color";
-import { combineRects, getClosestRect, pointInRect } from "../common/math.js";
+import { combineRects, getClosestRect, pointInRect, itemIsInRect } from "@glideapps/glide-data-grid-shared/geometry";
 import {
     type HeaderClickedEventArgs,
     type GroupHeaderClickedEventArgs,

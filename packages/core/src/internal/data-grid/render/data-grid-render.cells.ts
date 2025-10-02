@@ -30,7 +30,7 @@ import type { HoverInfo } from "./draw-grid-arg.js";
 import type { EnqueueCallback } from "../use-animation-queue.js";
 import type { RenderStateProvider } from "../../../common/render-state-provider.js";
 import type { ImageWindowLoader } from "../image-window-loader-interface.js";
-import { intersectRect } from "../../../common/math.js";
+import { intersectRect } from "@glideapps/glide-data-grid-shared/geometry";
 import type { GridMouseGroupHeaderEventArgs } from "../event-args.js";
 import { getSkipPoint, getSpanBounds, walkColumns, walkRowsInCol } from "./data-grid-render.walk.js";
 

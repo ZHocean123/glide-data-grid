@@ -6,7 +6,7 @@ import groupBy from "lodash/groupBy.js";
 import { getStickyWidth, type MappedGridColumn, getFreezeTrailingHeight } from "./data-grid-lib.js";
 import { mergeAndRealizeTheme, type FullTheme } from "../../../common/styles.js";
 import { blendCache } from "@glideapps/glide-data-grid-shared/color";
-import { intersectRect } from "../../../common/math.js";
+import { intersectRect } from "@glideapps/glide-data-grid-shared/geometry";
 import { getSkipPoint, walkColumns, walkRowsInCol } from "./data-grid-render.walk.js";
 import { type GetRowThemeCallback } from "./data-grid-render.cells.js";
 

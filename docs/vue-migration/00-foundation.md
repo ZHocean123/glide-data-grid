@@ -85,6 +85,12 @@
 
 
 ## Progress – 2025-10-02
+- Extracted geometry helpers (getClosestRect, splitRectIntoRegions, etc.) into the shared workspace and repointed core + test imports to @glideapps/glide-data-grid-shared/geometry.
+- Moved the animation manager into the shared package (@glideapps/glide-data-grid-shared/animation) alongside shared grid item utilities to keep hover behaviors reusable.
+- Extracted geometry helpers (, , etc.) into the shared workspace and repointed core + test imports to .
+- Moved the animation manager into the shared package () alongside shared grid item utilities to keep hover behaviors reusable.
+- Extracted geometry helpers (, , etc.) into the shared workspace and repointed core + test imports to .
+- Moved the animation manager into the shared package () alongside shared grid item utilities for reuse across frameworks.
 - Created the `@glideapps/glide-data-grid-shared` workspace with TypeScript build outputs (ESM/CJS) and lint/test scaffolding ready for Vue consumption.
 - Migrated the color parsing utilities (`parseToRgba`, `withAlpha`, `blend`, `interpolateColors`, `getLuminance`) from `packages/core` into `packages/shared/src/color`.
 - Updated core imports, public exports, and unit tests to consume the shared package, adding a workspace dependency in `packages/core/package.json`.

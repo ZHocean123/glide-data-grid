@@ -1,4 +1,4 @@
-import { intersectRect, pointInRect } from "../../../common/math.js";
+import { intersectRect, pointInRect } from "@glideapps/glide-data-grid-shared/geometry";
 import { mergeAndRealizeTheme, type FullTheme } from "../../../common/styles.js";
 import { direction } from "../../../common/utils.js";
 import type { HoverValues } from "../animation-manager.js";
