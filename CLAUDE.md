@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Glide Data Grid is a high-performance, canvas-based React data grid component designed to handle millions of rows with smooth scrolling. The project is organized as a monorepo with three main packages:
 
 - **packages/core**: Main data grid component (`@glideapps/glide-data-grid`)
-- **packages/cells**: Additional cell types (`@glideapps/glide-data-grid-cells`)  
+- **packages/cells**: Additional cell types (`@glideapps/glide-data-grid-cells`)
 - **packages/source**: Data source utilities (`@glideapps/glide-data-grid-source`)
 
 ## Common Commands
@@ -59,7 +59,7 @@ Individual package commands are run from within each package directory (e.g., `c
 ### Cell System
 The grid uses a canvas-based rendering system where each cell type has its own renderer. Cell types are defined in `packages/core/src/cells/cell-types.ts` and include:
 - Text, Number, Boolean, Image cells
-- Markdown, URI, Drilldown cells  
+- Markdown, URI, Drilldown cells
 - Custom cells via `CustomRenderer` interface
 
 ### Theme System
