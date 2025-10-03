@@ -1,0 +1,44 @@
+{
+    "extends": [
+        "eslint:recommended",
+        "plugin:vue/vue3-recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:import/recommended",
+        "plugin:import/typescript",
+        "plugin:sonarjs/recommended",
+        "plugin:unicorn/recommended"
+    ],
+    "plugins": ["vue", "@typescript-eslint", "import", "sonarjs", "unicorn"],
+    "parser": "vue-eslint-parser",
+    "parserOptions": {
+        "parser": "@typescript-eslint/parser",
+        "project": ["./tsconfig.json"],
+        "extraFileExtensions": [".vue"]
+    },
+    "rules": {
+        "vue/multi-word-component-names": "off",
+        "no-console": "warn",
+        "eqeqeq": ["error", "always"],
+        "guard-for-in": "error",
+        "import/no-unresolved": "off",
+        "import/named": "off",
+        "import/namespace": "off",
+        "sonarjs/cognitive-complexity": "off",
+        "unicorn/filename-case": "off",
+        "unicorn/prevent-abbreviations": "off",
+        "unicorn/prefer-query-selector": "off",
+        "unicorn/no-null": "off",
+        "unicorn/consistent-destructuring": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/ban-ts-comment": "off",
+        "@typescript-eslint/no-floating-promises": [
+            "error",
+            {
+                "ignoreVoid": true
+            }
+        ]
+    },
+    "ignorePatterns": ["**/node_modules/*", "**/dist/*"]
+}

@@ -9,7 +9,6 @@ import {
     type BaseGridCell,
 } from "../data-grid-types.js";
 import { direction } from "../../../common/utils.js";
-import { itemsAreEqual } from "@glideapps/glide-data-grid-shared/grid";
 import React from "react";
 import type { BaseDrawArgs, PrepResult } from "../../../cells/cell-types.js";
 import { split as splitText, clearCache } from "canvas-hypertxt";
