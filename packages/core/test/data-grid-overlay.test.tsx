@@ -1,11 +1,11 @@
 import * as React from "react";
 import { render, cleanup } from "@testing-library/react";
-import BubblesOverlayEditor from "../src/internal/data-grid-overlay-editor/private/bubbles-overlay-editor.js";
-import DrilldownOverlayEditor from "../src/internal/data-grid-overlay-editor/private/drilldown-overlay-editor.js";
-import { GridCellKind, ImageOverlayEditor } from "../src/index.js";
-import { MarkdownOverlayEditor } from "../src/internal/data-grid-overlay-editor/private/markdown-overlay-editor.js";
-import NumberOverlayEditor from "../src/internal/data-grid-overlay-editor/private/number-overlay-editor.js";
-import UriOverlayEditor from "../src/internal/data-grid-overlay-editor/private/uri-overlay-editor.js";
+import BubblesOverlayEditor from "../src/internal/data-grid-overlay-editor/private/bubbles-overlay-editor";
+import DrilldownOverlayEditor from "../src/internal/data-grid-overlay-editor/private/drilldown-overlay-editor";
+import { GridCellKind, ImageOverlayEditor } from "../src/index";
+import { MarkdownOverlayEditor } from "../src/internal/data-grid-overlay-editor/private/markdown-overlay-editor";
+import NumberOverlayEditor from "../src/internal/data-grid-overlay-editor/private/number-overlay-editor";
+import UriOverlayEditor from "../src/internal/data-grid-overlay-editor/private/uri-overlay-editor";
 import { vi, describe, test, afterEach } from "vitest";
 
 describe("data-grid-overlay", () => {

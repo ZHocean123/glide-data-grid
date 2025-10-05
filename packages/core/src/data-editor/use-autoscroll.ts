@@ -1,5 +1,5 @@
 import React from "react";
-import type { GridMouseCellEventArgs } from "../internal/data-grid/event-args.js";
+import type { GridMouseCellEventArgs } from "../internal/data-grid/event-args";
 
 const maxPxPerMs = 2;
 const msToFullSpeed = 1300;

@@ -116,38 +116,38 @@ This is now done by providing a rightElementProps
 
 The following previously deprecated API's are no longer present
 
--   `drawCustomCell` replaced by `drawCell`
--   `onColumnResized` replaced by `onColumnResize`
--   `BooleanCell.allowEdit` replaced by `BooleanCell.readonly`
--   `BooleanCell.showUnchecked` no replacement has been defunct for a long time
+- `drawCustomCell` replaced by `drawCell`
+- `onColumnResized` replaced by `onColumnResize`
+- `BooleanCell.allowEdit` replaced by `BooleanCell.readonly`
+- `BooleanCell.showUnchecked` no replacement has been defunct for a long time
 
 ## 🥳 New features
 
--   react-virtualized-autosizer no longer used as a dependency
--   Vertical and horizontal scroll shadows now available and configurable
--   Cursor now settable per cell
--   `validateCell` now receives the previous cell to make validation easier.
--   Row marker header column now draws a checkbox rather than silently accepting inputs
--   `drawHeader` now receives the index of the drawn header
--   Value coercion can now return the desired selected range post coercion.
--   `rightElementProps` new API which allows for making the right element not only sticky but also grow to consume leftover space.
--   `onCellsEdited` is now always called prior to calling `onCellEdited` allowing for implementing a single edit callback.
--   `isDraggable` can now be set to `cell` or `header` to allow dragging on just one or the other
+- react-virtualized-autosizer no longer used as a dependency
+- Vertical and horizontal scroll shadows now available and configurable
+- Cursor now settable per cell
+- `validateCell` now receives the previous cell to make validation easier.
+- Row marker header column now draws a checkbox rather than silently accepting inputs
+- `drawHeader` now receives the index of the drawn header
+- Value coercion can now return the desired selected range post coercion.
+- `rightElementProps` new API which allows for making the right element not only sticky but also grow to consume leftover space.
+- `onCellsEdited` is now always called prior to calling `onCellEdited` allowing for implementing a single edit callback.
+- `isDraggable` can now be set to `cell` or `header` to allow dragging on just one or the other
 
 ## 🐞 Bug fixes
 
--   Setting `gridSelection` externally will keep the newly selected selection in view.
--   No longer crashes when calling `getBounds` with a cell that is not in the current range, and instead returns undefined.
--   Drag scrolling now significantly smoother
--   Headers now properly select with touch events
--   Headers will not emit spurious click events when completing drag operations
--   Copying in safari no longer beeps the browser
--   Trailing row options theme now applies to the trailing row even if it is not sticky
--   Many svg loading improvements
--   `onCellsEdited` now correctly prevents `onCellEdited` from being emitted when requested
--   Auto-sizing columns will no longer cause their headers to be truncated
--   Context menus can now be correctly cancelled on all operating systems, not just Windows
--   NextJS production builds no longer complain
+- Setting `gridSelection` externally will keep the newly selected selection in view.
+- No longer crashes when calling `getBounds` with a cell that is not in the current range, and instead returns undefined.
+- Drag scrolling now significantly smoother
+- Headers now properly select with touch events
+- Headers will not emit spurious click events when completing drag operations
+- Copying in safari no longer beeps the browser
+- Trailing row options theme now applies to the trailing row even if it is not sticky
+- Many svg loading improvements
+- `onCellsEdited` now correctly prevents `onCellEdited` from being emitted when requested
+- Auto-sizing columns will no longer cause their headers to be truncated
+- Context menus can now be correctly cancelled on all operating systems, not just Windows
+- NextJS production builds no longer complain
 
 # 4.2.0 Release Notes
 
@@ -189,30 +189,30 @@ https://user-images.githubusercontent.com/30443/175350873-e8360b6c-b030-4977-96c
 
 ## 🦾 Minor Improvements
 
--   `DropdownCell` now attempts to follow theme.
--   `highlightRegions` now can be set to have a solid color outline.
--   Row Markers now display a handle when row drag and drop is enabled.
--   `appendRow` now available in imperative handle, thank you @pzcfg
--   `onColumnResize` now passes the index of the resized column as well as the column itself.
--   Improve column resize performance.
+- `DropdownCell` now attempts to follow theme.
+- `highlightRegions` now can be set to have a solid color outline.
+- Row Markers now display a handle when row drag and drop is enabled.
+- `appendRow` now available in imperative handle, thank you @pzcfg
+- `onColumnResize` now passes the index of the resized column as well as the column itself.
+- Improve column resize performance.
 
 ## 🐞 Bug Fixes
 
--   Protected cell rendering now handles being in selection correctly.
--   Dragging on non-resizeable columns no longer shows a resize indicator.
--   Search keybinding now works when caps-lock is pressed.
--   Improve NextJS compatibility
--   Disabling vertical border on the freeze column edge works correctly now
--   Not every browser supports `window.navigator.clipboard` and we no longer crash.
--   Newly appended rows with default values no longer get overwritten.
--   Measurement of many cells improved
+- Protected cell rendering now handles being in selection correctly.
+- Dragging on non-resizeable columns no longer shows a resize indicator.
+- Search keybinding now works when caps-lock is pressed.
+- Improve NextJS compatibility
+- Disabling vertical border on the freeze column edge works correctly now
+- Not every browser supports `window.navigator.clipboard` and we no longer crash.
+- Newly appended rows with default values no longer get overwritten.
+- Measurement of many cells improved
 
 # 4.1.0 Release Notes
 
 ## 🚨 Deprecations
 
--   `BooleanCell.showUnchecked` now deprecated and replaced with passing null as the BooleanCell value.
--   `BooleanCell.allowEdit` now deprecated and replace with `BooleanCell.readonly`.
+- `BooleanCell.showUnchecked` now deprecated and replaced with passing null as the BooleanCell value.
+- `BooleanCell.allowEdit` now deprecated and replace with `BooleanCell.readonly`.
 
 Both deprecated options continue to work as intended, but implementors should begin migrating to the new options.
 
@@ -248,21 +248,21 @@ During a draw event for a custom cell, the cell may now call `args.requestAnimat
 
 ## 🐜💪 Minor Improvements
 
--   `CompactSelection.remove` now supports removing a slice instead of just an index. Thanks to @BrianHung
--   Custom editors no longer automatically commit the tempValue when finished editing is called, allowing for editing to be properly cancelled by the custom editor.
--   Text entry into a cell now more eagerly being edit mode. This makes things like entering a negative number much easier and improves foreign language support.
--   Top and right edges of the grid will no longer draw a double border in some cases, thank you @LukasMasuch
--   Visually center text with better algorithm which accounts for oddities from font to font
--   Boolean cells now supported in paste.
+- `CompactSelection.remove` now supports removing a slice instead of just an index. Thanks to @BrianHung
+- Custom editors no longer automatically commit the tempValue when finished editing is called, allowing for editing to be properly cancelled by the custom editor.
+- Text entry into a cell now more eagerly being edit mode. This makes things like entering a negative number much easier and improves foreign language support.
+- Top and right edges of the grid will no longer draw a double border in some cases, thank you @LukasMasuch
+- Visually center text with better algorithm which accounts for oddities from font to font
+- Boolean cells now supported in paste.
 
 ## 🪲 Bug Fixes
 
--   Slight improvements to the newline handling for overlay editors.
--   Custom cells are now properly included in search results via the `copyData` property.
--   Values copied out of the grid now copy raw values into HTML and display values into text. This improves copy/paste interop inside of Glide Data Grid.
--   Ideal height calculation for Grid now properly accounts for trailing row.
--   Focus will no longer be lost when interacting with cells outside of the visual viewport, thank you @BrianHung
--   Fix `isDraggable`
+- Slight improvements to the newline handling for overlay editors.
+- Custom cells are now properly included in search results via the `copyData` property.
+- Values copied out of the grid now copy raw values into HTML and display values into text. This improves copy/paste interop inside of Glide Data Grid.
+- Ideal height calculation for Grid now properly accounts for trailing row.
+- Focus will no longer be lost when interacting with cells outside of the visual viewport, thank you @BrianHung
+- Fix `isDraggable`
 
 # 4.0.0 Release Notes
 
@@ -408,11 +408,11 @@ Custom editors can now receive the initial input value when a user begins typing
 
 ## 🐞 Bug Fixes
 
--   Prevent issue with vertical underscroll on mobile devices.
--   Minor performance improvements when rendering lots of empty text cells
--   `react-number-format` is now lazy loaded to improve initial load times.
--   Shift+enter now correctly moves the focus to the cell above.
--   Fix off by one error with screen-reader columns
+- Prevent issue with vertical underscroll on mobile devices.
+- Minor performance improvements when rendering lots of empty text cells
+- `react-number-format` is now lazy loaded to improve initial load times.
+- Shift+enter now correctly moves the focus to the cell above.
+- Fix off by one error with screen-reader columns
 
 # 3.4.0 Release Notes
 
@@ -442,20 +442,20 @@ Through the magic of banging our heads against a wall repeatedly we have managed
 
 ### 🔬 **Minor features**
 
--   Support for insert to custom row index
--   Add experimental flag for strict mode. In strict mode getCellContent never calls for cells outside the range of the last visible region sent to onVisibleRegionChanged
--   Drilldown cells now render much faster
+- Support for insert to custom row index
+- Add experimental flag for strict mode. In strict mode getCellContent never calls for cells outside the range of the last visible region sent to onVisibleRegionChanged
+- Drilldown cells now render much faster
 
 ## **Bug Fixes**
 
--   Fix issue where drag scrolling may not stop when mouse click releases.
--   Images in firefox will no longer flicker when recycling an image element
--   Prevent header menu click events when resizing
--   Fix issue where header could sometimes be blanked when rapidly moving the mouse
--   Fix theming issues in some overlay editors and search interface
--   Fix padding changes causing weird flickering artifacts
--   Touch scrolling no longer selects cells as you scroll
--   Boolean cells can again be checked/unchecked with the keyboard
+- Fix issue where drag scrolling may not stop when mouse click releases.
+- Images in firefox will no longer flicker when recycling an image element
+- Prevent header menu click events when resizing
+- Fix issue where header could sometimes be blanked when rapidly moving the mouse
+- Fix theming issues in some overlay editors and search interface
+- Fix padding changes causing weird flickering artifacts
+- Touch scrolling no longer selects cells as you scroll
+- Boolean cells can again be checked/unchecked with the keyboard
 
 # 3.3.0 Release Notes
 
@@ -477,9 +477,9 @@ The data grid can be scrolled to a cell programmatically by calling `scrollTo` o
 
 Easily implement right click menus for the data grid with these three new APIs:
 
--   `readonly onHeaderContextMenu?: (colIndex: number, event: HeaderClickedEventArgs) => void;`
--   `readonly onGroupHeaderContextMenu?: (colIndex: number, event: GroupHeaderClickedEventArgs) => void;`
--   `readonly onCellContextMenu?: (cell: Item, event: CellClickedEventArgs) => void;`
+- `readonly onHeaderContextMenu?: (colIndex: number, event: HeaderClickedEventArgs) => void;`
+- `readonly onGroupHeaderContextMenu?: (colIndex: number, event: GroupHeaderClickedEventArgs) => void;`
+- `readonly onCellContextMenu?: (cell: Item, event: CellClickedEventArgs) => void;`
 
 ### **onFinishedEditing callback now available at root level**
 
@@ -489,9 +489,9 @@ This event fires even if the cell value itself is not changed. Big thank you @kr
 
 ## 🐛 **Bug Fixes**
 
--   PaddingX/Y are now properly accounted for in scrolling situations. | @pzcfg
--   Multiple storybook fixes. | @pzcfg @ivoelbert
--   Marked dependency has been updated to the latest version from a very old version.
+- PaddingX/Y are now properly accounted for in scrolling situations. | @pzcfg
+- Multiple storybook fixes. | @pzcfg @ivoelbert
+- Marked dependency has been updated to the latest version from a very old version.
 
 # 3.2.1 Release Notes
 
@@ -539,12 +539,12 @@ We've but in significant work to the Glide Data Grid to help CPU bound systems l
 
 ## 🐞 Bug Fixes
 
--   Freeze columns no longer cause the data grid to crash if there are fewer actual columns than freeze columns.
--   Fixed a bug where image smoothing would sometimes be left disabled for a frame.
--   Fixed an issue where certain props would totally disable blitting optimization by mistake.
--   Pressing backspace on OSX to delete cell contents will now also prevent the browser from navigating to the preview page.
--   Cell editors on firefox will now always display the cursor correctly.
--   Enabling `lastUpdated` on some cells could result in cells rendering with blank content in rare situations.
+- Freeze columns no longer cause the data grid to crash if there are fewer actual columns than freeze columns.
+- Fixed a bug where image smoothing would sometimes be left disabled for a frame.
+- Fixed an issue where certain props would totally disable blitting optimization by mistake.
+- Pressing backspace on OSX to delete cell contents will now also prevent the browser from navigating to the preview page.
+- Cell editors on firefox will now always display the cursor correctly.
+- Enabling `lastUpdated` on some cells could result in cells rendering with blank content in rare situations.
 
 # 3.1.2 Release Notes
 
@@ -582,15 +582,15 @@ Groups can now provide a theme override for all cells in their group. This is es
 
 ## 🐞Bug Fixes
 
--   Fix crash when columns had menus and were under 30px wide
--   Fix bug where grid selection would be reported to the user with an off by one error in some cases
--   Support 0 width columns better and prevent overdraw of borders
--   Empty string and undefined groups are now correctly treated as the same group
--   Frozen columns can now be dragged correctly
--   Minor editing improvements
--   Font overrides now correctly apply to cells
--   Dragging columns will no longer get stuck if the mouse ends over a menu icon
--   Selected columns now properly handle delete key
+- Fix crash when columns had menus and were under 30px wide
+- Fix bug where grid selection would be reported to the user with an off by one error in some cases
+- Support 0 width columns better and prevent overdraw of borders
+- Empty string and undefined groups are now correctly treated as the same group
+- Frozen columns can now be dragged correctly
+- Minor editing improvements
+- Font overrides now correctly apply to cells
+- Dragging columns will no longer get stuck if the mouse ends over a menu icon
+- Selected columns now properly handle delete key
 
 # 3.1.0 Release Notes
 
@@ -650,13 +650,13 @@ readonly getGroupDetails?: (groupName: string) => { name: string; icon?: string 
 
 ## 🐛 Major Bug Fixes
 
--   Fixed a crash when dragging rows
--   Clicking on the bottom scrollbar no longer clears the selection
--   Fix spurious drag start events even though `isDraggable` is set to false.
--   Clicks from non-primary buttons no longer trigger the canvas
--   Delete key now deletes the entire selected range, not just the selected cell.
--   Fonts now re-render when the browser finishes loading to make sure fallback fonts are replaced.
--   Custom editors handle shift/esc/enter automatically now.
+- Fixed a crash when dragging rows
+- Clicking on the bottom scrollbar no longer clears the selection
+- Fix spurious drag start events even though `isDraggable` is set to false.
+- Clicks from non-primary buttons no longer trigger the canvas
+- Delete key now deletes the entire selected range, not just the selected cell.
+- Fonts now re-render when the browser finishes loading to make sure fallback fonts are replaced.
+- Custom editors handle shift/esc/enter automatically now.
 
 # 3.0.4 Release Notes
 
@@ -743,7 +743,7 @@ This is a minor release focused on fixing issues found in the 3.0.0 release.
 
 ## 🐛 Bug Fixes
 
--   Cell click event does not fire reliably, fixes #81
+- Cell click event does not fire reliably, fixes #81
 
 # 3.0.1 Release Notes
 

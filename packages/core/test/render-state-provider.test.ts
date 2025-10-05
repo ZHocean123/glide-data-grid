@@ -5,8 +5,8 @@ import {
     unpackRow,
     unpackNumberToColRow,
     RenderStateProvider,
-} from "../src/common/render-state-provider.js";
-import type { Rectangle } from "../src/internal/data-grid/data-grid-types.js";
+} from "../src/common/render-state-provider";
+import type { Rectangle } from "../src/internal/data-grid/data-grid-types";
 
 describe("Data Grid Utility Functions", () => {
     describe("packColRowToNumber and unpacking functions", () => {

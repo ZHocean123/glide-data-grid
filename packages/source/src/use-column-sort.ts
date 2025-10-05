@@ -1,18 +1,18 @@
 import { type DataEditorProps, type GridCell, GridCellKind, type GridColumn } from "@glideapps/glide-data-grid";
-import range from "lodash/range.js";
+import range from "lodash/range";
 import * as React from "react";
 
 function cellToSortData(c: GridCell): string {
     switch (c.kind) {
         case GridCellKind.Number:
-            return c.data?.toString() ?? "";
+            return c.data?.toString() ?? ";
         case GridCellKind.Boolean:
-            return c.data?.toString() ?? "";
+            return c.data?.toString() ?? ";
         case GridCellKind.Markdown:
         case GridCellKind.RowID:
         case GridCellKind.Text:
         case GridCellKind.Uri:
-            return c.data ?? "";
+            return c.data ?? ";
         case GridCellKind.Bubble:
         case GridCellKind.Image:
             return c.data.join("");
@@ -20,7 +20,7 @@ function cellToSortData(c: GridCell): string {
             return c.data.map(x => x.text).join("");
         case GridCellKind.Protected:
         case GridCellKind.Loading:
-            return "";
+            return ";
         case GridCellKind.Custom:
             return c.copyData;
     }

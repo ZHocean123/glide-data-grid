@@ -1,10 +1,10 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 import * as React from "react";
 import { render, fireEvent, screen } from "@testing-library/react";
-import { CompactSelection } from "../src/index.js";
-import type { DataEditorRef } from "../src/data-editor/data-editor.js";
+import { CompactSelection } from "../src/index";
+import type { DataEditorRef } from "../src/data-editor/data-editor";
 import { vi, expect, describe, test, beforeEach, afterEach } from "vitest";
-import { EventedDataEditor, basicProps, prep, Context, standardBeforeEach, standardAfterEach } from "./test-utils.js";
+import { EventedDataEditor, basicProps, prep, Context, standardBeforeEach, standardAfterEach } from "./test-utils";
 
 describe("data-editor", () => {
     vi.mock("../src/common/resize-detector", () => {

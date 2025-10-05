@@ -12,27 +12,27 @@ import {
     type DrawCellCallback,
     isInnerOnlyCell,
     type GridCell,
-} from "../data-grid-types.js";
-import { CellSet } from "../cell-set.js";
-import type { HoverValues } from "../animation-manager.js";
+} from "../data-grid-types";
+import { CellSet } from "../cell-set";
+import type { HoverValues } from "../animation-manager";
 import {
     type MappedGridColumn,
     cellIsSelected,
     cellIsInRange,
     getFreezeTrailingHeight,
     drawLastUpdateUnderlay,
-} from "./data-grid-lib.js";
-import type { SpriteManager } from "../data-grid-sprites.js";
-import { mergeAndRealizeTheme, type FullTheme, type Theme } from "../../../common/styles.js";
+} from "./data-grid-lib";
+import type { SpriteManager } from "../data-grid-sprites";
+import { mergeAndRealizeTheme, type FullTheme, type Theme } from "../../../common/styles";
 import { blend } from "@glideapps/glide-data-grid-shared/color";
-import type { DrawArgs, DrawStateTuple, GetCellRendererCallback, PrepResult } from "../../../cells/cell-types.js";
-import type { HoverInfo } from "./draw-grid-arg.js";
-import type { EnqueueCallback } from "../use-animation-queue.js";
-import type { RenderStateProvider } from "../../../common/render-state-provider.js";
-import type { ImageWindowLoader } from "../image-window-loader-interface.js";
+import type { DrawArgs, DrawStateTuple, GetCellRendererCallback, PrepResult } from "../../../cells/cell-types";
+import type { HoverInfo } from "./draw-grid-arg";
+import type { EnqueueCallback } from "../use-animation-queue";
+import type { RenderStateProvider } from "../../../common/render-state-provider";
+import type { ImageWindowLoader } from "../image-window-loader-interface";
 import { intersectRect } from "@glideapps/glide-data-grid-shared/geometry";
-import type { GridMouseGroupHeaderEventArgs } from "../event-args.js";
-import { getSkipPoint, getSpanBounds, walkColumns, walkRowsInCol } from "./data-grid-render.walk.js";
+import type { GridMouseGroupHeaderEventArgs } from "../event-args";
+import { getSkipPoint, getSpanBounds, walkColumns, walkRowsInCol } from "./data-grid-render.walk";
 
 const loadingCell: InnerGridCell = {
     kind: GridCellKind.Loading,

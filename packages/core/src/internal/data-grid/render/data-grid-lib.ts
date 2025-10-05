@@ -1,5 +1,5 @@
 /* eslint-disable unicorn/no-for-loop */
-import type { FullTheme } from "../../../common/styles.js";
+import type { FullTheme } from "../../../common/styles";
 import {
     type Item,
     type GridSelection,
@@ -7,12 +7,12 @@ import {
     type InnerGridColumn,
     type Rectangle,
     type BaseGridCell,
-} from "../data-grid-types.js";
-import { direction } from "../../../common/utils.js";
+} from "../data-grid-types";
+import { direction } from "../../../common/utils";
 import React from "react";
-import type { BaseDrawArgs, PrepResult } from "../../../cells/cell-types.js";
+import type { BaseDrawArgs, PrepResult } from "../../../cells/cell-types";
 import { split as splitText, clearCache } from "canvas-hypertxt";
-import type { FullyDefined } from "../../../common/support.js";
+import type { FullyDefined } from "../../../common/support";
 
 export interface MappedGridColumn extends FullyDefined<InnerGridColumn> {
     sourceIndex: number;
@@ -55,7 +55,8 @@ export function useMappedColumns(
 }
 
 export { itemIsInRect } from "@glideapps/glide-data-grid-shared/geometry";
-export { gridSelectionHasItem, itemsAreEqual } from "@glideapps/glide-data-grid-shared/selection";
+export { gridSelectionHasItem } from "@glideapps/glide-data-grid-shared/selection";
+export { itemsAreEqual } from "@glideapps/glide-data-grid-shared/grid";
 
 export function isGroupEqual(left: string | undefined, right: string | undefined): boolean {
     return (left ?? "") === (right ?? "");

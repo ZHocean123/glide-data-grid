@@ -1,5 +1,5 @@
 import React from "react";
-import { CompactSelection, type GridSelection, type Slice } from "./data-grid-types.js";
+import { CompactSelection, type GridSelection, type Slice } from "./data-grid-types";
 
 type SetCallback = (newVal: GridSelection, expand: boolean) => void;
 

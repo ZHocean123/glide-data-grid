@@ -1,8 +1,8 @@
 import * as React from "react";
 
-import { GrowingEntryStyle, ShadowBox, InputBox } from "./growing-entry-style.js";
-import { assert } from "../../common/support.js";
-import type { SelectionRange } from "../data-grid/data-grid-types.js";
+import { GrowingEntryStyle, ShadowBox, InputBox } from "./growing-entry-style";
+import { assert } from "../../common/support";
+import type { SelectionRange } from "../data-grid/data-grid-types";
 
 interface Props
     extends React.DetailedHTMLProps<React.TextareaHTMLAttributes<HTMLTextAreaElement>, HTMLTextAreaElement> {
@@ -21,7 +21,7 @@ export const GrowingEntry: React.FunctionComponent<Props> = (props: Props) => {
 
     const inputRef = React.useRef<HTMLTextAreaElement | null>(null);
 
-    const useText = value ?? "";
+    const useText = value ?? ";
 
     assert(onChange !== undefined, "GrowingEntry must be a controlled input area");
 

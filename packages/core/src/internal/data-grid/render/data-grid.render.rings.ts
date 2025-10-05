@@ -1,12 +1,12 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 /* eslint-disable unicorn/no-for-loop */
-import { type GridSelection, type InnerGridCell, type Item, type FillHandle, DEFAULT_FILL_HANDLE } from "../data-grid-types.js";
-import { getStickyWidth, type MappedGridColumn, computeBounds, getFreezeTrailingHeight } from "./data-grid-lib.js";
-import { type FullTheme } from "../../../common/styles.js";
+import { type GridSelection, type InnerGridCell, type Item, type FillHandle, DEFAULT_FILL_HANDLE } from "../data-grid-types";
+import { getStickyWidth, type MappedGridColumn, computeBounds, getFreezeTrailingHeight } from "./data-grid-lib";
+import { type FullTheme } from "../../../common/styles";
 import { blend, withAlpha } from "@glideapps/glide-data-grid-shared/color";
 import { hugRectToTarget, intersectRect, rectContains, splitRectIntoRegions } from "@glideapps/glide-data-grid-shared/geometry";
-import { getSpanBounds, walkColumns, walkRowsInCol } from "./data-grid-render.walk.js";
-import { type Highlight } from "./data-grid-render.cells.js";
+import { getSpanBounds, walkColumns, walkRowsInCol } from "./data-grid-render.walk";
+import { type Highlight } from "./data-grid-render.cells";
 
 export function drawHighlightRings(
     ctx: CanvasRenderingContext2D,

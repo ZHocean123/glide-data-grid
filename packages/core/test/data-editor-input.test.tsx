@@ -8,11 +8,11 @@ import {
     GridCellKind,
     type GridSelection,
     type Item,
-} from "../src/index.js";
-import type { DataEditorRef } from "../src/data-editor/data-editor.js";
-import { CompactSelection } from "../src/internal/data-grid/data-grid-types.js";
+} from "../src/index";
+import type { DataEditorRef } from "../src/data-editor/data-editor";
+import { CompactSelection } from "../src/internal/data-grid/data-grid-types";
 import { vi, expect, describe, test, beforeEach, afterEach } from "vitest";
-import { standardBeforeEach } from "./test-utils.js";
+import { standardBeforeEach } from "./test-utils";
 
 const makeCell = (cell: Item): GridCell => {
     const [col, row] = cell;

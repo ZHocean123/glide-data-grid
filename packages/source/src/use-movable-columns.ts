@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { DataEditorProps, GridColumn } from "@glideapps/glide-data-grid";
-import orderBy from "lodash/orderBy.js";
+import orderBy from "lodash/orderBy";
 
 function colToKey(c: GridColumn) {
     return c.id ?? `${c.group ?? ""}/${c.title}`;

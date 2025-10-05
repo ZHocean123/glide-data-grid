@@ -1,4 +1,4 @@
-import type { Item, Rectangle, CellActivationBehavior } from "./data-grid-types.js";
+import type { Item, Rectangle, CellActivationBehavior } from "./data-grid-types";
 
 /** @category Types */
 export interface BaseGridMouseEventArgs {

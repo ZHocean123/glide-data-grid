@@ -1,10 +1,10 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 /* eslint-disable unicorn/no-for-loop */
-import { deepEqual } from "../../../common/support.js";
-import { type Rectangle } from "../data-grid-types.js";
-import { getStickyWidth, type MappedGridColumn, getFreezeTrailingHeight } from "./data-grid-lib.js";
-import { walkColumns } from "./data-grid-render.walk.js";
-import type { DrawGridArg } from "./draw-grid-arg.js";
+import { deepEqual } from "../../../common/support";
+import { type Rectangle } from "../data-grid-types";
+import { getStickyWidth, type MappedGridColumn, getFreezeTrailingHeight } from "./data-grid-lib";
+import { walkColumns } from "./data-grid-render.walk";
+import type { DrawGridArg } from "./draw-grid-arg";
 
 export interface BlitData {
     readonly cellXOffset: number;

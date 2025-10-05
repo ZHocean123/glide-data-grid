@@ -1,5 +1,5 @@
 import { renderHook, cleanup } from "@testing-library/react-hooks";
-import { useAutoscroll } from "../src/data-editor/use-autoscroll.js";
+import { useAutoscroll } from "../src/data-editor/use-autoscroll";
 import { vi, expect, describe, it, afterEach } from "vitest";
 
 describe("use-auto-scroll", () => {

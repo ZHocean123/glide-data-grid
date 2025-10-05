@@ -8,9 +8,9 @@ import {
     GridCellKind,
     type GridSelection,
     type Item,
-} from "../src/index.js";
-import type { SizedGridColumn } from "../src/internal/data-grid/data-grid-types.js";
-import type { DataEditorRef } from "../src/data-editor/data-editor.js";
+} from "../src/index";
+import type { SizedGridColumn } from "../src/internal/data-grid/data-grid-types";
+import type { DataEditorRef } from "../src/data-editor/data-editor";
 import { vi } from "vitest";
 
 const BOOLEAN_DATA_LOOKUP: (boolean | null | undefined)[] = [true, false, undefined, null];

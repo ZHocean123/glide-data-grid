@@ -1,7 +1,7 @@
 import * as React from "react";
-import DataGridDnd, { type DataGridDndProps } from "../data-grid-dnd/data-grid-dnd.js";
-import type { Rectangle } from "../data-grid/data-grid-types.js";
-import { InfiniteScroller } from "./infinite-scroller.js";
+import DataGridDnd, { type DataGridDndProps } from "../data-grid-dnd/data-grid-dnd";
+import type { Rectangle } from "../data-grid/data-grid-types";
+import { InfiniteScroller } from "./infinite-scroller";
 
 type Props = Omit<DataGridDndProps, "width" | "height" | "eventTargetRef">;
 

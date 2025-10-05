@@ -1,10 +1,10 @@
 /* eslint-disable react/display-name */
 import * as React from "react";
-import BubblesOverlayEditor from "../internal/data-grid-overlay-editor/private/bubbles-overlay-editor.js";
-import { getMiddleCenterBias, measureTextCached, roundedRect } from "../internal/data-grid/render/data-grid-lib.js";
-import { GridCellKind, type BubbleCell } from "../internal/data-grid/data-grid-types.js";
-import type { BaseDrawArgs, InternalCellRenderer } from "./cell-types.js";
-import { makeAccessibilityStringForArray } from "../common/utils.js";
+import BubblesOverlayEditor from "../internal/data-grid-overlay-editor/private/bubbles-overlay-editor";
+import { getMiddleCenterBias, measureTextCached, roundedRect } from "../internal/data-grid/render/data-grid-lib";
+import { GridCellKind, type BubbleCell } from "../internal/data-grid/data-grid-types";
+import type { BaseDrawArgs, InternalCellRenderer } from "./cell-types";
+import { makeAccessibilityStringForArray } from "../common/utils";
 
 export const bubbleCellRenderer: InternalCellRenderer<BubbleCell> = {
     getAccessibilityString: c => makeAccessibilityStringForArray(c.data),

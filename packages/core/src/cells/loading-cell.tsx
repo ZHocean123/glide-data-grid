@@ -1,7 +1,7 @@
 import { withAlpha } from "@glideapps/glide-data-grid-shared/color";
-import { roundedRect } from "../internal/data-grid/render/data-grid-lib.js";
-import { GridCellKind, type LoadingCell } from "../internal/data-grid/data-grid-types.js";
-import type { InternalCellRenderer } from "./cell-types.js";
+import { roundedRect } from "../internal/data-grid/render/data-grid-lib";
+import { GridCellKind, type LoadingCell } from "../internal/data-grid/data-grid-types";
+import type { InternalCellRenderer } from "./cell-types";
 
 // returns a "random" number between -1 and 1
 function getRandomNumber(x: number, y: number): number {

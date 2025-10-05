@@ -1,16 +1,16 @@
 import React from "react";
-import { DataEditorAll as DataEditor, type DataEditorAllProps } from "../../data-editor-all.js";
+import { DataEditorAll as DataEditor, type DataEditorAllProps } from "../../data-editor-all";
 import {
     BeautifulWrapper,
     Description,
     PropName,
     useMockDataGenerator,
     defaultProps,
-} from "../../data-editor/stories/utils.js";
-import { SimpleThemeWrapper } from "../../stories/story-utils.js";
-import { GridCellKind, type Item } from "../../internal/data-grid/data-grid-types.js";
-import { type RowGroupingOptions } from "../../data-editor/row-grouping.js";
-import { useRowGrouping } from "../../data-editor/row-grouping-api.js";
+} from "../../data-editor/stories/utils";
+import { SimpleThemeWrapper } from "../../stories/story-utils";
+import { GridCellKind, type Item } from "../../internal/data-grid/data-grid-types";
+import { type RowGroupingOptions } from "../../data-editor/row-grouping";
+import { useRowGrouping } from "../../data-editor/row-grouping-api";
 import _ from "lodash";
 
 export default {

@@ -7,7 +7,7 @@ import {
     type Rectangle,
     type Theme,
 } from "@glideapps/glide-data-grid";
-import { roundedRect } from "../draw-fns.js";
+import { roundedRect } from "../draw-fns";
 
 type PackedColor = string | readonly [normal: string, hover: string];
 

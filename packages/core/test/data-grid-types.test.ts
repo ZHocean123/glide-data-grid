@@ -1,6 +1,6 @@
-import { GridCellKind, isTextEditableGridCell } from "../src/internal/data-grid/data-grid-types.js";
-import { isEditableGridCell } from "../src/index.js";
-import { sprites } from "../src/internal/data-grid/sprites.js";
+import { GridCellKind, isTextEditableGridCell } from "../src/internal/data-grid/data-grid-types";
+import { isEditableGridCell } from "../src/index";
+import { sprites } from "../src/internal/data-grid/sprites";
 import { expect, describe, test } from "vitest";
 
 describe("data-grid-types", () => {

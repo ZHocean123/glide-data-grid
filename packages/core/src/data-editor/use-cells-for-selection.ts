@@ -1,7 +1,7 @@
 import * as React from "react";
-import type { DataGridSearchProps } from "../internal/data-grid-search/data-grid-search.js";
-import { type CellArray, type GridCell, GridCellKind } from "../internal/data-grid/data-grid-types.js";
-import type { DataEditorProps } from "./data-editor.js";
+import type { DataGridSearchProps } from "../internal/data-grid-search/data-grid-search";
+import { type CellArray, type GridCell, GridCellKind } from "../internal/data-grid/data-grid-types";
+import type { DataEditorProps } from "./data-editor";
 
 type CellsForSelectionCallback = NonNullable<DataGridSearchProps["getCellsForSelection"]>;
 export function useCellsForSelection(

@@ -33,7 +33,7 @@ export function useCollapsingGroups(props: Props): Result {
         let lastGroup: string | undefined;
         for (let i = freezeColumns; i < columnsIn.length; i++) {
             const c = columnsIn[i];
-            const group = c.group ?? "";
+            const group = c.group ?? ";
             const isCollapsed = collapsed.includes(group);
 
             if (lastGroup !== group && current[0] !== -1) {
@@ -80,7 +80,7 @@ export function useCollapsingGroups(props: Props): Result {
         (index, a) => {
             onGroupHeaderClickedIn?.(index, a);
 
-            const group = columns[index]?.group ?? "";
+            const group = columns[index]?.group ?? ";
             if (group === "") return;
             a.preventDefault();
             setCollapsed(cv => (cv.includes(group) ? cv.filter(x => x !== group) : [...cv, group]));

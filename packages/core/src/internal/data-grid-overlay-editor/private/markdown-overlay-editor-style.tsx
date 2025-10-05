@@ -1,4 +1,4 @@
-import { GrowingEntryStyle } from "../../growing-entry/growing-entry-style.js";
+import { GrowingEntryStyle } from "../../growing-entry/growing-entry-style";
 import { styled } from "@linaria/react";
 
 interface Props {

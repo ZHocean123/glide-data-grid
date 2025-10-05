@@ -1,7 +1,7 @@
 import * as React from "react";
-import { ImageOverlayEditorStyle } from "./image-overlay-editor-style.js";
+import { ImageOverlayEditorStyle } from "./image-overlay-editor-style";
 import { Carousel } from "react-responsive-carousel";
-import { EditPencil } from "../../../common/utils.js";
+import { EditPencil } from "../../../common/utils";
 
 /** @category Types */
 export interface OverlayImageEditorProps {

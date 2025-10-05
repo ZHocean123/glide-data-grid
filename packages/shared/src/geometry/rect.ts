@@ -1,4 +1,4 @@
-import type { ReadonlyPoint } from "../types.js";
+import type { ReadonlyPoint } from "../types";
 
 export type FillHandleDirection = "horizontal" | "vertical" | "orthogonal" | "any";
 

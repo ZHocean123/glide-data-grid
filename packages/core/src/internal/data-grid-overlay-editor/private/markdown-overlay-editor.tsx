@@ -1,9 +1,9 @@
 import * as React from "react";
-import MarkdownDiv from "../../markdown-div/markdown-div.js";
-import { GrowingEntry } from "../../growing-entry/growing-entry.js";
-import { MarkdownOverlayEditorStyle } from "./markdown-overlay-editor-style.js";
-import { EditPencil, Checkmark } from "../../../common/utils.js";
-import type { MarkdownCell, Rectangle, SelectionRange } from "../../data-grid/data-grid-types.js";
+import MarkdownDiv from "../../markdown-div/markdown-div";
+import { GrowingEntry } from "../../growing-entry/growing-entry";
+import { MarkdownOverlayEditorStyle } from "./markdown-overlay-editor-style";
+import { EditPencil, Checkmark } from "../../../common/utils";
+import type { MarkdownCell, Rectangle, SelectionRange } from "../../data-grid/data-grid-types";
 
 interface Props {
     readonly targetRect: Rectangle;
@@ -27,7 +27,7 @@ export const MarkdownOverlayEditor: React.FunctionComponent<Props> = p => {
     const onEditClick = React.useCallback(() => {
         setEditMode(e => !e);
     }, []);
-    const addLeftPad = markdown ? "gdg-ml-6" : "";
+    const addLeftPad = markdown ? "gdg-ml-6" : ";
 
     if (editMode) {
         return (

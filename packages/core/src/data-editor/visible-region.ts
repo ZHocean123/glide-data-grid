@@ -1,4 +1,4 @@
-import { type Rectangle, type Item } from "../internal/data-grid/data-grid-types.js";
+import { type Rectangle, type Item } from "../internal/data-grid/data-grid-types";
 
 export type VisibleRegion = Rectangle & {
     /** value in px */

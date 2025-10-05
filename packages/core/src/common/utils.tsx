@@ -1,6 +1,6 @@
 import * as React from "react";
-import debounce from "lodash/debounce.js";
-import { deepEqual } from "./support.js";
+import debounce from "lodash/debounce";
+import { deepEqual } from "./support";
 
 export function useEventListener<K extends keyof HTMLElementEventMap>(
     eventName: K,
@@ -260,7 +260,7 @@ export function makeAccessibilityStringForArray(arr: readonly string[]): string 
     // this is basically just .join(", ") but checks to make sure it is not going to allocate
     // a string that is so large it might crash the browser
     if (arr.length === 0) {
-        return "";
+        return ";
     }
 
     let index = 0;

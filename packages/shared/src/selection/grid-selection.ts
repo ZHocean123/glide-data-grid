@@ -1,6 +1,6 @@
-import type { Rectangle } from "../geometry/index.js";
-import type { GridItem } from "../types.js";
-import { itemsAreEqual } from "../grid/items.js";
+import type { Rectangle } from "../geometry/index";
+import type { GridItem } from "../types";
+import { itemsAreEqual } from "../grid/items";
 
 export interface CompactSelectionLike {
     hasIndex(index: number): boolean;

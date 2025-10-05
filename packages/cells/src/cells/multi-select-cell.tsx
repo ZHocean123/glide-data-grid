@@ -106,7 +106,7 @@ export const resolveValues = (
     }
 
     return values.map((value, index) => {
-        const valuePrefix = allowDuplicates ? `${VALUE_PREFIX}${index}__` : "";
+        const valuePrefix = allowDuplicates ? `${VALUE_PREFIX}${index}__` : ";
         const matchedOption = options.find(option => {
             return option.value === value;
         });

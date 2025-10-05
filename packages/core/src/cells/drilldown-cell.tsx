@@ -1,15 +1,15 @@
 /* eslint-disable react/display-name */
 import * as React from "react";
-import DrilldownOverlayEditor from "../internal/data-grid-overlay-editor/private/drilldown-overlay-editor.js";
+import DrilldownOverlayEditor from "../internal/data-grid-overlay-editor/private/drilldown-overlay-editor";
 import {
     getEmHeight,
     getMiddleCenterBias,
     measureTextCached,
     roundedRect,
-} from "../internal/data-grid/render/data-grid-lib.js";
-import { GridCellKind, type DrilldownCell, type DrilldownCellData } from "../internal/data-grid/data-grid-types.js";
-import type { BaseDrawArgs, InternalCellRenderer } from "./cell-types.js";
-import { makeAccessibilityStringForArray } from "../common/utils.js";
+} from "../internal/data-grid/render/data-grid-lib";
+import { GridCellKind, type DrilldownCell, type DrilldownCellData } from "../internal/data-grid/data-grid-types";
+import type { BaseDrawArgs, InternalCellRenderer } from "./cell-types";
+import { makeAccessibilityStringForArray } from "../common/utils";
 
 export const drilldownCellRenderer: InternalCellRenderer<DrilldownCell> = {
     getAccessibilityString: c => makeAccessibilityStringForArray(c.data.map(d => d.text)),

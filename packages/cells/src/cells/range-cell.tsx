@@ -7,7 +7,7 @@ import {
     getEmHeight,
 } from "@glideapps/glide-data-grid";
 import * as React from "react";
-import { roundedRect } from "../draw-fns.js";
+import { roundedRect } from "../draw-fns";
 
 function adaptFontSize(font: string, percentage: number): string {
     const regex = /(\d+\.?\d*)\s*(px|rem|em|%|pt)/;

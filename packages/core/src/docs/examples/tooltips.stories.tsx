@@ -1,16 +1,16 @@
 import React from "react";
 import type { IBounds } from "react-laag";
 import { useLayer } from "react-laag";
-import { DataEditorAll as DataEditor } from "../../data-editor-all.js";
+import { DataEditorAll as DataEditor } from "../../data-editor-all";
 import {
     BeautifulWrapper,
     Description,
     PropName,
     useMockDataGenerator,
     defaultProps,
-} from "../../data-editor/stories/utils.js";
-import { SimpleThemeWrapper } from "../../stories/story-utils.js";
-import type { GridMouseEventArgs } from "../../internal/data-grid/event-args.js";
+} from "../../data-editor/stories/utils";
+import { SimpleThemeWrapper } from "../../stories/story-utils";
+import type { GridMouseEventArgs } from "../../internal/data-grid/event-args";
 
 export default {
     title: "Glide-Data-Grid/DataEditor Demos",

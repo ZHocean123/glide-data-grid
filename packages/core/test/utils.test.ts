@@ -1,6 +1,6 @@
 import { renderHook, cleanup } from "@testing-library/react-hooks";
 import { act } from "react-dom/test-utils";
-import { useStateWithReactiveInput } from "../src/common/utils.js";
+import { useStateWithReactiveInput } from "../src/common/utils";
 import { expect, describe, test, afterEach } from "vitest";
 
 describe("useStateWithReactiveInput", () => {

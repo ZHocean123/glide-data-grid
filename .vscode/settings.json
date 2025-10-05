@@ -1,5 +1,15 @@
 {
     "eslint.workingDirectories": ["packages/core", "packages/cells", "packages/source"],
     "typescript.tsdk": "node_modules/typescript/lib",
-    "oxc.enable": true
+    "oxc.enable": true,
+    "debug.javascript.defaultRuntimeExecutable": {
+        "pwa-node": "c:\\users\\ocean\\appdata\\local\\mise\\shims\\node"
+    },
+    "cSpell.words": [
+        "deprep",
+        "Drilldown",
+        "drilldowns",
+        "glideapps",
+        "sparkline"
+    ]
 }

@@ -9,8 +9,8 @@ import {
     type Item,
     type Rectangle,
 } from "@glideapps/glide-data-grid";
-import range from "lodash/range.js";
-import chunk from "lodash/chunk.js";
+import range from "lodash/range";
+import chunk from "lodash/chunk";
 import React from "react";
 
 type Range = readonly [startIndex: number, endIndex: number];

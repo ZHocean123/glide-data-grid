@@ -1,5 +1,5 @@
 import React from "react";
-import { DataEditorAll as DataEditor } from "../../data-editor-all.js";
+import { DataEditorAll as DataEditor } from "../../data-editor-all";
 import {
     BeautifulWrapper,
     Description,
@@ -7,8 +7,8 @@ import {
     useMockDataGenerator,
     defaultProps,
     ColumnAddButton,
-} from "../../data-editor/stories/utils.js";
-import { SimpleThemeWrapper } from "../../stories/story-utils.js";
+} from "../../data-editor/stories/utils";
+import { SimpleThemeWrapper } from "../../stories/story-utils";
 
 export default {
     title: "Glide-Data-Grid/DataEditor Demos",

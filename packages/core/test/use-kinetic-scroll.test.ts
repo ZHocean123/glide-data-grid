@@ -1,5 +1,5 @@
 import { renderHook, act } from "@testing-library/react-hooks";
-import useKineticScroll from "../src/internal/scrolling-data-grid/use-kinetic-scroll.js";
+import useKineticScroll from "../src/internal/scrolling-data-grid/use-kinetic-scroll";
 import { vi, expect, describe, it, afterEach, beforeEach } from "vitest";
 import { fireEvent } from "@testing-library/react";
 

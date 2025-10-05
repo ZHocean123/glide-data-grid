@@ -1,11 +1,11 @@
 import { renderHook, cleanup } from "@testing-library/react-hooks";
-import { type GridCell, GridCellKind, type GridColumn, type Rectangle } from "../src/index.js";
-import { getDataEditorTheme, mergeAndRealizeTheme } from "../src/common/styles.js";
-import type { DataGridSearchProps } from "../src/internal/data-grid-search/data-grid-search.js";
-import { AllCellRenderers } from "../src/cells/index.js";
-import type { GetCellRendererCallback } from "../src/cells/cell-types.js";
-import type { CellArray, CustomCell } from "../src/internal/data-grid/data-grid-types.js";
-import { useColumnSizer } from "../src/data-editor/use-column-sizer.js";
+import { type GridCell, GridCellKind, type GridColumn, type Rectangle } from "../src/index";
+import { getDataEditorTheme, mergeAndRealizeTheme } from "../src/common/styles";
+import type { DataGridSearchProps } from "../src/internal/data-grid-search/data-grid-search";
+import { AllCellRenderers } from "../src/cells/index";
+import type { GetCellRendererCallback } from "../src/cells/cell-types";
+import type { CellArray, CustomCell } from "../src/internal/data-grid/data-grid-types";
+import { useColumnSizer } from "../src/data-editor/use-column-sizer";
 import { vi, expect, describe, it, beforeEach, afterEach } from "vitest";
 
 const COLUMNS: GridColumn[] = [

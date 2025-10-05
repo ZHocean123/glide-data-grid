@@ -1,7 +1,7 @@
-import { getMiddleCenterBias } from "../internal/data-grid/render/data-grid-lib.js";
-import { InnerGridCellKind, type MarkerCell } from "../internal/data-grid/data-grid-types.js";
-import { drawCheckbox } from "../internal/data-grid/render/draw-checkbox.js";
-import type { BaseDrawArgs, InternalCellRenderer, PrepResult } from "./cell-types.js";
+import { getMiddleCenterBias } from "../internal/data-grid/render/data-grid-lib";
+import { InnerGridCellKind, type MarkerCell } from "../internal/data-grid/data-grid-types";
+import { drawCheckbox } from "../internal/data-grid/render/draw-checkbox";
+import type { BaseDrawArgs, InternalCellRenderer, PrepResult } from "./cell-types";
 
 export const markerCellRenderer: InternalCellRenderer<MarkerCell> = {
     getAccessibilityString: c => c.row.toString(),

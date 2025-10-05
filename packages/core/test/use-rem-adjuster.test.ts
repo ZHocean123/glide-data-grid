@@ -1,5 +1,5 @@
 import { renderHook, cleanup } from "@testing-library/react-hooks";
-import { useRemAdjuster } from "../src/data-editor/use-rem-adjuster.js";
+import { useRemAdjuster } from "../src/data-editor/use-rem-adjuster";
 import { expect, describe, it, afterEach } from "vitest";
 
 describe("useDataEditorDimensions", () => {

@@ -1,21 +1,21 @@
 /* eslint-disable react/display-name */
 import * as React from "react";
-import UriOverlayEditor from "../internal/data-grid-overlay-editor/private/uri-overlay-editor.js";
+import UriOverlayEditor from "../internal/data-grid-overlay-editor/private/uri-overlay-editor";
 import {
     drawTextCell,
     getMeasuredTextCache,
     getMiddleCenterBias,
     measureTextCached,
     prepTextCell,
-} from "../internal/data-grid/render/data-grid-lib.js";
+} from "../internal/data-grid/render/data-grid-lib";
 import {
     GridCellKind,
     type BaseGridCell,
     type Rectangle,
     type UriCell,
-} from "../internal/data-grid/data-grid-types.js";
-import type { InternalCellRenderer } from "./cell-types.js";
-import type { FullTheme } from "../common/styles.js";
+} from "../internal/data-grid/data-grid-types";
+import type { InternalCellRenderer } from "./cell-types";
+import type { FullTheme } from "../common/styles";
 import { pointInRect } from "@glideapps/glide-data-grid-shared/geometry";
 
 function getTextRect(

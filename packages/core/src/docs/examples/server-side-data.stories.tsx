@@ -8,14 +8,14 @@ import {
     type Rectangle,
     type Item,
     type CellArray,
-} from "../../internal/data-grid/data-grid-types.js";
-import { SimpleThemeWrapper } from "../../stories/story-utils.js";
-import { DataEditorAll as DataEditor, type DataEditorAllProps as DataEditorProps } from "../../data-editor-all.js";
-import range from "lodash/range.js";
-import chunk from "lodash/chunk.js";
-import type { DataEditorRef } from "../../data-editor/data-editor.js";
-import { BeautifulWrapper } from "../../data-editor/stories/utils.js";
-import { Description } from "../doc-wrapper.js";
+} from "../../internal/data-grid/data-grid-types";
+import { SimpleThemeWrapper } from "../../stories/story-utils";
+import { DataEditorAll as DataEditor, type DataEditorAllProps as DataEditorProps } from "../../data-editor-all";
+import range from "lodash/range";
+import chunk from "lodash/chunk";
+import type { DataEditorRef } from "../../data-editor/data-editor";
+import { BeautifulWrapper } from "../../data-editor/stories/utils";
+import { Description } from "../doc-wrapper";
 
 export default {
     title: "Glide-Data-Grid/DataEditor Demos",

@@ -1,8 +1,8 @@
 import * as React from "react";
-import { NumberOverlayEditorStyle } from "./number-overlay-editor-style.js";
+import { NumberOverlayEditorStyle } from "./number-overlay-editor-style";
 import { NumericFormat } from "react-number-format";
-import type { SelectionRange } from "../../data-grid/data-grid-types.js";
-import type { NumberFormatValues } from "react-number-format/types/types.js";
+import type { SelectionRange } from "../../data-grid/data-grid-types";
+import type { NumberFormatValues } from "react-number-format/types/types";
 
 interface Props {
     readonly value: number | undefined;

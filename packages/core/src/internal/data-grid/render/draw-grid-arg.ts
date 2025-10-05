@@ -1,10 +1,10 @@
-import type { GetCellRendererCallback } from "../../../cells/cell-types.js";
-import type { RenderStateProvider } from "../../../common/render-state-provider.js";
-import type { FullTheme } from "../../../common/styles.js";
-import type { HoverValues } from "../animation-manager.js";
-import type { MappedGridColumn } from "./data-grid-lib.js";
-import type { BlitData } from "./data-grid-render.blit.js";
-import type { SpriteManager } from "../data-grid-sprites.js";
+import type { GetCellRendererCallback } from "../../../cells/cell-types";
+import type { RenderStateProvider } from "../../../common/render-state-provider";
+import type { FullTheme } from "../../../common/styles";
+import type { HoverValues } from "../animation-manager";
+import type { MappedGridColumn } from "./data-grid-lib";
+import type { BlitData } from "./data-grid-render.blit";
+import type { SpriteManager } from "../data-grid-sprites";
 import type {
     CompactSelection,
     GridSelection,
@@ -14,11 +14,11 @@ import type {
     CellList,
     DrawCellCallback,
     FillHandle,
-} from "../data-grid-types.js";
-import type { CellSet } from "../cell-set.js";
-import type { EnqueueCallback } from "../use-animation-queue.js";
-import type { ImageWindowLoader } from "../image-window-loader-interface.js";
-import type { GroupDetailsCallback, GetRowThemeCallback, Highlight } from "./data-grid-render.cells.js";
+} from "../data-grid-types";
+import type { CellSet } from "../cell-set";
+import type { EnqueueCallback } from "../use-animation-queue";
+import type { ImageWindowLoader } from "../image-window-loader-interface";
+import type { GroupDetailsCallback, GetRowThemeCallback, Highlight } from "./data-grid-render.cells";
 
 export type HoverInfo = readonly [Item, readonly [number, number]];
 

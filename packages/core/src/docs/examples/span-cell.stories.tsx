@@ -1,6 +1,6 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 import React from "react";
-import { DataEditorAll as DataEditor } from "../../data-editor-all.js";
+import { DataEditorAll as DataEditor } from "../../data-editor-all";
 import {
     BeautifulWrapper,
     Description,
@@ -8,10 +8,10 @@ import {
     PropName,
     useMockDataGenerator,
     defaultProps,
-} from "../../data-editor/stories/utils.js";
-import { GridCellKind } from "../../internal/data-grid/data-grid-types.js";
-import type { Rectangle, CellArray, GridCell } from "../../internal/data-grid/data-grid-types.js";
-import { SimpleThemeWrapper } from "../../stories/story-utils.js";
+} from "../../data-editor/stories/utils";
+import { GridCellKind } from "../../internal/data-grid/data-grid-types";
+import type { Rectangle, CellArray, GridCell } from "../../internal/data-grid/data-grid-types";
+import { SimpleThemeWrapper } from "../../stories/story-utils";
 
 export default {
     title: "Glide-Data-Grid/DataEditor Demos",

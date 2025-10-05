@@ -1,10 +1,10 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 import { describe, it, expect, vi } from "vitest";
-import { GridCellKind, type UriCell } from "../src/internal/data-grid/data-grid-types.js";
-import { uriCellRenderer } from "../src/cells/uri-cell.js";
-import type { DrawArgs } from "../src/index.js";
-import { getDataEditorTheme, mergeAndRealizeTheme } from "../src/common/styles.js";
-import type { DrawStateTuple } from "../src/cells/cell-types.js";
+import { GridCellKind, type UriCell } from "../src/internal/data-grid/data-grid-types";
+import { uriCellRenderer } from "../src/cells/uri-cell";
+import type { DrawArgs } from "../src/index";
+import { getDataEditorTheme, mergeAndRealizeTheme } from "../src/common/styles";
+import type { DrawStateTuple } from "../src/cells/cell-types";
 
 const baseDrawArgs = {
     cellFillColor: "red",

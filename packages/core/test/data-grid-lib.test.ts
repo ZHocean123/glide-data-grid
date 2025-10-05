@@ -1,15 +1,15 @@
 /* eslint-disable sonarjs/no-duplicate-string */
-import type { BaseDrawArgs } from "../src/index.js";
-import { getDataEditorTheme, mergeAndRealizeTheme, type FullTheme } from "../src/common/styles.js";
+import type { BaseDrawArgs } from "../src/index";
+import { getDataEditorTheme, mergeAndRealizeTheme, type FullTheme } from "../src/common/styles";
 import {
     remapForDnDState,
     type MappedGridColumn,
     drawLastUpdateUnderlay,
-} from "../src/internal/data-grid/render/data-grid-lib.js";
-import { GridCellKind, type Rectangle } from "../src/internal/data-grid/data-grid-types.js";
+} from "../src/internal/data-grid/render/data-grid-lib";
+import { GridCellKind, type Rectangle } from "../src/internal/data-grid/data-grid-types";
 import { vi, type Mocked, expect, describe, test, it, beforeEach } from "vitest";
-import { drawImage } from "../src/cells/image-cell.js";
-import type { ImageWindowLoader } from "../src/internal/data-grid/image-window-loader-interface.js";
+import { drawImage } from "../src/cells/image-cell";
+import type { ImageWindowLoader } from "../src/internal/data-grid/image-window-loader-interface";
 
 function makeCol(title: string, sourceIndex: number, sticky: boolean, width: number): MappedGridColumn {
     return {
@@ -311,7 +311,7 @@ describe("drawWithLastUpdate", () => {
 
     beforeEach(() => {
         mockCtx.fillRect = vi.fn();
-        mockCtx.fillStyle = "";
+        mockCtx.fillStyle = ";
         mockCtx.globalAlpha = 1;
 
         mockTheme = mergeAndRealizeTheme(getDataEditorTheme(), { bgSearchResult: "some-color" });

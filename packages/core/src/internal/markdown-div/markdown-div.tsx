@@ -1,7 +1,7 @@
 import React from "react";
 import { marked } from "marked";
 
-import { MarkdownContainer } from "./private/markdown-container.js";
+import { MarkdownContainer } from "./private/markdown-container";
 
 /** @category Renderers */
 export interface MarkdownDivProps {

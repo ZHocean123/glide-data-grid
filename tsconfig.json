@@ -4,9 +4,9 @@
         "esModuleInterop": true,
         "composite": true,
         "jsx": "react",
-        "moduleResolution": "Node16", // make node-16
+        "moduleResolution": "node", // make node-16
         "baseUrl": "./",
-        "module": "Node16",
+        "module": "esnext",
         "noImplicitAny": true,
         "noUnusedLocals": true,
         "skipLibCheck": true,

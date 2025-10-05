@@ -1,8 +1,8 @@
 import * as React from "react";
 import { render, screen } from "@testing-library/react";
 import { GridCellKind, isSizedGridColumn, type TextCell, type Item } from "@glideapps/glide-data-grid";
-import { useColumnSort } from "../src/index.js";
-import { compareSmart } from "../src/use-column-sort.js";
+import { useColumnSort } from "../src/index";
+import { compareSmart } from "../src/use-column-sort";
 import { expect, describe, test } from "vitest";
 
 const props = {

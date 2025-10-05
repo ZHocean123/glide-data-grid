@@ -1,5 +1,5 @@
 import React from "react";
-import { DataEditorAll as DataEditor } from "../../data-editor-all.js";
+import { DataEditorAll as DataEditor } from "../../data-editor-all";
 import {
     BeautifulWrapper,
     Description,
@@ -7,11 +7,11 @@ import {
     PropName,
     useMockDataGenerator,
     defaultProps,
-} from "../../data-editor/stories/utils.js";
-import type { GridColumn } from "../../internal/data-grid/data-grid-types.js";
-import { CompactSelection } from "../../internal/data-grid/data-grid-types.js";
-import { SimpleThemeWrapper } from "../../stories/story-utils.js";
-import type { GroupHeaderClickedEventArgs } from "../../internal/data-grid/event-args.js";
+} from "../../data-editor/stories/utils";
+import type { GridColumn } from "../../internal/data-grid/data-grid-types";
+import { CompactSelection } from "../../internal/data-grid/data-grid-types";
+import { SimpleThemeWrapper } from "../../stories/story-utils";
+import type { GroupHeaderClickedEventArgs } from "../../internal/data-grid/event-args";
 
 export default {
     title: "Glide-Data-Grid/DataEditor Demos",
@@ -45,7 +45,7 @@ function useCollapsableColumnGroups(cols: readonly GridColumn[]) {
 
     const onGroupHeaderClicked = React.useCallback(
         (colIndex: number, args: GroupHeaderClickedEventArgs) => {
-            const group = cols[colIndex].group ?? "";
+            const group = cols[colIndex].group ?? ";
             setCollapsed(cv => (cv.includes(group) ? cv.filter(g => g !== group) : [...cv, group]));
             args.preventDefault();
         },

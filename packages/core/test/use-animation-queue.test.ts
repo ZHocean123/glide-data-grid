@@ -1,7 +1,7 @@
 import { renderHook, cleanup } from "@testing-library/react-hooks";
-import { useAnimationQueue } from "../src/internal/data-grid/use-animation-queue.js";
+import { useAnimationQueue } from "../src/internal/data-grid/use-animation-queue";
 import { vi, expect, describe, it, beforeEach, afterEach } from "vitest";
-import { CellSet } from "../src/internal/data-grid/cell-set.js";
+import { CellSet } from "../src/internal/data-grid/cell-set";
 
 // const OG_RAF = window.requestAnimationFrame;
 // const OG_CAF = window.cancelAnimationFrame;

@@ -1,6 +1,6 @@
 import { fireEvent, render } from "@testing-library/vue";
 import { describe, expect, it, vi } from "vitest";
-import { BooleanCell } from "../src/index.js";
+import { BooleanCell } from "../src/index";
 
 describe("BooleanCell", () => {
     it("emits toggle with inverse value", async () => {

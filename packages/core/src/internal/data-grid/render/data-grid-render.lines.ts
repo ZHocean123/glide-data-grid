@@ -1,14 +1,14 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 /* eslint-disable unicorn/no-for-loop */
-import { type Rectangle, CompactSelection } from "../data-grid-types.js";
-import { CellSet } from "../cell-set.js";
-import groupBy from "lodash/groupBy.js";
-import { getStickyWidth, type MappedGridColumn, getFreezeTrailingHeight } from "./data-grid-lib.js";
-import { mergeAndRealizeTheme, type FullTheme } from "../../../common/styles.js";
+import { type Rectangle, CompactSelection } from "../data-grid-types";
+import { CellSet } from "../cell-set";
+import groupBy from "lodash/groupBy";
+import { getStickyWidth, type MappedGridColumn, getFreezeTrailingHeight } from "./data-grid-lib";
+import { mergeAndRealizeTheme, type FullTheme } from "../../../common/styles";
 import { blendCache } from "@glideapps/glide-data-grid-shared/color";
 import { intersectRect } from "@glideapps/glide-data-grid-shared/geometry";
-import { getSkipPoint, walkColumns, walkRowsInCol } from "./data-grid-render.walk.js";
-import { type GetRowThemeCallback } from "./data-grid-render.cells.js";
+import { getSkipPoint, walkColumns, walkRowsInCol } from "./data-grid-render.walk";
+import { type GetRowThemeCallback } from "./data-grid-render.cells";
 
 export function drawBlanks(
     ctx: CanvasRenderingContext2D,

@@ -1,4 +1,4 @@
-import { CompactSelection, type CompactSelectionRanges } from "../src/internal/data-grid/data-grid-types.js";
+import { CompactSelection, type CompactSelectionRanges } from "../src/internal/data-grid/data-grid-types";
 import { expect, describe, test } from "vitest";
 
 describe("CompactSelection", () => {

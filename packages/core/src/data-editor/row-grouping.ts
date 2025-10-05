@@ -1,8 +1,8 @@
 import React from "react";
-import type { Theme } from "../common/styles.js";
-import type { DataEditorProps } from "./data-editor.js";
-import type { DataGridProps } from "../internal/data-grid/data-grid.js";
-import { whenDefined } from "../common/utils.js";
+import type { Theme } from "../common/styles";
+import type { DataEditorProps } from "./data-editor";
+import type { DataGridProps } from "../internal/data-grid/data-grid";
+import { whenDefined } from "../common/utils";
 
 type Mutable<T> = {
     -readonly [K in keyof T]: T[K];

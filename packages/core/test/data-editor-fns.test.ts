@@ -1,6 +1,6 @@
 /* eslint-disable sonarjs/no-duplicate-string */
-import { CompactSelection, type GridSelection } from "../src/index.js";
-import { expandSelection, unquote } from "../src/data-editor/data-editor-fns.js"; // Adjust the import path to your setup
+import { CompactSelection, type GridSelection } from "../src/index";
+import { expandSelection, unquote } from "../src/data-editor/data-editor-fns"; // Adjust the import path to your setup
 import { vi, expect, describe, it, afterEach } from "vitest";
 
 describe("unquote", () => {
@@ -53,7 +53,7 @@ describe("unquote", () => {
     });
 
     it("should handle empty strings correctly", () => {
-        const input = "";
+        const input = ";
         const output = unquote(input);
         expect(output).toEqual([[]]);
     });

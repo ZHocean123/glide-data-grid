@@ -1,7 +1,7 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { renderHook, cleanup } from "@testing-library/react-hooks";
-import { useRowGrouping } from "../src/data-editor/row-grouping-api.js";
-import type { RowGroupingOptions } from "../src/data-editor/row-grouping.js";
+import { useRowGrouping } from "../src/data-editor/row-grouping-api";
+import type { RowGroupingOptions } from "../src/data-editor/row-grouping";
 
 describe("useRowGrouping - mapper", () => {
     afterEach(async () => {

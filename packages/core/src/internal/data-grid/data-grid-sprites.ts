@@ -1,6 +1,6 @@
-import type { Theme } from "../../common/styles.js";
-import type { SpriteProps } from "../../common/utils.js";
-import { type HeaderIconMap } from "./sprites.js";
+import type { Theme } from "../../common/styles";
+import type { SpriteProps } from "../../common/utils";
+import { type HeaderIconMap } from "./sprites";
 
 /**
  * A known icon identifier

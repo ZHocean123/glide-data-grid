@@ -1,7 +1,7 @@
 import * as React from "react";
-import { type Item } from "./data-grid-types.js";
-import { CellSet } from "./cell-set.js";
-import { packColRowToNumber, unpackNumberToColRow } from "../../common/render-state-provider.js";
+import { type Item } from "./data-grid-types";
+import { CellSet } from "./cell-set";
+import { packColRowToNumber, unpackNumberToColRow } from "../../common/render-state-provider";
 
 export type EnqueueCallback = (item: Item) => void;
 

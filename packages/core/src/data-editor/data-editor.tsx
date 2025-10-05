@@ -1,11 +1,11 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 import * as React from "react";
-import { assert, assertNever, maybe } from "../common/support.js";
-import clamp from "lodash/clamp.js";
-import uniq from "lodash/uniq.js";
-import flatten from "lodash/flatten.js";
-import range from "lodash/range.js";
-import debounce from "lodash/debounce.js";
+import { assert, assertNever, maybe } from "../common/support";
+import clamp from "lodash/clamp";
+import uniq from "lodash/uniq";
+import flatten from "lodash/flatten";
+import range from "lodash/range";
+import debounce from "lodash/debounce";
 import {
     type EditableGridCell,
     type GridCell,
@@ -32,9 +32,9 @@ import {
     type FillHandleDirection,
     type EditListItem,
     type CellActivationBehavior,
-} from "../internal/data-grid/data-grid-types.js";
-import DataGridSearch, { type DataGridSearchProps } from "../internal/data-grid-search/data-grid-search.js";
-import { browserIsOSX } from "../common/browser-detect.js";
+} from "../internal/data-grid/data-grid-types";
+import DataGridSearch, { type DataGridSearchProps } from "../internal/data-grid-search/data-grid-search";
+import { browserIsOSX } from "../common/browser-detect";
 import {
     getDataEditorTheme,
     makeCSSStyle,
@@ -42,26 +42,26 @@ import {
     type Theme,
     ThemeContext,
     mergeAndRealizeTheme,
-} from "../common/styles.js";
-import type { DataGridRef } from "../internal/data-grid/data-grid.js";
-import { getScrollBarWidth, useEventListener, whenDefined } from "../common/utils.js";
+} from "../common/styles";
+import type { DataGridRef } from "../internal/data-grid/data-grid";
+import { getScrollBarWidth, useEventListener, whenDefined } from "../common/utils";
 import {
     isGroupEqual,
     itemsAreEqual,
     gridSelectionHasItem,
     getFreezeTrailingHeight,
-} from "../internal/data-grid/render/data-grid-lib.js";
-import { GroupRename } from "./group-rename.js";
-import { measureColumn, useColumnSizer } from "./use-column-sizer.js";
-import { isHotkey } from "../common/is-hotkey.js";
-import { type SelectionBlending, useSelectionBehavior } from "../internal/data-grid/use-selection-behavior.js";
-import { useCellsForSelection } from "./use-cells-for-selection.js";
-import { unquote, expandSelection, copyToClipboard, toggleBoolean } from "./data-editor-fns.js";
-import { DataEditorContainer } from "../internal/data-editor-container/data-grid-container.js";
-import { useAutoscroll } from "./use-autoscroll.js";
-import type { CustomRenderer, CellRenderer, InternalCellRenderer } from "../cells/cell-types.js";
-import { decodeHTML, type CopyBuffer } from "./copy-paste.js";
-import { useRemAdjuster } from "./use-rem-adjuster.js";
+} from "../internal/data-grid/render/data-grid-lib";
+import { GroupRename } from "./group-rename";
+import { measureColumn, useColumnSizer } from "./use-column-sizer";
+import { isHotkey } from "../common/is-hotkey";
+import { type SelectionBlending, useSelectionBehavior } from "../internal/data-grid/use-selection-behavior";
+import { useCellsForSelection } from "./use-cells-for-selection";
+import { unquote, expandSelection, copyToClipboard, toggleBoolean } from "./data-editor-fns";
+import { DataEditorContainer } from "../internal/data-editor-container/data-grid-container";
+import { useAutoscroll } from "./use-autoscroll";
+import type { CustomRenderer, CellRenderer, InternalCellRenderer } from "../cells/cell-types";
+import { decodeHTML, type CopyBuffer } from "./copy-paste";
+import { useRemAdjuster } from "./use-rem-adjuster";
 import { withAlpha } from "@glideapps/glide-data-grid-shared/color";
 import { combineRects, getClosestRect, pointInRect, itemIsInRect } from "@glideapps/glide-data-grid-shared/geometry";
 import {
@@ -78,16 +78,16 @@ import {
     mouseEventArgsAreEqual,
     type GridKeyEventArgs,
     type CellActivatedEventArgs,
-} from "../internal/data-grid/event-args.js";
-import { type Keybinds, useKeybindingsWithDefaults } from "./data-editor-keybindings.js";
-import type { Highlight } from "../internal/data-grid/render/data-grid-render.cells.js";
-import { useRowGroupingInner, type RowGroupingOptions } from "./row-grouping.js";
-import { useRowGrouping } from "./row-grouping-api.js";
-import { useInitialScrollOffset } from "./use-initial-scroll-offset.js";
-import type { VisibleRegion } from "./visible-region.js";
+} from "../internal/data-grid/event-args";
+import { type Keybinds, useKeybindingsWithDefaults } from "./data-editor-keybindings";
+import type { Highlight } from "../internal/data-grid/render/data-grid-render.cells";
+import { useRowGroupingInner, type RowGroupingOptions } from "./row-grouping";
+import { useRowGrouping } from "./row-grouping-api";
+import { useInitialScrollOffset } from "./use-initial-scroll-offset";
+import type { VisibleRegion } from "./visible-region";
 
 const DataGridOverlayEditor = React.lazy(
-    async () => await import("../internal/data-grid-overlay-editor/data-grid-overlay-editor.js")
+    async () => await import("../internal/data-grid-overlay-editor/data-grid-overlay-editor")
 );
 
 // There must be a better way
@@ -1329,7 +1329,7 @@ const DataEditorImpl: React.ForwardRefRenderFunction<DataEditorRef, DataEditorPr
                 //If the grid is empty, we will return text
                 const isFirst = col === rowMarkerOffset;
 
-                const maybeFirstColumnHint = isFirst ? (trailingRowOptions?.hint ?? "") : "";
+                const maybeFirstColumnHint = isFirst ? (trailingRowOptions?.hint ?? "") : ";
                 const c = mangledColsRef.current[col];
 
                 if (c?.trailingRowOptions?.disabled === true) {
@@ -3697,7 +3697,7 @@ const DataEditorImpl: React.ForwardRefRenderFunction<DataEditorRef, DataEditorPr
                 do {
                     if (onPaste === undefined) {
                         const cellData = getMangledCellContent(target);
-                        const rawValue = text ?? data?.map(r => r.map(cb => cb.rawValue).join("\t")).join("\t") ?? "";
+                        const rawValue = text ?? data?.map(r => r.map(cb => cb.rawValue).join("\t")).join("\t") ?? ";
                         const newVal = pasteToCell(cellData, target, rawValue, undefined);
                         if (newVal !== undefined) {
                             editList.push(newVal);

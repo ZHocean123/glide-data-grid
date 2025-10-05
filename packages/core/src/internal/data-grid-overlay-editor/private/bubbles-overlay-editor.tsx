@@ -1,5 +1,5 @@
 import * as React from "react";
-import { BubblesOverlayEditorStyle } from "./bubbles-overlay-editor-style.js";
+import { BubblesOverlayEditorStyle } from "./bubbles-overlay-editor-style";
 
 interface Props {
     readonly bubbles: readonly string[];

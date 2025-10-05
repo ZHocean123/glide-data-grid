@@ -1,12 +1,12 @@
 import { cleanup, render } from "@testing-library/react";
 import * as React from "react";
-import noop from "lodash/noop.js";
-import type { Rectangle, ImageCell, ImageEditorType } from "../src/index.js";
-import { GridCellKind, getDefaultTheme, isObjectEditorCallbackResult } from "../src/index.js";
-import { assert } from "../src/common/support.js";
-import { imageCellRenderer } from "../src/cells/image-cell.js";
+import noop from "lodash/noop";
+import type { Rectangle, ImageCell, ImageEditorType } from "../src/index";
+import { GridCellKind, getDefaultTheme, isObjectEditorCallbackResult } from "../src/index";
+import { assert } from "../src/common/support";
+import { imageCellRenderer } from "../src/cells/image-cell";
 import { expect, describe, it, afterEach } from "vitest";
-import { mergeAndRealizeTheme } from "../src/common/styles.js";
+import { mergeAndRealizeTheme } from "../src/common/styles";
 
 function getMockEditorTarget(): Rectangle {
     return {

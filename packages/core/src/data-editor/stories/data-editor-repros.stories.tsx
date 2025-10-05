@@ -1,9 +1,9 @@
 import * as React from "react";
 
 import { useState, useMemo } from "storybook/preview-api";
-import { BuilderThemeWrapper } from "../../stories/story-utils.js";
-import { type GridCell, GridCellKind, type Item } from "../../internal/data-grid/data-grid-types.js";
-import { DataEditorAll as DataEditor } from "../../data-editor-all.js";
+import { BuilderThemeWrapper } from "../../stories/story-utils";
+import { type GridCell, GridCellKind, type Item } from "../../internal/data-grid/data-grid-types";
+import { DataEditorAll as DataEditor } from "../../data-editor-all";
 import { styled } from "@linaria/react";
 
 export default {

@@ -1,5 +1,5 @@
 import type React from "react";
-import type { SpriteManager } from "../internal/data-grid/data-grid-sprites.js";
+import type { SpriteManager } from "../internal/data-grid/data-grid-sprites";
 import type {
     InnerGridCell,
     Rectangle,
@@ -8,10 +8,10 @@ import type {
     BooleanEmpty,
     BooleanIndeterminate,
     Item,
-} from "../internal/data-grid/data-grid-types.js";
-import type { FullTheme } from "../common/styles.js";
-import type { ImageWindowLoader } from "../internal/data-grid/image-window-loader-interface.js";
-import type { BaseGridMouseEventArgs } from "../internal/data-grid/event-args.js";
+} from "../internal/data-grid/data-grid-types";
+import type { FullTheme } from "../common/styles";
+import type { ImageWindowLoader } from "../internal/data-grid/image-window-loader-interface";
+import type { BaseGridMouseEventArgs } from "../internal/data-grid/event-args";
 
 export interface BaseDrawArgs {
     ctx: CanvasRenderingContext2D;

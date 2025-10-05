@@ -1,4 +1,4 @@
-import type { DrilldownCellData } from "../../data-grid/data-grid-types.js";
+import type { DrilldownCellData } from "../../data-grid/data-grid-types";
 import * as React from "react";
 import { styled } from "@linaria/react";
 

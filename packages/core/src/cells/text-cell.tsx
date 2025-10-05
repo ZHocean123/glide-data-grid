@@ -1,10 +1,10 @@
 /* eslint-disable react/display-name */
 import * as React from "react";
-import { GrowingEntry } from "../internal/growing-entry/growing-entry.js";
-import { drawTextCell, prepTextCell } from "../internal/data-grid/render/data-grid-lib.js";
-import { GridCellKind, type TextCell } from "../internal/data-grid/data-grid-types.js";
-import type { InternalCellRenderer } from "./cell-types.js";
-import { drawEditHoverIndicator } from "../internal/data-grid/render/draw-edit-hover-indicator.js";
+import { GrowingEntry } from "../internal/growing-entry/growing-entry";
+import { drawTextCell, prepTextCell } from "../internal/data-grid/render/data-grid-lib";
+import { GridCellKind, type TextCell } from "../internal/data-grid/data-grid-types";
+import type { InternalCellRenderer } from "./cell-types";
+import { drawEditHoverIndicator } from "../internal/data-grid/render/draw-edit-hover-indicator";
 
 export const textCellRenderer: InternalCellRenderer<TextCell> = {
     getAccessibilityString: c => c.data?.toString() ?? "",

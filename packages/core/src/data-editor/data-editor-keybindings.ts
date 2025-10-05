@@ -1,6 +1,6 @@
 import React from "react";
-import { browserIsOSX } from "../common/browser-detect.js";
-import { useDeepMemo } from "../common/utils.js";
+import { browserIsOSX } from "../common/browser-detect";
+import { useDeepMemo } from "../common/utils";
 
 export type Keybind = boolean | string;
 
@@ -122,7 +122,7 @@ export const keybindingDefaults: Keybinds = {
 
 function realizeKeybind(keybind: Keybind, defaultVal: string): string {
     if (keybind === true) return defaultVal;
-    if (keybind === false) return "";
+    if (keybind === false) return ";
     return keybind;
 }
 

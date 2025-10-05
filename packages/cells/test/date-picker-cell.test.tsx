@@ -6,7 +6,7 @@ import renderer, {
     type DateKind,
     type DatePickerCell,
     formatValueForHTMLInput,
-} from "../src/cells/date-picker-cell.js";
+} from "../src/cells/date-picker-cell";
 import { vi, expect, describe, it, afterEach } from "vitest";
 
 describe("formatValueForHTMLInput", () => {

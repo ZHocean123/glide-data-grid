@@ -2,7 +2,7 @@
 import * as React from "react";
 
 import { useState, useCallback, useMemo } from "storybook/preview-api";
-import { BuilderThemeWrapper } from "../../stories/story-utils.js";
+import { BuilderThemeWrapper } from "../../stories/story-utils";
 import {
     CompactSelection,
     type EditableGridCell,
@@ -11,8 +11,8 @@ import {
     type GridColumn,
     type GridSelection,
     type Item,
-} from "../../internal/data-grid/data-grid-types.js";
-import { DataEditorAll as DataEditor } from "../../data-editor-all.js";
+} from "../../internal/data-grid/data-grid-types";
+import { DataEditorAll as DataEditor } from "../../data-editor-all";
 
 export default {
     title: "Tests/TestCases",

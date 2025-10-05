@@ -1,7 +1,7 @@
 import * as React from "react";
 
-import { BuilderThemeWrapper } from "../../stories/story-utils.js";
-import GridScroller from "./scrolling-data-grid.js";
+import { BuilderThemeWrapper } from "../../stories/story-utils";
+import GridScroller from "./scrolling-data-grid";
 import { styled } from "@linaria/react";
 import {
     CompactSelection,
@@ -9,12 +9,12 @@ import {
     GridCellKind,
     type Rectangle,
     type Item,
-} from "../data-grid/data-grid-types.js";
-import { getDefaultTheme } from "../../index.js";
-import type { GetCellRendererCallback } from "../../cells/cell-types.js";
-import { AllCellRenderers } from "../../cells/index.js";
-import ImageWindowLoaderImpl from "../../common/image-window-loader.js";
-import { mergeAndRealizeTheme } from "../../common/styles.js";
+} from "../data-grid/data-grid-types";
+import { getDefaultTheme } from "../../index";
+import type { GetCellRendererCallback } from "../../cells/cell-types";
+import { AllCellRenderers } from "../../cells/index";
+import ImageWindowLoaderImpl from "../../common/image-window-loader";
+import { mergeAndRealizeTheme } from "../../common/styles";
 
 const InnerContainer = styled.div`
     width: 100%;

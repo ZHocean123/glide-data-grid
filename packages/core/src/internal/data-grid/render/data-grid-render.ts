@@ -1,17 +1,17 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 /* eslint-disable unicorn/no-for-loop */
-import { type Rectangle } from "../data-grid-types.js";
-import { CellSet } from "../cell-set.js";
-import { getEffectiveColumns, type MappedGridColumn, rectBottomRight } from "./data-grid-lib.js";
+import { type Rectangle } from "../data-grid-types";
+import { CellSet } from "../cell-set";
+import { getEffectiveColumns, type MappedGridColumn, rectBottomRight } from "./data-grid-lib";
 import { blend } from "@glideapps/glide-data-grid-shared/color";
-import { assert } from "../../../common/support.js";
-import type { DrawGridArg } from "./draw-grid-arg.js";
-import { walkColumns, walkGroups, walkRowsInCol } from "./data-grid-render.walk.js";
-import { drawCells } from "./data-grid-render.cells.js";
-import { drawGridHeaders } from "./data-grid-render.header.js";
-import { drawGridLines, overdrawStickyBoundaries, drawBlanks, drawExtraRowThemes } from "./data-grid-render.lines.js";
-import { blitLastFrame, blitResizedCol, computeCanBlit } from "./data-grid-render.blit.js";
-import { drawHighlightRings, drawFillHandle, drawColumnResizeOutline } from "./data-grid.render.rings.js";
+import { assert } from "../../../common/support";
+import type { DrawGridArg } from "./draw-grid-arg";
+import { walkColumns, walkGroups, walkRowsInCol } from "./data-grid-render.walk";
+import { drawCells } from "./data-grid-render.cells";
+import { drawGridHeaders } from "./data-grid-render.header";
+import { drawGridLines, overdrawStickyBoundaries, drawBlanks, drawExtraRowThemes } from "./data-grid-render.lines";
+import { blitLastFrame, blitResizedCol, computeCanBlit } from "./data-grid-render.blit";
+import { drawHighlightRings, drawFillHandle, drawColumnResizeOutline } from "./data-grid.render.rings";
 
 // Future optimization opportunities
 // - Create a cache of a buffer used to render the full view of a partially displayed column so that when

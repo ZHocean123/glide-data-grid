@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getClosestRect, hugRectToTarget, splitRectIntoRegions } from "@glideapps/glide-data-grid-shared/geometry";
-import type { FillHandleDirection, Rectangle } from "../src/internal/data-grid/data-grid-types.js";
+import type { FillHandleDirection, Rectangle } from "../src/internal/data-grid/data-grid-types";
 
 describe("getClosestRect", () => {
     const testRect: Rectangle = { x: 10, y: 10, width: 5, height: 5 };

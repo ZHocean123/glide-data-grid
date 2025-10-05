@@ -1,9 +1,9 @@
 /* eslint-disable react/display-name */
 import * as React from "react";
-import { MarkdownOverlayEditor } from "../internal/data-grid-overlay-editor/private/markdown-overlay-editor.js";
-import { drawTextCell, prepTextCell } from "../internal/data-grid/render/data-grid-lib.js";
-import { GridCellKind, type MarkdownCell } from "../internal/data-grid/data-grid-types.js";
-import type { InternalCellRenderer } from "./cell-types.js";
+import { MarkdownOverlayEditor } from "../internal/data-grid-overlay-editor/private/markdown-overlay-editor";
+import { drawTextCell, prepTextCell } from "../internal/data-grid/render/data-grid-lib";
+import { GridCellKind, type MarkdownCell } from "../internal/data-grid/data-grid-types";
+import type { InternalCellRenderer } from "./cell-types";
 
 export const markdownCellRenderer: InternalCellRenderer<MarkdownCell> = {
     getAccessibilityString: c => c.data?.toString() ?? "",

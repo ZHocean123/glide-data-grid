@@ -1,5 +1,5 @@
-import type { GridKeyEventArgs } from "../internal/data-grid/event-args.js";
-import { browserIsOSX } from "./browser-detect.js";
+import type { GridKeyEventArgs } from "../internal/data-grid/event-args";
+import { browserIsOSX } from "./browser-detect";
 
 // brain dead syntax, find your deps, and make buggy replacements with 5 times the effort
 // all lower case

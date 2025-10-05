@@ -1,12 +1,12 @@
 /* eslint-disable react/display-name */
 import * as React from "react";
-import { drawTextCell, prepTextCell } from "../internal/data-grid/render/data-grid-lib.js";
-import { GridCellKind, type NumberCell } from "../internal/data-grid/data-grid-types.js";
-import type { InternalCellRenderer } from "./cell-types.js";
-import { drawEditHoverIndicator } from "../internal/data-grid/render/draw-edit-hover-indicator.js";
+import { drawTextCell, prepTextCell } from "../internal/data-grid/render/data-grid-lib";
+import { GridCellKind, type NumberCell } from "../internal/data-grid/data-grid-types";
+import type { InternalCellRenderer } from "./cell-types";
+import { drawEditHoverIndicator } from "../internal/data-grid/render/draw-edit-hover-indicator";
 
 const NumberOverlayEditor = React.lazy(
-    async () => await import("../internal/data-grid-overlay-editor/private/number-overlay-editor.js")
+    async () => await import("../internal/data-grid-overlay-editor/private/number-overlay-editor")
 );
 
 export const numberCellRenderer: InternalCellRenderer<NumberCell> = {

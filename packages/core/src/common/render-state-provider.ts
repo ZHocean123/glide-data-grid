@@ -1,5 +1,5 @@
-import type { Item, Rectangle } from "../internal/data-grid/data-grid-types.js";
-import { deepEqual } from "./support.js";
+import type { Item, Rectangle } from "../internal/data-grid/data-grid-types";
+import { deepEqual } from "./support";
 
 // max safe int 2^53 - 1 (minus 1 omitted from here on)
 // max safe columns is 2^21 or 2,097,151

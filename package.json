@@ -9,7 +9,7 @@
         "serve-docs": "http-server packages/core/gen-docs",
         "storybook:run": "storybook dev -p 9009 --no-open",
         "watch:core": "npm run watch -w packages/core",
-        "storybook": "concurrently \"npm run storybook:run\" \"npm run watch:core\"",
+        "storybook": "concurrently \"npm run storybook:run\" \"npm run watch:core\" \"npm run build:vue -- --watch\"",
         "build-storybook": "npm run build --workspaces && storybook build -o storybook-build/",
         "prod-storybook": "npm run build-storybook && npx http-server storybook-build -p 9009",
         "test": "cd packages/core && npm run test --",
@@ -17,7 +17,10 @@
         "test-19": "./setup-react-19-test.sh && cd packages/core && npm run test --",
         "test-source": "cd packages/source && npm run test",
         "test-cells": "cd packages/cells && npm run test",
-        "test-projects": "cd test-projects/ && ./bootstrap-projects.sh"
+        "test-projects": "cd test-projects/ && ./bootstrap-projects.sh",
+        "test-vue": "npm run test -w packages/core-vue -- --run && npm run test -w packages/cells-vue -- --run && npm run test -w packages/source-vue -- --run",
+        "build:vue": "npm run build -w packages/core-vue && npm run build -w packages/cells-vue && npm run build -w packages/source-vue",
+        "watch:core-vue": "npm run build -w packages/core-vue -- --watch"
     },
     "type": "commonjs",
     "author": "Glide",
@@ -26,7 +29,10 @@
         "./packages/core",
         "./packages/cells",
         "./packages/source",
-        "./packages/shared"
+        "./packages/shared",
+        "./packages/core-vue",
+        "./packages/cells-vue",
+        "./packages/source-vue"
     ],
     "devDependencies": {
         "@babel/cli": "^7.27.2",
@@ -42,6 +48,8 @@
         "@storybook/addon-links": "^9.1.2",
         "@storybook/react-vite": "^9.1.2",
         "@storybook/react-webpack5": "^9.1.2",
+        "@storybook/vue3": "^9.1.2",
+        "@storybook/vue3-vite": "^9.1.2",
         "@testing-library/dom": "^10.4.1",
         "@testing-library/react": "^16.3.0",
         "@testing-library/react-hooks": "^8.0.1",
@@ -93,6 +101,11 @@
         "typescript": "^5.8.3",
         "vitest": "^0.34.6",
         "vitest-canvas-mock": "^0.3.3",
+        "vue": "^3.4.0",
+        "@vitejs/plugin-vue": "^5.2.0",
+        "vue-tsc": "^2.2.0",
+        "@testing-library/vue": "^8.1.0",
+        "@vue/test-utils": "^2.4.6",
         "webpack": "^5.99.9"
     },
     "overrides": {

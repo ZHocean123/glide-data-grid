@@ -1,7 +1,7 @@
-import { CellSet } from "../internal/data-grid/cell-set.js";
-import throttle from "lodash/throttle.js";
-import { packColRowToNumber, unpackNumberToColRow, WindowingTrackerBase } from "./render-state-provider.js";
-import type { ImageWindowLoader } from "../internal/data-grid/image-window-loader-interface.js";
+import { CellSet } from "../internal/data-grid/cell-set";
+import throttle from "lodash/throttle";
+import { packColRowToNumber, unpackNumberToColRow, WindowingTrackerBase } from "./render-state-provider";
+import type { ImageWindowLoader } from "../internal/data-grid/image-window-loader-interface";
 
 interface LoadResult {
     img: HTMLImageElement | undefined;
@@ -66,7 +66,7 @@ class ImageWindowLoaderImpl extends WindowingTrackerBase implements ImageWindowL
                 if (imgPool.length < 12) {
                     imgPool.unshift(img); // never retain more than 12
                 } else if (!loaded) {
-                    img.src = "";
+                    img.src = ";
                 }
             },
         };

@@ -59,3 +59,10 @@
 - **Tooling conflicts** between React (Webpack) and Vue (Vite) stories → Use Storybook framework-specific builders or split configs.
 - **TypeScript project reference issues** → Validate `tsc -b` after each change and adjust path mappings early.
 - **Inconsistent lint/format rules** → Reuse Prettier config and add lint-staged entries for `.vue` files.
+
+## Progress �C 2025-10-03
+- Scaffolding complete for \packages/core-vue\, \packages/cells-vue\, and \packages/source-vue\ with aligned package metadata, TypeScript configs, and build/test tooling.
+- Placeholder Vue implementations in place: \DataGrid.vue\, \BooleanCell.vue\, and \useStaticDataSource\ composable each ship with Vitest smoke coverage.
+- ESLint configs leverage \eslint-plugin-vue\ for each workspace to keep rule parity with React packages.
+- Root \package.json\ now registers Vue workspaces and adds helper scripts \uild:vue\ and \	est-vue\; Windows developers may need elevated shells for \
+pm install\ due to workspace symlink creation.

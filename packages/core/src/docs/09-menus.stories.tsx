@@ -6,10 +6,10 @@ import {
     type GridColumn,
     type Item,
     type Rectangle,
-} from "../internal/data-grid/data-grid-types.js";
-import { DataEditorAll as DataEditor } from "../data-editor-all.js";
-import { SimpleThemeWrapper } from "../stories/story-utils.js";
-import { DocWrapper, Highlight, Marked, Wrapper } from "./doc-wrapper.js";
+} from "../internal/data-grid/data-grid-types";
+import { DataEditorAll as DataEditor } from "../data-editor-all";
+import { SimpleThemeWrapper } from "../stories/story-utils";
+import { DocWrapper, Highlight, Marked, Wrapper } from "./doc-wrapper";
 import { useLayer } from "react-laag";
 
 export default {

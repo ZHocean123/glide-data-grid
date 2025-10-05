@@ -1,10 +1,10 @@
 import { styled } from "@linaria/react";
-import type { Rectangle } from "../../index.js";
+import type { Rectangle } from "../../index";
 import * as React from "react";
-import { useResizeDetector } from "../../common/resize-detector.js";
-import { browserIsSafari } from "../../common/browser-detect.js";
-import { useEventListener } from "../../common/utils.js";
-import useKineticScroll from "./use-kinetic-scroll.js";
+import { useResizeDetector } from "../../common/resize-detector";
+import { browserIsSafari } from "../../common/browser-detect";
+import { useEventListener } from "../../common/utils";
+import useKineticScroll from "./use-kinetic-scroll";
 
 interface Props {
     readonly children: React.ReactNode;

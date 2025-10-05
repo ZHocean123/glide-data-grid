@@ -1,9 +1,9 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
 
-import ClickOutsideContainer from "../click-outside-container/click-outside-container.js";
-import { makeCSSStyle, type Theme, ThemeContext } from "../../common/styles.js";
-import type { GetCellRendererCallback } from "../../cells/cell-types.js";
+import ClickOutsideContainer from "../click-outside-container/click-outside-container";
+import { makeCSSStyle, type Theme, ThemeContext } from "../../common/styles";
+import type { GetCellRendererCallback } from "../../cells/cell-types";
 import {
     type EditableGridCell,
     type GridCell,
@@ -15,12 +15,12 @@ import {
     type ProvideEditorCallbackResult,
     type Rectangle,
     type ValidatedGridCell,
-} from "../data-grid/data-grid-types.js";
+} from "../data-grid/data-grid-types";
 
-import type { CellActivatedEventArgs } from "../data-grid/event-args.js";
-import { DataGridOverlayEditorStyle } from "./data-grid-overlay-editor-style.js";
-import type { OverlayImageEditorProps } from "./private/image-overlay-editor.js";
-import { useStayOnScreen } from "./use-stay-on-screen.js";
+import type { CellActivatedEventArgs } from "../data-grid/event-args";
+import { DataGridOverlayEditorStyle } from "./data-grid-overlay-editor-style";
+import type { OverlayImageEditorProps } from "./private/image-overlay-editor";
+import { useStayOnScreen } from "./use-stay-on-screen";
 
 type ImageEditorType = React.ComponentType<OverlayImageEditorProps>;
 

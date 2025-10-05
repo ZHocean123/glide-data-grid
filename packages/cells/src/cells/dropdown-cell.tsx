@@ -194,7 +194,7 @@ const renderer: CustomRenderer<DropdownCell> = {
             return opt.value === value;
         });
 
-        const displayText = typeof foundOption === "string" ? foundOption : foundOption?.label ?? "";
+        const displayText = typeof foundOption === "string" ? foundOption : foundOption?.label ?? ";
         if (displayText) {
             ctx.fillStyle = theme.textDark;
             ctx.fillText(

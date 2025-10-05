@@ -1,17 +1,17 @@
-import StarCellRenderer, { type StarCell } from "./cells/star-cell.js";
-import SparklineCellRenderer, { type SparklineCell } from "./cells/sparkline-cell.js";
-import TagsCellRenderer, { type TagsCell } from "./cells/tags-cell.js";
-import UserProfileCellRenderer, { type UserProfileCell } from "./cells/user-profile-cell.js";
-import DropdownCellRenderer, { type DropdownCell } from "./cells/dropdown-cell.js";
-import ArticleCellRenderer from "./cells/article-cell.js";
-import type { ArticleCell } from "./cells/article-cell-types.js";
-import RangeCellRenderer, { type RangeCell } from "./cells/range-cell.js";
-import SpinnerCellRenderer, { type SpinnerCell } from "./cells/spinner-cell.js";
-import DatePickerRenderer, { type DatePickerCell } from "./cells/date-picker-cell.js";
-import LinksCellRenderer, { type LinksCell } from "./cells/links-cell.js";
-import ButtonCellRenderer, { type ButtonCell } from "./cells/button-cell.js";
-import TreeViewCellRenderer, { type TreeViewCell } from "./cells/tree-view-cell.js";
-import MultiSelectCellRenderer, { type MultiSelectCell } from "./cells/multi-select-cell.js";
+import StarCellRenderer, { type StarCell } from "./cells/star-cell";
+import SparklineCellRenderer, { type SparklineCell } from "./cells/sparkline-cell";
+import TagsCellRenderer, { type TagsCell } from "./cells/tags-cell";
+import UserProfileCellRenderer, { type UserProfileCell } from "./cells/user-profile-cell";
+import DropdownCellRenderer, { type DropdownCell } from "./cells/dropdown-cell";
+import ArticleCellRenderer from "./cells/article-cell";
+import type { ArticleCell } from "./cells/article-cell-types";
+import RangeCellRenderer, { type RangeCell } from "./cells/range-cell";
+import SpinnerCellRenderer, { type SpinnerCell } from "./cells/spinner-cell";
+import DatePickerRenderer, { type DatePickerCell } from "./cells/date-picker-cell";
+import LinksCellRenderer, { type LinksCell } from "./cells/links-cell";
+import ButtonCellRenderer, { type ButtonCell } from "./cells/button-cell";
+import TreeViewCellRenderer, { type TreeViewCell } from "./cells/tree-view-cell";
+import MultiSelectCellRenderer, { type MultiSelectCell } from "./cells/multi-select-cell";
 
 const cells = [
     StarCellRenderer,

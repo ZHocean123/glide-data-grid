@@ -1,6 +1,6 @@
-import ImageWindowLoaderImpl from "../src/common/image-window-loader.js";
+import ImageWindowLoaderImpl from "../src/common/image-window-loader";
 import { vi, expect, describe, it, beforeEach } from "vitest";
-import { packColRowToNumber } from "../src/common/render-state-provider.js";
+import { packColRowToNumber } from "../src/common/render-state-provider";
 
 describe("ImageWindowLoaderImpl", () => {
     let loader: ImageWindowLoaderImpl;

@@ -1,5 +1,5 @@
 import { renderHook, cleanup } from "@testing-library/react-hooks";
-import { useDeepMemo } from "../src/common/utils.js";
+import { useDeepMemo } from "../src/common/utils";
 import { expect, describe, it, afterEach } from "vitest";
 
 describe("useDeepMemo", () => {

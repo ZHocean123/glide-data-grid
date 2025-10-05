@@ -1,5 +1,5 @@
-import { packColRowToNumber, unpackNumberToColRow, unpackRow } from "../../common/render-state-provider.js";
-import type { Item, Rectangle } from "./data-grid-types.js";
+import { packColRowToNumber, unpackNumberToColRow, unpackRow } from "../../common/render-state-provider";
+import type { Item, Rectangle } from "./data-grid-types";
 
 export class CellSet {
     private readonly cells: Set<number>;

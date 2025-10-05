@@ -1,26 +1,26 @@
 import { styled } from "@linaria/react";
 import * as React from "react";
 import { DataEditor, type DataEditorProps, GridCellKind } from "@glideapps/glide-data-grid";
-import { DropdownCell as DropdownRenderer, MultiSelectCell as MultiSelectRenderer, allCells } from "./index.js";
-import type { StarCell } from "./cells/star-cell.js";
-import type { SparklineCell } from "./cells/sparkline-cell.js";
-import range from "lodash/range.js";
-import uniq from "lodash/uniq.js";
-import type { TagsCell } from "./cells/tags-cell.js";
-import type { UserProfileCell } from "./cells/user-profile-cell.js";
-import type { DropdownCell } from "./cells/dropdown-cell.js";
-import type { ArticleCell } from "./cells/article-cell-types.js";
-import type { RangeCell } from "./cells/range-cell.js";
-import type { SpinnerCell } from "./cells/spinner-cell.js";
+import { DropdownCell as DropdownRenderer, MultiSelectCell as MultiSelectRenderer, allCells } from "./index";
+import type { StarCell } from "./cells/star-cell";
+import type { SparklineCell } from "./cells/sparkline-cell";
+import range from "lodash/range";
+import uniq from "lodash/uniq";
+import type { TagsCell } from "./cells/tags-cell";
+import type { UserProfileCell } from "./cells/user-profile-cell";
+import type { DropdownCell } from "./cells/dropdown-cell";
+import type { ArticleCell } from "./cells/article-cell-types";
+import type { RangeCell } from "./cells/range-cell";
+import type { SpinnerCell } from "./cells/spinner-cell";
 import { useResizeDetector } from "react-resize-detector";
 
 import "@toast-ui/editor/dist/toastui-editor.css";
 import "@glideapps/glide-data-grid/dist/index.css";
-import type { DatePickerCell } from "./cells/date-picker-cell.js";
-import type { LinksCell } from "./cells/links-cell.js";
-import type { ButtonCell } from "./cells/button-cell.js";
-import type { TreeViewCell } from "./cells/tree-view-cell.js";
-import type { MultiSelectCell } from "./cells/multi-select-cell.js";
+import type { DatePickerCell } from "./cells/date-picker-cell";
+import type { LinksCell } from "./cells/links-cell";
+import type { ButtonCell } from "./cells/button-cell";
+import type { TreeViewCell } from "./cells/tree-view-cell";
+import type { MultiSelectCell } from "./cells/multi-select-cell";
 
 const SimpleWrapper = styled.div`
     box-sizing: border-box;
@@ -581,7 +581,7 @@ export const CustomCellEditing: React.VFC = () => {
                         data.current[col] = [];
                     }
                     if (DropdownRenderer.isMatch(newVal) && col === 0) {
-                        data.current[col][row] = newVal.data.value ?? "";
+                        data.current[col][row] = newVal.data.value ?? ";
                     } else if (MultiSelectRenderer.isMatch(newVal) && (col === 1 || col === 2)) {
                         data.current[col][row] = newVal.data.values ?? [];
                     }

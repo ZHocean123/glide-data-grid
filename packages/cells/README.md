@@ -14,13 +14,13 @@
 
 Current cells
 
--   Star (Rating) Cell
--   Sparklines
--   Article
--   Dropdown
--   Range
--   User profile
--   Tags
+- Star (Rating) Cell
+- Sparklines
+- Article
+- Dropdown
+- Range
+- User profile
+- Tags
 
 # Usage
 

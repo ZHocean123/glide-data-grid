@@ -1,8 +1,8 @@
 import React from "react";
-import { GrowingEntry } from "../internal/growing-entry/growing-entry.js";
-import { drawTextCell, prepTextCell } from "../internal/data-grid/render/data-grid-lib.js";
-import { GridCellKind, type RowIDCell } from "../internal/data-grid/data-grid-types.js";
-import type { InternalCellRenderer } from "./cell-types.js";
+import { GrowingEntry } from "../internal/growing-entry/growing-entry";
+import { drawTextCell, prepTextCell } from "../internal/data-grid/render/data-grid-lib";
+import { GridCellKind, type RowIDCell } from "../internal/data-grid/data-grid-types";
+import type { InternalCellRenderer } from "./cell-types";
 
 export const rowIDCellRenderer: InternalCellRenderer<RowIDCell> = {
     getAccessibilityString: c => c.data?.toString() ?? "",

@@ -1,6 +1,6 @@
-import type { FullTheme } from "../common/styles.js";
-import { getSquareWidth, getSquareXPosFromAlign, getSquareBB, pointIsWithinBB } from "../common/utils.js";
-import { toggleBoolean } from "../data-editor/data-editor-fns.js";
+import type { FullTheme } from "../common/styles";
+import { getSquareWidth, getSquareXPosFromAlign, getSquareBB, pointIsWithinBB } from "../common/utils";
+import { toggleBoolean } from "../data-editor/data-editor-fns";
 import {
     GridCellKind,
     type BooleanCell,
@@ -8,9 +8,9 @@ import {
     BooleanEmpty,
     BooleanIndeterminate,
     type Rectangle,
-} from "../internal/data-grid/data-grid-types.js";
-import { drawCheckbox } from "../internal/data-grid/render/draw-checkbox.js";
-import type { BaseDrawArgs, InternalCellRenderer } from "./cell-types.js";
+} from "../internal/data-grid/data-grid-types";
+import { drawCheckbox } from "../internal/data-grid/render/draw-checkbox";
+import type { BaseDrawArgs, InternalCellRenderer } from "./cell-types";
 
 function isOverEditableRegion(e: {
     readonly cell: BooleanCell;

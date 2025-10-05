@@ -1,6 +1,6 @@
 import React from "react";
-import { type DataEditorProps } from "../../data-editor/data-editor.js";
-import { DataEditorAll as DataEditor } from "../../data-editor-all.js";
+import { type DataEditorProps } from "../../data-editor/data-editor";
+import { DataEditorAll as DataEditor } from "../../data-editor-all";
 import {
     BeautifulWrapper,
     Description,
@@ -8,10 +8,10 @@ import {
     PropName,
     defaultProps,
     useAllMockedKinds,
-} from "../../data-editor/stories/utils.js";
-import type { Item } from "../../internal/data-grid/data-grid-types.js";
-import { GridCellKind } from "../../internal/data-grid/data-grid-types.js";
-import { SimpleThemeWrapper } from "../../stories/story-utils.js";
+} from "../../data-editor/stories/utils";
+import type { Item } from "../../internal/data-grid/data-grid-types";
+import { GridCellKind } from "../../internal/data-grid/data-grid-types";
+import { SimpleThemeWrapper } from "../../stories/story-utils";
 
 export default {
     title: "Glide-Data-Grid/DataEditor Demos",

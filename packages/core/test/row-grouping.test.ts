@@ -5,8 +5,8 @@ import {
     flattenRowGroups,
     useRowGroupingInner,
     type RowGroupingOptions,
-} from "../src/data-editor/row-grouping.js";
-import { getRowGroupingForPath, updateRowGroupingByPath } from "../src/data-editor/row-grouping-api.js";
+} from "../src/data-editor/row-grouping";
+import { getRowGroupingForPath, updateRowGroupingByPath } from "../src/data-editor/row-grouping-api";
 
 describe("expandRowGroups", () => {
     it("expands an empty array of groups", () => {

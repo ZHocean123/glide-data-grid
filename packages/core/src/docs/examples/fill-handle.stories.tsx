@@ -1,5 +1,5 @@
 import React from "react";
-import { DataEditorAll as DataEditor } from "../../data-editor-all.js";
+import { DataEditorAll as DataEditor } from "../../data-editor-all";
 import {
     BeautifulWrapper,
     Description,
@@ -8,10 +8,10 @@ import {
     useMockDataGenerator,
     defaultProps,
     clearCell,
-} from "../../data-editor/stories/utils.js";
-import { GridCellKind, type FillHandleDirection } from "../../internal/data-grid/data-grid-types.js";
-import type { FillPatternEventArgs } from "../../index.js";
-import { SimpleThemeWrapper } from "../../stories/story-utils.js";
+} from "../../data-editor/stories/utils";
+import { GridCellKind, type FillHandleDirection } from "../../internal/data-grid/data-grid-types";
+import type { FillPatternEventArgs } from "../../index";
+import { SimpleThemeWrapper } from "../../stories/story-utils";
 
 export default {
     title: "Glide-Data-Grid/DataEditor Demos",

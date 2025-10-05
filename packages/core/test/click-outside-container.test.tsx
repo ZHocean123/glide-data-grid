@@ -1,7 +1,7 @@
 import { render, cleanup } from "@testing-library/react";
 import * as React from "react";
 import { userEvent } from "@testing-library/user-event";
-import ClickOutsideContainer from "../src/internal/click-outside-container/click-outside-container.js";
+import ClickOutsideContainer from "../src/internal/click-outside-container/click-outside-container";
 import { vi, expect, describe, it, afterEach } from "vitest";
 
 // skip this for now because github actions is failing

@@ -1,7 +1,7 @@
 import * as React from "react";
-import type { FullTheme } from "../common/styles.js";
-import type { DataGridSearchProps } from "../internal/data-grid-search/data-grid-search.js";
-import type { GetCellRendererCallback } from "../cells/cell-types.js";
+import type { FullTheme } from "../common/styles";
+import type { DataGridSearchProps } from "../internal/data-grid-search/data-grid-search";
+import type { GetCellRendererCallback } from "../cells/cell-types";
 
 import {
     type CellArray,
@@ -11,7 +11,7 @@ import {
     isSizedGridColumn,
     resolveCellsThunk,
     type SizedGridColumn,
-} from "../internal/data-grid/data-grid-types.js";
+} from "../internal/data-grid/data-grid-types";
 const defaultSize = 150;
 
 function measureCell(

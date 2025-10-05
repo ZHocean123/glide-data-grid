@@ -1,5 +1,5 @@
 import * as React from "react";
-import type { FullTheme } from "../../common/styles.js";
+import type { FullTheme } from "../../common/styles";
 import {
     computeBounds,
     getColumnIndexForX,
@@ -8,7 +8,7 @@ import {
     getStickyWidth,
     rectBottomRight,
     useMappedColumns,
-} from "./render/data-grid-lib.js";
+} from "./render/data-grid-lib";
 import {
     GridCellKind,
     type Rectangle,
@@ -25,22 +25,22 @@ import {
     type DrawCellCallback,
     type FillHandle,
     DEFAULT_FILL_HANDLE,
-} from "./data-grid-types.js";
-import { CellSet } from "./cell-set.js";
-import { SpriteManager, type SpriteMap } from "./data-grid-sprites.js";
-import { direction, getScrollBarWidth, useDebouncedMemo, useEventListener } from "../../common/utils.js";
-import clamp from "lodash/clamp.js";
-import makeRange from "lodash/range.js";
-import { drawGrid } from "./render/data-grid-render.js";
-import { type BlitData } from "./render/data-grid-render.blit.js";
+} from "./data-grid-types";
+import { CellSet } from "./cell-set";
+import { SpriteManager, type SpriteMap } from "./data-grid-sprites";
+import { direction, getScrollBarWidth, useDebouncedMemo, useEventListener } from "../../common/utils";
+import clamp from "lodash/clamp";
+import makeRange from "lodash/range";
+import { drawGrid } from "./render/data-grid-render";
+import { type BlitData } from "./render/data-grid-render.blit";
 import { AnimationManager, type StepCallback } from "@glideapps/glide-data-grid-shared/animation";
-import { RenderStateProvider, packColRowToNumber } from "../../common/render-state-provider.js";
-import { browserIsFirefox, browserIsSafari } from "../../common/browser-detect.js";
-import { type EnqueueCallback, useAnimationQueue } from "./use-animation-queue.js";
-import { assert } from "../../common/support.js";
-import type { CellRenderer, GetCellRendererCallback } from "../../cells/cell-types.js";
-import type { DrawGridArg } from "./render/draw-grid-arg.js";
-import type { ImageWindowLoader } from "./image-window-loader-interface.js";
+import { RenderStateProvider, packColRowToNumber } from "../../common/render-state-provider";
+import { browserIsFirefox, browserIsSafari } from "../../common/browser-detect";
+import { type EnqueueCallback, useAnimationQueue } from "./use-animation-queue";
+import { assert } from "../../common/support";
+import type { CellRenderer, GetCellRendererCallback } from "../../cells/cell-types";
+import type { DrawGridArg } from "./render/draw-grid-arg";
+import type { ImageWindowLoader } from "./image-window-loader-interface";
 import {
     type GridMouseEventArgs,
     type GridKeyEventArgs,
@@ -50,15 +50,15 @@ import {
     groupHeaderKind,
     headerKind,
     mouseEventArgsAreEqual,
-} from "./event-args.js";
+} from "./event-args";
 import { pointInRect } from "@glideapps/glide-data-grid-shared/geometry";
 import {
     type GroupDetailsCallback,
     type GetRowThemeCallback,
     type Highlight,
     drawCell,
-} from "./render/data-grid-render.cells.js";
-import { getActionBoundsForGroup, drawHeader, computeHeaderLayout } from "./render/data-grid-render.header.js";
+} from "./render/data-grid-render.cells";
+import { getActionBoundsForGroup, drawHeader, computeHeaderLayout } from "./render/data-grid-render.header";
 
 export interface DataGridProps {
     readonly width: number;
@@ -330,7 +330,7 @@ export interface DataGridRef {
 const getRowData = (cell: InnerGridCell, getCellRenderer?: GetCellRendererCallback) => {
     if (cell.kind === GridCellKind.Custom) return cell.copyData;
     const r = getCellRenderer?.(cell);
-    return r?.getAccessibilityString(cell) ?? "";
+    return r?.getAccessibilityString(cell) ?? ";
 };
 
 const DataGrid: React.ForwardRefRenderFunction<DataGridRef, DataGridProps> = (p, forwardedRef) => {

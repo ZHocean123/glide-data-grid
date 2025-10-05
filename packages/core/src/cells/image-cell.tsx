@@ -1,9 +1,9 @@
 /* eslint-disable react/display-name */
 import * as React from "react";
-import { ImageOverlayEditor } from "../internal/data-grid-overlay-editor/private/image-overlay-editor.js";
-import { roundedRect } from "../internal/data-grid/render/data-grid-lib.js";
-import { GridCellKind, type BaseGridCell, type ImageCell } from "../internal/data-grid/data-grid-types.js";
-import type { BaseDrawArgs, InternalCellRenderer } from "./cell-types.js";
+import { ImageOverlayEditor } from "../internal/data-grid-overlay-editor/private/image-overlay-editor";
+import { roundedRect } from "../internal/data-grid/render/data-grid-lib";
+import { GridCellKind, type BaseGridCell, type ImageCell } from "../internal/data-grid/data-grid-types";
+import type { BaseDrawArgs, InternalCellRenderer } from "./cell-types";
 
 export const imageCellRenderer: InternalCellRenderer<ImageCell> = {
     getAccessibilityString: c => c.data.join(", "),

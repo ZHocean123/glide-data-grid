@@ -13,7 +13,7 @@ import {
 import { vi, expect, describe, it, afterEach } from "vitest";
 
 import { GridCellKind } from "@glideapps/glide-data-grid";
-import renderer, { type MultiSelectCell, prepareOptions, resolveValues } from "../src/cells/multi-select-cell.js";
+import renderer, { type MultiSelectCell, prepareOptions, resolveValues } from "../src/cells/multi-select-cell";
 
 describe("prepareOptions", () => {
     const testCases = [

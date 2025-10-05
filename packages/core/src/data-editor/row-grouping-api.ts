@@ -1,6 +1,6 @@
 import React from "react";
-import type { Item } from "../internal/data-grid/data-grid-types.js";
-import { flattenRowGroups, mapRowIndexToPath, type RowGroup, type RowGroupingOptions, type MapResult } from "./row-grouping.js";
+import type { Item } from "../internal/data-grid/data-grid-types";
+import { flattenRowGroups, mapRowIndexToPath, type RowGroup, type RowGroupingOptions, type MapResult } from "./row-grouping";
 
 export interface RowGroupingMapperResult<T> extends Omit<MapResult, 'originalIndex'> {
     path: readonly number[];

@@ -1,10 +1,10 @@
 import * as React from "react";
 
-import { type GridCell, GridCellKind, type GridColumn, type Item } from "../internal/data-grid/data-grid-types.js";
-import { type DataEditorRef } from "../data-editor/data-editor.js";
-import { DataEditorAll as DataEditor } from "../data-editor-all.js";
-import { SimpleThemeWrapper } from "../stories/story-utils.js";
-import { DocWrapper, Highlight, Marked, Wrapper } from "./doc-wrapper.js";
+import { type GridCell, GridCellKind, type GridColumn, type Item } from "../internal/data-grid/data-grid-types";
+import { type DataEditorRef } from "../data-editor/data-editor";
+import { DataEditorAll as DataEditor } from "../data-editor-all";
+import { SimpleThemeWrapper } from "../stories/story-utils";
+import { DocWrapper, Highlight, Marked, Wrapper } from "./doc-wrapper";
 
 export default {
     title: "Glide-Data-Grid/Docs",

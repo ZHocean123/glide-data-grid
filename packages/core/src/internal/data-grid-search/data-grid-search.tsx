@@ -6,10 +6,10 @@ import {
     GridCellKind,
     type Item,
     type Rectangle,
-} from "../data-grid/data-grid-types.js";
-import ScrollingDataGrid, { type ScrollingDataGridProps } from "../scrolling-data-grid/scrolling-data-grid.js";
-import { SearchWrapper } from "./data-grid-search-style.js";
-import { assert } from "../../common/support.js";
+} from "../data-grid/data-grid-types";
+import ScrollingDataGrid, { type ScrollingDataGridProps } from "../scrolling-data-grid/scrolling-data-grid";
+import { SearchWrapper } from "./data-grid-search-style";
+import { assert } from "../../common/support";
 
 // icons
 const upArrow = (

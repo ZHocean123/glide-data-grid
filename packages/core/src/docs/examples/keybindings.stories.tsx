@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { DataEditorAll as DataEditor } from "../../data-editor-all.js";
-import { BeautifulWrapper, Description, useMockDataGenerator, defaultProps } from "../../data-editor/stories/utils.js";
-import { SimpleThemeWrapper } from "../../stories/story-utils.js";
-import { type Keybinds, type Keybind, keybindingDefaults } from "../../data-editor/data-editor-keybindings.js";
+import { DataEditorAll as DataEditor } from "../../data-editor-all";
+import { BeautifulWrapper, Description, useMockDataGenerator, defaultProps } from "../../data-editor/stories/utils";
+import { SimpleThemeWrapper } from "../../stories/story-utils";
+import { type Keybinds, type Keybind, keybindingDefaults } from "../../data-editor/data-editor-keybindings";
 
 export default {
     title: "Glide-Data-Grid/DataEditor Demos",

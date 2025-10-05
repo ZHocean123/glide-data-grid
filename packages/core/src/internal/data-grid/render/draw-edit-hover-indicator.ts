@@ -1,6 +1,6 @@
-import type { FullTheme } from "../../../common/styles.js";
-import type { Rectangle, HoverEffectTheme } from "../../../index.js";
-import { roundedRect, measureTextCached } from "./data-grid-lib.js";
+import type { FullTheme } from "../../../common/styles";
+import type { Rectangle, HoverEffectTheme } from "../../../index";
+import { roundedRect, measureTextCached } from "./data-grid-lib";
 import { withAlpha } from "@glideapps/glide-data-grid-shared/color";
 
 export function drawEditHoverIndicator(

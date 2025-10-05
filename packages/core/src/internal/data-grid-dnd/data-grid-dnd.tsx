@@ -1,9 +1,9 @@
 /* eslint-disable unicorn/consistent-destructuring */
-import clamp from "lodash/clamp.js";
+import clamp from "lodash/clamp";
 import * as React from "react";
-import DataGrid, { type DataGridProps, type DataGridRef } from "../data-grid/data-grid.js";
-import type { GridColumn, InnerGridColumn, Rectangle } from "../data-grid/data-grid-types.js";
-import type { GridMouseEventArgs } from "../data-grid/event-args.js";
+import DataGrid, { type DataGridProps, type DataGridRef } from "../data-grid/data-grid";
+import type { GridColumn, InnerGridColumn, Rectangle } from "../data-grid/data-grid-types";
+import type { GridMouseEventArgs } from "../data-grid/event-args";
 
 type Props = Omit<
     DataGridProps,

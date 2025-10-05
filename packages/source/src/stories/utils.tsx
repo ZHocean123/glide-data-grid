@@ -1,5 +1,5 @@
 import * as React from "react";
-import isArray from "lodash/isArray.js";
+import isArray from "lodash/isArray";
 
 import {
     type CellArray,

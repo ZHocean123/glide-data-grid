@@ -1,5 +1,5 @@
-import { type Item, type Rectangle } from "../data-grid-types.js";
-import { type MappedGridColumn, isGroupEqual } from "./data-grid-lib.js";
+import { type Item, type Rectangle } from "../data-grid-types";
+import { type MappedGridColumn, isGroupEqual } from "./data-grid-lib";
 
 export function getSkipPoint(drawRegions: readonly Rectangle[]): number | undefined {
     if (drawRegions.length === 0) return undefined;

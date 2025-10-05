@@ -1,6 +1,6 @@
-import { getMiddleCenterBias } from "../internal/data-grid/render/data-grid-lib.js";
-import { InnerGridCellKind, type NewRowCell } from "../internal/data-grid/data-grid-types.js";
-import type { BaseDrawArgs, InternalCellRenderer } from "./cell-types.js";
+import { getMiddleCenterBias } from "../internal/data-grid/render/data-grid-lib";
+import { InnerGridCellKind, type NewRowCell } from "../internal/data-grid/data-grid-types";
+import type { BaseDrawArgs, InternalCellRenderer } from "./cell-types";
 
 export const newRowCellRenderer: InternalCellRenderer<NewRowCell> = {
     getAccessibilityString: () => "",
@@ -23,7 +23,7 @@ function drawNewRowCell(args: BaseDrawArgs, data: string, icon?: string) {
     ctx.globalAlpha = 1;
     ctx.beginPath();
 
-    const alwaysShowIcon = data !== "";
+    const alwaysShowIcon = data !== ";
 
     let textX = 0;
 

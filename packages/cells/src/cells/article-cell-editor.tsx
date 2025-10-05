@@ -2,7 +2,7 @@ import type { ProvideEditorComponent } from "@glideapps/glide-data-grid";
 import * as React from "react";
 import { Editor, Viewer } from "@toast-ui/react-editor";
 import { styled } from "@linaria/react";
-import type { ArticleCell } from "./article-cell-types.js";
+import type { ArticleCell } from "./article-cell-types";
 
 const Wrapper = styled.div`
     .gdg-footer {

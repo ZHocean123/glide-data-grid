@@ -1,5 +1,5 @@
-import type { CellSet } from "./cell-set.js";
-import type { Rectangle } from "./data-grid-types.js";
+import type { CellSet } from "./cell-set";
+import type { Rectangle } from "./data-grid-types";
 
 /** @category Types */
 export interface ImageWindowLoader {

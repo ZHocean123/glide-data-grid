@@ -1,11 +1,11 @@
 import { intersectRect, pointInRect } from "@glideapps/glide-data-grid-shared/geometry";
-import { mergeAndRealizeTheme, type FullTheme } from "../../../common/styles.js";
-import { direction } from "../../../common/utils.js";
-import type { HoverValues } from "../animation-manager.js";
-import type { CellSet } from "../cell-set.js";
+import { mergeAndRealizeTheme, type FullTheme } from "../../../common/styles";
+import { direction } from "../../../common/utils";
+import type { HoverValues } from "../animation-manager";
+import type { CellSet } from "../cell-set";
 import { withAlpha } from "@glideapps/glide-data-grid-shared/color";
-import type { SpriteManager, SpriteVariant } from "../data-grid-sprites.js";
-import { GridColumnMenuIcon, type DrawHeaderCallback, type GridSelection, type Rectangle } from "../data-grid-types.js";
+import type { SpriteManager, SpriteVariant } from "../data-grid-sprites";
+import { GridColumnMenuIcon, type DrawHeaderCallback, type GridSelection, type Rectangle } from "../data-grid-types";
 import {
     drawMenuDots,
     getMeasuredTextCache,
@@ -13,11 +13,11 @@ import {
     measureTextCached,
     roundedPoly,
     type MappedGridColumn,
-} from "./data-grid-lib.js";
-import type { GroupDetails, GroupDetailsCallback } from "./data-grid-render.cells.js";
-import { walkColumns, walkGroups } from "./data-grid-render.walk.js";
-import { drawCheckbox } from "./draw-checkbox.js";
-import type { DragAndDropState, HoverInfo } from "./draw-grid-arg.js";
+} from "./data-grid-lib";
+import type { GroupDetails, GroupDetailsCallback } from "./data-grid-render.cells";
+import { walkColumns, walkGroups } from "./data-grid-render.walk";
+import { drawCheckbox } from "./draw-checkbox";
+import type { DragAndDropState, HoverInfo } from "./draw-grid-arg";
 
 export function drawGridHeaders(
     ctx: CanvasRenderingContext2D,

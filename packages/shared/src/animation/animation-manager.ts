@@ -1,6 +1,6 @@
-import clamp from "lodash/clamp.js";
-import type { GridItem } from "../types.js";
-import { itemsAreEqual } from "../grid/index.js";
+import clamp from "lodash/clamp";
+import type { GridItem } from "../types";
+import { itemsAreEqual } from "../grid/index";
 
 type StateItem = { item: GridItem; hoverAmount: number };
 export type HoverValues = readonly Readonly<StateItem>[];

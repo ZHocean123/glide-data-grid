@@ -1,11 +1,11 @@
 /* eslint-disable sonarjs/no-duplicate-string */
-import { assertNever } from "../common/support.js";
+import { assertNever } from "../common/support";
 import {
     BooleanEmpty,
     BooleanIndeterminate,
     GridCellKind,
     type GridCell,
-} from "../internal/data-grid/data-grid-types.js";
+} from "../internal/data-grid/data-grid-types";
 
 type StringArrayCellBuffer = {
     formatted: string[];
@@ -297,7 +297,7 @@ export function decodeHTML(html: string): CopyBuffer | undefined {
                     format: formatValue,
                 });
             } else {
-                let textContent = clone.textContent ?? "";
+                let textContent = clone.textContent ?? ";
                 if (isAppleNumbers) {
                     // replace any newline not preceded by a newline
                     textContent = textContent.replace(/\n(?!\n)/g, "");

@@ -1,7 +1,7 @@
 import { renderHook, cleanup } from "@testing-library/react-hooks";
-import { useResizeDetector } from "../src/common/resize-detector.js";
-import { maybe, deepEqual } from "../src/common/support.js";
-import { makeAccessibilityStringForArray } from "../src/common/utils.js";
+import { useResizeDetector } from "../src/common/resize-detector";
+import { maybe, deepEqual } from "../src/common/support";
+import { makeAccessibilityStringForArray } from "../src/common/utils";
 import { expect, describe, test, it, afterEach } from "vitest";
 
 describe("maybe", () => {

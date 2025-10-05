@@ -1,4 +1,4 @@
-import type { GridItem } from "../types.js";
+import type { GridItem } from "../types";
 
 export function itemsAreEqual(a: GridItem | undefined, b: GridItem | undefined): boolean {
     return a?.[0] === b?.[0] && a?.[1] === b?.[1];

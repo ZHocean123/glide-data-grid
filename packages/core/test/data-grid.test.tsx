@@ -1,13 +1,13 @@
 import * as React from "react";
 import { render, fireEvent, screen, cleanup } from "@testing-library/react";
-import DataGrid, { type DataGridProps, type DataGridRef } from "../src/internal/data-grid/data-grid.js";
-import { CompactSelection, GridCellKind } from "../src/internal/data-grid/data-grid-types.js";
-import { getDefaultTheme } from "../src/index.js";
-import { AllCellRenderers } from "../src/cells/index.js";
+import DataGrid, { type DataGridProps, type DataGridRef } from "../src/internal/data-grid/data-grid";
+import { CompactSelection, GridCellKind } from "../src/internal/data-grid/data-grid-types";
+import { getDefaultTheme } from "../src/index";
+import { AllCellRenderers } from "../src/cells/index";
 import { vi, expect, describe, test, beforeEach, afterEach } from "vitest";
-import ImageWindowLoaderImpl from "../src/common/image-window-loader.js";
-import { mergeAndRealizeTheme } from "../src/common/styles.js";
-import { standardBeforeEach } from "./test-utils.js";
+import ImageWindowLoaderImpl from "../src/common/image-window-loader";
+import { mergeAndRealizeTheme } from "../src/common/styles";
+import { standardBeforeEach } from "./test-utils";
 
 const basicProps: DataGridProps = {
     cellXOffset: 0,

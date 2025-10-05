@@ -1,7 +1,7 @@
 import * as React from "react";
-import type { VisibleRegion } from "./visible-region.js";
-import type { DataEditorCoreProps } from "../index.js";
-import { useStateWithReactiveInput } from "../common/utils.js";
+import type { VisibleRegion } from "./visible-region";
+import type { DataEditorCoreProps } from "../index";
+import { useStateWithReactiveInput } from "../common/utils";
 
 // shamelessly stolen and modified from: https://github.com/theKashey/use-callback-ref
 // MIT License https://github.com/theKashey/use-callback-ref/tree/master?tab=MIT-1-ov-file#readme

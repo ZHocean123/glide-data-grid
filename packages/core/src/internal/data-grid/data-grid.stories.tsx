@@ -1,13 +1,13 @@
 /* eslint-disable sonarjs/no-identical-functions */
 import * as React from "react";
 
-import { BuilderThemeWrapper } from "../../stories/story-utils.js";
-import DataGrid from "./data-grid.js";
-import { CompactSelection, GridCellKind, type GridSelection } from "./data-grid-types.js";
-import { getDataEditorTheme, mergeAndRealizeTheme } from "../../common/styles.js";
-import type { GetCellRendererCallback } from "../../cells/cell-types.js";
-import { AllCellRenderers } from "../../cells/index.js";
-import ImageWindowLoaderImpl from "../../common/image-window-loader.js";
+import { BuilderThemeWrapper } from "../../stories/story-utils";
+import DataGrid from "./data-grid";
+import { CompactSelection, GridCellKind, type GridSelection } from "./data-grid-types";
+import { getDataEditorTheme, mergeAndRealizeTheme } from "../../common/styles";
+import type { GetCellRendererCallback } from "../../cells/cell-types";
+import { AllCellRenderers } from "../../cells/index";
+import ImageWindowLoaderImpl from "../../common/image-window-loader";
 
 export default {
     title: "Subcomponents/DataGrid",

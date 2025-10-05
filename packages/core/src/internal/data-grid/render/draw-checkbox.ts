@@ -1,8 +1,8 @@
-import { assertNever } from "../../../common/support.js";
-import { getSquareBB, getSquareWidth, getSquareXPosFromAlign, pointIsWithinBB } from "../../../common/utils.js";
-import type { Theme } from "../../../index.js";
-import { BooleanEmpty, BooleanIndeterminate, type BaseGridCell } from "../data-grid-types.js";
-import { roundedRect } from "./data-grid-lib.js";
+import { assertNever } from "../../../common/support";
+import { getSquareBB, getSquareWidth, getSquareXPosFromAlign, pointIsWithinBB } from "../../../common/utils";
+import type { Theme } from "../../../index";
+import { BooleanEmpty, BooleanIndeterminate, type BaseGridCell } from "../data-grid-types";
+import { roundedRect } from "./data-grid-lib";
 
 export function drawCheckbox(
     ctx: CanvasRenderingContext2D,

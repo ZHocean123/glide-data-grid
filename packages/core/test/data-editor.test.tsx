@@ -13,12 +13,12 @@ import {
     type InternalCellRenderer,
     AllCellRenderers,
     type ProvideEditorCallback,
-} from "../src/index.js";
-import type { CustomCell } from "../src/internal/data-grid/data-grid-types.js";
-import type { DataEditorRef } from "../src/data-editor/data-editor.js";
-import { assert } from "../src/common/support.js";
+} from "../src/index";
+import type { CustomCell } from "../src/internal/data-grid/data-grid-types";
+import type { DataEditorRef } from "../src/data-editor/data-editor";
+import { assert } from "../src/common/support";
 import { vi, type Mock, expect, describe, test, beforeEach, afterEach } from "vitest";
-import type { GridKeyEventArgs } from "../src/internal/data-grid/event-args.js";
+import type { GridKeyEventArgs } from "../src/internal/data-grid/event-args";
 import {
     EventedDataEditor,
     basicProps,
@@ -29,7 +29,7 @@ import {
     Context,
     standardBeforeEach,
     standardAfterEach,
-} from "./test-utils.js";
+} from "./test-utils";
 
 describe("data-editor", () => {
     vi.mock("../src/common/resize-detector", () => {

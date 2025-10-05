@@ -1,6 +1,6 @@
-import { degreesToRadians } from "../common/utils.js";
-import { GridCellKind, type ProtectedCell } from "../internal/data-grid/data-grid-types.js";
-import type { BaseDrawArgs, InternalCellRenderer } from "./cell-types.js";
+import { degreesToRadians } from "../common/utils";
+import { GridCellKind, type ProtectedCell } from "../internal/data-grid/data-grid-types";
+import type { BaseDrawArgs, InternalCellRenderer } from "./cell-types";
 
 export const protectedCellRenderer: InternalCellRenderer<ProtectedCell> = {
     getAccessibilityString: () => "",
