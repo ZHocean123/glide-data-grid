@@ -122,7 +122,7 @@ export const keybindingDefaults: Keybinds = {
 
 function realizeKeybind(keybind: Keybind, defaultVal: string): string {
     if (keybind === true) return defaultVal;
-    if (keybind === false) return ";
+    if (keybind === false) return "";
     return keybind;
 }
 

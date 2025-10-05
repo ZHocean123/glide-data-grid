@@ -19,7 +19,7 @@ const props = defineProps<{
 const displayText = computed(() => {
     const { value, allowedValues } = props.cell;
 
-    if (!value) return ";
+    if (!value) return "";
 
     const foundOption = allowedValues.find(opt => {
         if (typeof opt === "string" || opt === null || opt === undefined) {
@@ -32,7 +32,7 @@ const displayText = computed(() => {
         return foundOption;
     }
 
-    return foundOption?.label ?? ";
+    return foundOption?.label ?? "";
 });
 </script>
 

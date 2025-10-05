@@ -21,7 +21,7 @@ export const GrowingEntry: React.FunctionComponent<Props> = (props: Props) => {
 
     const inputRef = React.useRef<HTMLTextAreaElement | null>(null);
 
-    const useText = value ?? ";
+    const useText = value ?? "";
 
     assert(onChange !== undefined, "GrowingEntry must be a controlled input area");
 

@@ -27,7 +27,7 @@ export const MarkdownOverlayEditor: React.FunctionComponent<Props> = p => {
     const onEditClick = React.useCallback(() => {
         setEditMode(e => !e);
     }, []);
-    const addLeftPad = markdown ? "gdg-ml-6" : ";
+    const addLeftPad = markdown ? "gdg-ml-6" : "";
 
     if (editMode) {
         return (

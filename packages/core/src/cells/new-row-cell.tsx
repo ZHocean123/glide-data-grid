@@ -23,7 +23,7 @@ function drawNewRowCell(args: BaseDrawArgs, data: string, icon?: string) {
     ctx.globalAlpha = 1;
     ctx.beginPath();
 
-    const alwaysShowIcon = data !== ";
+    const alwaysShowIcon = data !== "";
 
     let textX = 0;
 

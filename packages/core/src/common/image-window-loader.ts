@@ -66,7 +66,7 @@ class ImageWindowLoaderImpl extends WindowingTrackerBase implements ImageWindowL
                 if (imgPool.length < 12) {
                     imgPool.unshift(img); // never retain more than 12
                 } else if (!loaded) {
-                    img.src = ";
+                    img.src = "";
                 }
             },
         };

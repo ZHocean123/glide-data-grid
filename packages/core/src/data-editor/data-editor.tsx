@@ -1329,7 +1329,7 @@ const DataEditorImpl: React.ForwardRefRenderFunction<DataEditorRef, DataEditorPr
                 //If the grid is empty, we will return text
                 const isFirst = col === rowMarkerOffset;
 
-                const maybeFirstColumnHint = isFirst ? (trailingRowOptions?.hint ?? "") : ";
+                const maybeFirstColumnHint = isFirst ? (trailingRowOptions?.hint ?? "") : "";
                 const c = mangledColsRef.current[col];
 
                 if (c?.trailingRowOptions?.disabled === true) {
@@ -3697,7 +3697,7 @@ const DataEditorImpl: React.ForwardRefRenderFunction<DataEditorRef, DataEditorPr
                 do {
                     if (onPaste === undefined) {
                         const cellData = getMangledCellContent(target);
-                        const rawValue = text ?? data?.map(r => r.map(cb => cb.rawValue).join("\t")).join("\t") ?? ";
+                        const rawValue = text ?? data?.map(r => r.map(cb => cb.rawValue).join("\t")).join("\t") ?? "";
                         const newVal = pasteToCell(cellData, target, rawValue, undefined);
                         if (newVal !== undefined) {
                             editList.push(newVal);

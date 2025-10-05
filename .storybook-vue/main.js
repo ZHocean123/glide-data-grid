@@ -1,9 +1,11 @@
-export default {
+const { dirname, join } = require("path");
+
+module.exports = {
     stories: ["../packages/*-vue/stories/**/*.stories.ts"],
-    addons: ["@storybook/addon-docs", "@storybook/addon-links"],
+    addons: [getAbsolutePath("@storybook/addon-docs"), getAbsolutePath("@storybook/addon-links")],
 
     framework: {
-        name: "@storybook/vue3-vite",
+        name: getAbsolutePath("@storybook/vue3-vite"),
         options: {},
     },
 
@@ -11,3 +13,7 @@ export default {
         autodocs: true
     }
 };
+
+function getAbsolutePath(value) {
+    return dirname(require.resolve(join(value, "package.json")));
+}

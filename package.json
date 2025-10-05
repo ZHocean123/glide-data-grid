@@ -9,7 +9,7 @@
         "serve-docs": "http-server packages/core/gen-docs",
         "storybook:run": "storybook dev -p 9009 --no-open",
         "watch:core": "npm run watch -w packages/core",
-        "storybook": "concurrently \"npm run storybook:run\" \"npm run watch:core\" \"npm run build:vue -- --watch\"",
+        "storybook": "concurrently \"npm run storybook:run\" \"npm run watch:core\"",
         "build-storybook": "npm run build --workspaces && storybook build -o storybook-build/",
         "prod-storybook": "npm run build-storybook && npx http-server storybook-build -p 9009",
         "test": "cd packages/core && npm run test --",
@@ -20,7 +20,11 @@
         "test-projects": "cd test-projects/ && ./bootstrap-projects.sh",
         "test-vue": "npm run test -w packages/core-vue -- --run && npm run test -w packages/cells-vue -- --run && npm run test -w packages/source-vue -- --run",
         "build:vue": "npm run build -w packages/core-vue && npm run build -w packages/cells-vue && npm run build -w packages/source-vue",
-        "watch:core-vue": "npm run build -w packages/core-vue -- --watch"
+        "watch:core-vue": "npm run build -w packages/core-vue -- --watch",
+        "storybook:vue:run": "storybook dev -p 9010 --no-open --config-dir .storybook-vue",
+        "storybook:vue": "concurrently \"npm run storybook:vue:run\" \"npm run build:vue -- --watch\"",
+        "build-storybook:vue": "npm run build:vue && storybook build -o storybook-build-vue/ --config-dir .storybook-vue",
+        "prod-storybook:vue": "npm run build-storybook:vue && npx http-server storybook-build-vue -p 9010"
     },
     "type": "commonjs",
     "author": "Glide",

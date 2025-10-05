@@ -1,8 +1,8 @@
 const { dirname, join } = require("path");
 
 module.exports = {
-    stories: ["../**/src/**/*.stories.tsx", "../**/stories/**/*.stories.ts", "../packages/*-vue/stories/**/*.stories.ts"],
-    addons: [getAbsolutePath("@storybook/addon-docs"), getAbsolutePath("@storybook/addon-links")],
+    stories: ["../**/src/**/*.stories.tsx", "../**/stories/**/*.stories.ts"],
+    addons: [getAbsolutePath("@storybook/addon-docs")],
 
     typescript: {
         reactDocgen: false,

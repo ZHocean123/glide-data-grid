@@ -581,7 +581,7 @@ export const CustomCellEditing: React.VFC = () => {
                         data.current[col] = [];
                     }
                     if (DropdownRenderer.isMatch(newVal) && col === 0) {
-                        data.current[col][row] = newVal.data.value ?? ";
+                        data.current[col][row] = newVal.data.value ?? "";
                     } else if (MultiSelectRenderer.isMatch(newVal) && (col === 1 || col === 2)) {
                         data.current[col][row] = newVal.data.values ?? [];
                     }

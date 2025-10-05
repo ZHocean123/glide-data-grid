@@ -45,7 +45,7 @@ function useCollapsableColumnGroups(cols: readonly GridColumn[]) {
 
     const onGroupHeaderClicked = React.useCallback(
         (colIndex: number, args: GroupHeaderClickedEventArgs) => {
-            const group = cols[colIndex].group ?? ";
+            const group = cols[colIndex].group ?? "";
             setCollapsed(cv => (cv.includes(group) ? cv.filter(g => g !== group) : [...cv, group]));
             args.preventDefault();
         },

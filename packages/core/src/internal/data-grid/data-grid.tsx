@@ -330,7 +330,7 @@ export interface DataGridRef {
 const getRowData = (cell: InnerGridCell, getCellRenderer?: GetCellRendererCallback) => {
     if (cell.kind === GridCellKind.Custom) return cell.copyData;
     const r = getCellRenderer?.(cell);
-    return r?.getAccessibilityString(cell) ?? ";
+    return r?.getAccessibilityString(cell) ?? "";
 };
 
 const DataGrid: React.ForwardRefRenderFunction<DataGridRef, DataGridProps> = (p, forwardedRef) => {

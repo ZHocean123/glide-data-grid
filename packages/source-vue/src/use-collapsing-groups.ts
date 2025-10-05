@@ -58,7 +58,7 @@ export function useCollapsingGroups(props: Props): Result {
         let lastGroup: string | undefined;
         for (let i = freezeColumns; i < columnsIn.length; i++) {
             const c = columnsIn[i];
-            const group = c.group ?? ";
+            const group = c.group ?? "";
             const isCollapsed = collapsed.value.includes(group);
 
             if (lastGroup !== group && current[0] !== -1) {
@@ -104,7 +104,7 @@ export function useCollapsingGroups(props: Props): Result {
     const onGroupHeaderClicked = (index: number, a: any) => {
         onGroupHeaderClickedIn?.(index, a);
 
-        const group = columns.value[index]?.group ?? ";
+        const group = columns.value[index]?.group ?? "";
         if (group === "") return;
         a.preventDefault();
         collapsed.value = collapsed.value.includes(group)

@@ -53,7 +53,7 @@ describe("unquote", () => {
     });
 
     it("should handle empty strings correctly", () => {
-        const input = ";
+        const input = "";
         const output = unquote(input);
         expect(output).toEqual([[]]);
     });

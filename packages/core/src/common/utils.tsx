@@ -260,7 +260,7 @@ export function makeAccessibilityStringForArray(arr: readonly string[]): string 
     // this is basically just .join(", ") but checks to make sure it is not going to allocate
     // a string that is so large it might crash the browser
     if (arr.length === 0) {
-        return ";
+        return "";
     }
 
     let index = 0;

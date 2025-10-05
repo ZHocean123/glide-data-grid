@@ -23,7 +23,7 @@ export const DropdownCellRenderer: VueCellRenderer<DropdownCell> = {
             return opt.value === value;
         });
 
-        const displayText = typeof foundOption === "string" ? foundOption : foundOption?.label ?? ";
+        const displayText = typeof foundOption === "string" ? foundOption : foundOption?.label ?? "";
 
         if (displayText) {
             ctx.font = "14px system-ui";
@@ -49,7 +49,7 @@ export const DropdownCellRenderer: VueCellRenderer<DropdownCell> = {
             return opt.value === value;
         });
 
-        const displayText = typeof foundOption === "string" ? foundOption : foundOption?.label ?? ";
+        const displayText = typeof foundOption === "string" ? foundOption : foundOption?.label ?? "";
 
         ctx.font = "14px system-ui";
         const textWidth = displayText ? ctx.measureText(displayText).width : 0;
@@ -66,7 +66,7 @@ export const DropdownCellRenderer: VueCellRenderer<DropdownCell> = {
             return opt.value === value;
         });
 
-        const displayText = typeof foundOption === "string" ? foundOption : foundOption?.label ?? ";
+        const displayText = typeof foundOption === "string" ? foundOption : foundOption?.label ?? "";
 
         if (displayText) {
             return `Dropdown: ${displayText}`;

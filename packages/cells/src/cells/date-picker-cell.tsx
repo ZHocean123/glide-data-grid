@@ -53,7 +53,7 @@ export const formatValueForHTMLInput = (
     timezoneOffsetMs?: number
 ): string => {
     if (date === undefined || date === null) {
-        return ";
+        return "";
     }
 
     if (timezoneOffsetMs) {

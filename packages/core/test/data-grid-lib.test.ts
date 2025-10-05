@@ -311,7 +311,7 @@ describe("drawWithLastUpdate", () => {
 
     beforeEach(() => {
         mockCtx.fillRect = vi.fn();
-        mockCtx.fillStyle = ";
+        mockCtx.fillStyle = "";
         mockCtx.globalAlpha = 1;
 
         mockTheme = mergeAndRealizeTheme(getDataEditorTheme(), { bgSearchResult: "some-color" });
