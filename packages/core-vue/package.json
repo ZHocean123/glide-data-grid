@@ -20,7 +20,7 @@
         "dist"
     ],
     "scripts": {
-        "build": "npm run build:types && npm run build:lib",
+        "build": "pnpm build:types && pnpm build:lib",
         "build:types": "vue-tsc --project tsconfig.build.json --declaration --emitDeclarationOnly",
         "build:lib": "vite build --config vite.config.ts",
         "lint": "eslint src --ext .ts,.tsx,.vue",
@@ -47,7 +47,7 @@
     },
     "homepage": "https://grid.glideapps.com",
     "dependencies": {
-        "@glideapps/glide-data-grid-shared": "6.0.4-alpha23"
+        "@glideapps/glide-data-grid-shared": "workspace:*"
     },
     "peerDependencies": {
         "vue": "^3.4.0"

@@ -48,7 +48,7 @@
     ],
     "sideEffects": false,
     "scripts": {
-        "build": "npm run build:esm && npm run build:cjs",
+        "build": "pnpm build:esm && pnpm build:cjs",
         "build:esm": "tsc -p tsconfig.esm.json",
         "build:cjs": "tsc -p tsconfig.cjs.json",
         "lint": "eslint src --ext .ts",

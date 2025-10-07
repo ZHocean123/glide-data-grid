@@ -27,7 +27,7 @@
     },
     "scripts": {
         "build": "./build.sh",
-        "lint": "concurrently \"npm run cycle-check\" \"eslint src --ext .ts,.tsx\"",
+        "lint": "concurrently \"pnpm cycle-check\" \"eslint src --ext .ts,.tsx\"",
         "cycle-check": "ts-helper -p ./tsconfig.json -r ./src/index.ts -c",
         "test": "vitest",
         "check-package": "package-check",
@@ -60,7 +60,7 @@
         "@linaria/react": "^6.3.0",
         "canvas-hypertxt": "^1.0.3",
         "react-number-format": "^5.4.4",
-        "@glideapps/glide-data-grid-shared": "6.0.4-alpha23"
+        "@glideapps/glide-data-grid-shared": "workspace:*"
     },
     "peerDependencies": {
         "lodash": "^4.17.19",

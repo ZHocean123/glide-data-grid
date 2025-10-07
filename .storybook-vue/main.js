@@ -9,6 +9,20 @@ module.exports = {
         options: {},
     },
 
+    typescript: {
+        check: false,
+        reactDocgen: false,
+    },
+
+    async viteFinal(config) {
+        const { mergeConfig } = await import("vite");
+        const vue = await import("@vitejs/plugin-vue");
+        
+        return mergeConfig(config, {
+            plugins: [vue.default()],
+        });
+    },
+
     docs: {
         autodocs: true
     }

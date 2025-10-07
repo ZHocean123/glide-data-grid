@@ -5,7 +5,7 @@ import {
     useColumnSort,
     useCollapsingGroups,
     useMoveableColumns
-} from "../src/index.ts";
+} from "../src/index";
 
 export default {
     title: "Extra Packages/Source Vue",

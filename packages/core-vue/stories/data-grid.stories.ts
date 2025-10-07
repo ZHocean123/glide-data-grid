@@ -1,5 +1,5 @@
 import { ref } from "vue";
-import { DataGrid } from "../src/index.ts";
+import { DataGrid } from "../src/index";
 
 export default {
     title: "Extra Packages/Core Vue",

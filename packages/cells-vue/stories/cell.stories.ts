@@ -8,7 +8,7 @@ import {
     DatePickerCellComponent,
     ButtonCellComponent,
     MultiSelectCellComponent
-} from "../src/index";
+} from "@glideapps/glide-data-grid-cells-vue";
 
 export default {
     title: "Extra Packages/Cells Vue",
