@@ -1,7 +1,7 @@
 {
-    "name": "@glideapps/glide-data-grid",
+    "name": "@glideapps/glide-data-grid-vue",
     "version": "6.0.4-alpha23",
-    "description": "React data grid for beautifully displaying and editing large amounts of data with amazing performance.",
+    "description": "Vue 3 data grid for beautifully displaying and editing large amounts of data with amazing performance.",
     "sideEffects": [
         "**/*.css"
     ],
@@ -26,24 +26,26 @@
         }
     },
     "scripts": {
-        "build": "node ../../config/build.js core",
-        "lint": "concurrently \"npm run cycle-check\" \"eslint src --ext .ts,.tsx\"",
+        "build": "node ../../config/build.js core-vue",
+        "lint": "concurrently \"npm run cycle-check\" \"eslint src --ext .ts,.vue\"",
         "cycle-check": "ts-helper -p ./tsconfig.json -r ./src/index.ts -c",
         "test": "vitest",
         "check-package": "package-check",
-        "watch": "chokidar 'src/**/*.ts*' -c 'node ../../config/build.js core'"
+        "watch": "chokidar 'src/**/*.ts*' -c 'node ../../config/build.js core-vue'",
+        "storybook": "storybook dev -p 6006",
+        "build-storybook": "storybook build"
     },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/glideapps/glide-data-grid.git",
-        "directory": "packages/core"
+        "directory": "packages/core-vue"
     },
     "keywords": [
-        "react",
+        "vue",
+        "vue3",
         "datagrid",
         "data-grid",
         "editor",
-        "reactjs",
         "scrolling",
         "data",
         "table",
@@ -57,25 +59,30 @@
     },
     "homepage": "https://grid.glideapps.com",
     "dependencies": {
-        "@linaria/react": "^6.3.0",
         "canvas-hypertxt": "^1.0.3",
-        "react-number-format": "^5.4.4"
+        "vue-number-format": "^1.0.0"
     },
     "peerDependencies": {
+        "@vue/composition-api": "^1.7.2",
         "lodash": "^4.17.19",
         "marked": "^16.0.10",
-        "react": "^16.12.0 || 17.x || 18.x || 19.x",
-        "react-dom": "^16.12.0 || 17.x || 18.x || 19.x",
-        "react-responsive-carousel": "^3.2.7"
+        "vue": "^3.4.0"
     },
     "devDependencies": {
         "@babel/cli": "^7.27.2",
         "@glideapps/ts-helper": "6.0.0",
         "@skypack/package-check": "^0.2.2",
+        "@storybook/addon-essentials": "^8.6.14",
+        "@storybook/addon-interactions": "^8.6.14",
+        "@storybook/vue3": "^9.1.10",
+        "@storybook/vue3-vite": "^9.1.10",
+        "@vitejs/plugin-vue": "^5.0.0",
         "@vitest/coverage-v8": "^0.34.6",
         "eslint": "^8.57.1",
-        "react-resize-detector": "^12.1.0",
+        "eslint-plugin-vue": "^9.26.0",
+        "storybook": "^9.1.10",
         "tsc-esm-fix": "^3.1.2",
-        "typedoc": "^0.28.5"
+        "typedoc": "^0.28.5",
+        "vue-resize-detector": "^0.2.0"
     }
 }

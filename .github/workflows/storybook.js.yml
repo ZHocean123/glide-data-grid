@@ -14,10 +14,13 @@ jobs:
             - uses: actions/setup-node@v4
               with:
                   node-version: 20.10.0
+            - uses: pnpm/action-setup@v2
+              with:
+                  version: 10
             - name: Install and Build 🔧
               run: |
-                  npm install
-                  npm run build-storybook
+                  pnpm install
+                  pnpm build-storybook
             - name: "Add .nojekyll 📄"
               run: cd storybook-build && touch .nojekyll
             - name: Deploy 🚀

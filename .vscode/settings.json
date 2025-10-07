@@ -1,4 +1,7 @@
 {
     "eslint.workingDirectories": ["packages/core", "packages/cells", "packages/source"],
-    "typescript.tsdk": "node_modules/typescript/lib"
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "debug.javascript.defaultRuntimeExecutable": {
+        "pwa-node": "c:\\users\\ocean\\appdata\\local\\mise\\shims\\node"
+    }
 }

@@ -1,0 +1,7 @@
+packages:
+  - 'packages/core'
+  - 'packages/cells'
+  - 'packages/source'
+  - 'packages/core-vue'
+  - 'packages/cells-vue'
+  - 'packages/source-vue'
