@@ -260,7 +260,7 @@ export function useCanvasRenderer(options: CanvasRendererOptions) {
   const drawSelection = (ctx: CanvasRenderingContext2D) => {
     if (!selection.value?.current) return;
 
-    const { range } = selection.value.current;
+    const { range } = selection.value?.current || {};
     
     ctx.strokeStyle = theme.value?.accentColor || '#007acc';
     ctx.lineWidth = 2;

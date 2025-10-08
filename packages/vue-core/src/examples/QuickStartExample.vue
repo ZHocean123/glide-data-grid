@@ -8,7 +8,7 @@
     
     <div class="code-block">
       <h3>核心代码</h3>
-      <pre><code><template>
+      <pre v-pre><code><template>
   <DataEditor
     :columns="columns"
     :rows="rows"

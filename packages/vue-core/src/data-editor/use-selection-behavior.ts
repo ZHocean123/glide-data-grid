@@ -103,7 +103,7 @@ export function useSelectionBehavior(options: UseSelectionBehaviorOptions) {
             return;
         }
 
-        const current = selection.value.current;
+        const current = selection.value?.current;
         let newSelection: GridSelection;
 
         if (current && (blending === 'additive' || (blending === 'mixed' && trigger === 'keyboard-select'))) {
@@ -164,7 +164,7 @@ export function useSelectionBehavior(options: UseSelectionBehaviorOptions) {
         }
 
         selection.value = {
-            current: selection.value.current,
+            current: selection.value?.current,
             columns: newColumns,
             rows: selection.value.rows
         } as GridSelection;
@@ -190,8 +190,8 @@ export function useSelectionBehavior(options: UseSelectionBehaviorOptions) {
         }
 
         selection.value = {
-            current: selection.value.current,
-            columns: selection.value.columns,
+            current: selection.value?.current,
+            columns: selection.value?.columns || selection.value.columns,
             rows: newRows
         } as GridSelection;
     };
@@ -240,7 +240,7 @@ export function useSelectionBehavior(options: UseSelectionBehaviorOptions) {
 
         // 同时选择所有列和行
         selection.value = {
-            current: selection.value.current,
+            current: selection.value?.current,
             columns: CompactSelection.fromSingleSelection([rowMarkerOffset.value, rowMarkerOffset.value + columns.value]),
             rows: CompactSelection.fromSingleSelection([0, rows.value])
         } as GridSelection;
@@ -265,13 +265,13 @@ export function useSelectionBehavior(options: UseSelectionBehaviorOptions) {
     // 反转选择
     const invertSelection = () => {
         // 简化实现，实际应该更复杂
-        if (selection.value.current) {
+        if (selection.value?.current) {
             const { range } = selection.value.current;
             const newColumns = CompactSelection.fromSingleSelection([range.x, range.x + range.width]);
             const newRows = CompactSelection.fromSingleSelection([range.y, range.y + range.height]);
             
             selection.value = {
-                current: selection.value.current,
+                current: selection.value?.current,
                 columns: newColumns,
                 rows: newRows
             } as GridSelection;

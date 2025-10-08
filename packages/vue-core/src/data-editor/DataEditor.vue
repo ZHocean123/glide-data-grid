@@ -82,14 +82,14 @@
     
     <!-- 辅助功能树 -->
     <AccessibilityTree
-      :accessibility-tree="accessibilityTree"
+      :accessibility-tree="accessibilityTree || {}"
       :show-accessibility-tree="showAccessibilityTree"
       :focused-cell="focusedCell"
       :current-range="currentRange"
       :screen-reader-mode="screenReaderMode"
       :high-contrast-mode="highContrastMode"
       :zoom-level="zoomLevel"
-      :get-cell-content="getCellContent"
+      :get-cell-content="(item: Item) => props.getCellContent(item as [number, number])"
       @cell-focused="handleAccessibilityCellFocused"
       @cell-activated="handleAccessibilityCellActivated"
       @header-focused="handleAccessibilityHeaderFocused"
@@ -120,12 +120,14 @@ import {
 import {
   GridCellKind,
   emptyGridSelection,
+  CompactSelection,
   type Item
 } from '../internal/data-grid/data-grid-types.js';
 import { useAccessibility } from './use-accessibility.js';
 import { useHighContrastTheme } from './use-high-contrast-theme.js';
 import { useZoomSupport } from './use-zoom-support.js';
 import { useKeyboardShortcuts } from './use-keyboard-shortcuts.js';
+import { keybindingDefaults, type Keybinds } from './data-editor-keybindings.js';
 import AccessibilityTree from './AccessibilityTree.vue';
 import KeyboardShortcutsHelp from './KeyboardShortcutsHelp.vue';
 
@@ -198,9 +200,10 @@ const selectionState = reactive({
   current: undefined as {
     cell: [number, number];
     range: { x: number; y: number; width: number; height: number };
+    rangeStack: { x: number; y: number; width: number; height: number }[];
   } | undefined,
-  columns: { length: 0, hasIndex: () => false, first: () => undefined },
-  rows: { length: 0, hasIndex: () => false, first: () => undefined }
+  columns: CompactSelection.empty(),
+  rows: CompactSelection.empty()
 });
 
 // 编辑器状态
@@ -227,13 +230,20 @@ const rowsRef = ref(props.rows);
 const columnsRef = ref(props.columns.length);
 const rowMarkerOffsetRef = ref(props.rowMarkerOffset);
 const accessibilityHeightRef = ref(50);
-const selectionRef = ref(selectionState.current);
+const keybindingsRef = ref<Keybinds>(keybindingDefaults);
+
+// 创建符合GridSelection类型的响应式对象
+const selectionRef = computed(() => ({
+  current: selectionState.current,
+  columns: selectionState.columns,
+  rows: selectionState.rows
+}));
 
 // 初始化辅助功能
 const accessibility = useAccessibility({
   containerRef,
   canvasRef,
-  selection: selectionRef,
+  selection: selectionRef as any,
   rows: rowsRef,
   columns: columnsRef,
   rowMarkerOffset: rowMarkerOffsetRef,
@@ -242,7 +252,8 @@ const accessibility = useAccessibility({
   onCellFocused: (item: Item) => {
     selectionState.current = {
       cell: item as [number, number],
-      range: { x: item[0], y: item[1], width: 1, height: 1 }
+      range: { x: item[0], y: item[1], width: 1, height: 1 },
+      rangeStack: []
     };
     emit('selection-changed', selectionState.current);
   },
@@ -272,14 +283,30 @@ const zoomSupport = useZoomSupport({
 
 // 初始化键盘快捷键
 const keyboardShortcuts = useKeyboardShortcuts({
-  selection: selectionRef,
-  keybindings: ref({}),
+  selection: selectionRef as any,
+  keybindings: keybindingsRef,
   rows: rowsRef,
   columns: columnsRef,
   rowMarkerOffset: rowMarkerOffsetRef,
   getCellContent: (item: Item) => props.getCellContent(item as [number, number]),
   setSelection: (selection) => {
-    selectionState.current = selection.current;
+    if (selection.current) {
+      selectionState.current = {
+        cell: selection.current.cell as [number, number],
+        range: {
+          x: selection.current.range.x,
+          y: selection.current.range.y,
+          width: selection.current.range.width,
+          height: selection.current.range.height
+        },
+        rangeStack: selection.current.rangeStack.map(r => ({
+          x: r.x,
+          y: r.y,
+          width: r.width,
+          height: r.height
+        }))
+      };
+    }
     emit('selection-changed', selectionState.current);
   },
   onCellActivated: (item: Item, event: any) => {
@@ -473,7 +500,8 @@ const handleSelectAll = () => {
       y: 0,
       width: props.columns.length,
       height: props.rows
-    }
+    },
+    rangeStack: []
   };
   emit('selection-changed', selectionState.current);
 };
@@ -501,7 +529,8 @@ const handleCanvasMouseDown = (event: MouseEvent) => {
       y: row * props.rowHeight,
       width: 100,
       height: props.rowHeight
-    }
+    },
+    rangeStack: []
   };
   
   emit('selection-changed', selectionState.current);
@@ -652,7 +681,8 @@ const handleCanvasBlur = (event: FocusEvent) => {
 const handleAccessibilityCellFocused = (item: Item) => {
   selectionState.current = {
     cell: item as [number, number],
-    range: { x: item[0], y: item[1], width: 1, height: 1 }
+    range: { x: item[0], y: item[1], width: 1, height: 1 },
+    rangeStack: []
   };
   emit('selection-changed', selectionState.current);
 };

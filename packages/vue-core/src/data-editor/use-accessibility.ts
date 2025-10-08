@@ -3,7 +3,7 @@
  * 提供键盘导航、屏幕阅读器支持、焦点管理等辅助功能
  */
 
-import { computed, reactive, onMounted, onUnmounted, watch, type Ref } from 'vue';
+import { computed, reactive, onMounted, onUnmounted, watch, type Ref, type ComputedRef } from 'vue';
 import { type Item, type GridSelection } from '../internal/data-grid/data-grid-types.js';
 
 export interface AccessibilityOptions {
@@ -12,7 +12,7 @@ export interface AccessibilityOptions {
   /** 画布引用 */
   canvasRef: Ref<HTMLCanvasElement | undefined>;
   /** 当前选择 */
-  selection: Ref<GridSelection>;
+  selection: Ref<GridSelection> | ComputedRef<GridSelection>;
   /** 行数 */
   rows: Ref<number>;
   /** 列数 */
@@ -104,12 +104,12 @@ export function useAccessibility(options: AccessibilityOptions) {
 
   // 当前聚焦的单元格
   const focusedCell = computed(() => {
-    return selection.value.current?.cell;
+    return selection.value?.current?.cell;
   });
 
   // 当前选择范围
   const currentRange = computed(() => {
-    return selection.value.current?.range;
+    return selection.value?.current?.range;
   });
 
   // 获取单元格的可访问性文本
@@ -189,7 +189,7 @@ export function useAccessibility(options: AccessibilityOptions) {
                 const col = index + rowMarkerOffset.value;
                 return {
                   role: 'columnheader',
-                  'aria-selected': selection.value.columns.hasIndex(col),
+                  'aria-selected': selection.value?.columns.hasIndex(col) || false,
                   'aria-colindex': col + 1 + colOffset,
                   tabIndex: -1,
                   onFocus: () => onCellFocused?.([col, -1]),
@@ -204,7 +204,7 @@ export function useAccessibility(options: AccessibilityOptions) {
           role: 'rowgroup',
           children: visibleRows.map(row => ({
             role: 'row',
-            'aria-selected': selection.value.rows.hasIndex(row),
+            'aria-selected': selection.value?.rows.hasIndex(row) || false,
             'aria-rowindex': row + 2,
             key: row,
             children: Array.from({ length: effectiveColumns }, (_, index) => {
@@ -237,7 +237,7 @@ export function useAccessibility(options: AccessibilityOptions) {
                     metaKey: false,
                     shiftKey: false,
                     altKey: false,
-                    bounds: currentRange.value,
+                    bounds: currentRange.value || undefined,
                     location,
                     cancel: () => {},
                     stopPropagation: () => {},
