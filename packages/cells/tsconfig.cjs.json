@@ -14,7 +14,7 @@
         "rootDir": "./src",
         "outDir": "./dist/cjs",
         "declarationDir": "./dist/dts",
-        "module": "Node16",
+        "module": "esnext",
         "verbatimModuleSyntax": false,
         "sourceMap": true
     }

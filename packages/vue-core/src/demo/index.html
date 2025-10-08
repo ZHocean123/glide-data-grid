@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue Data Grid 示例演示</title>
+    <meta name="description" content="Vue版本的Glide Data Grid示例演示 - 高性能、功能丰富的数据表格组件">
+    <meta name="keywords" content="Vue, Data Grid, Table, 表格, 组件, 高性能, 虚拟化">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Vue Data Grid 示例演示">
+    <meta property="og:description" content="Vue版本的Glide Data Grid示例演示 - 高性能、功能丰富的数据表格组件">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="Vue Data Grid 示例演示">
+    <meta property="twitter:description" content="Vue版本的Glide Data Grid示例演示 - 高性能、功能丰富的数据表格组件">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="../../media/icon.png">
+
+    <!-- Preconnect to improve performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Base styles -->
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 16px;
+            line-height: 1.5;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        #app {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Loading styles */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .loading::after {
+            content: '';
+            width: 20px;
+            height: 20px;
+            margin-left: 10px;
+            border: 2px solid #ddd;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Error styles */
+        .error {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .error h1 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #e74c3c;
+        }
+
+        .error p {
+            margin-bottom: 1rem;
+            color: #666;
+        }
+
+        .error button {
+            padding: 0.5rem 1rem;
+            background-color: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .error button:hover {
+            background-color: #5a6fd8;
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                background-color: white;
+                color: black;
+            }
+
+            .demo-header,
+            .demo-nav,
+            .demo-footer,
+            .example-actions {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <!-- Loading state -->
+        <div class="loading">加载中</div>
+
+        <!-- Error state (shown if JavaScript fails) -->
+        <noscript>
+            <div class="error">
+                <h1>需要启用JavaScript</h1>
+                <p>此示例演示需要JavaScript才能运行，请在浏览器中启用JavaScript。</p>
+            </div>
+        </noscript>
+    </div>
+
+    <!-- Main script -->
+    <script type="module" src="./main.ts"></script>
+
+    <!-- Error handling -->
+    <script>
+        // Handle script loading errors
+        window.addEventListener('error', function (e) {
+            if (e.target.tagName === 'SCRIPT') {
+                document.getElementById('app').innerHTML = `
+          <div class="error">
+            <h1>加载失败</h1>
+            <p>无法加载脚本: ${e.target.src}</p>
+            <p>请检查网络连接并刷新页面。</p>
+            <button onclick="window.location.reload()">重试</button>
+          </div>
+        `;
+            }
+        }, true);
+
+        // Handle unhandled promise rejections
+        window.addEventListener('unhandledrejection', function (e) {
+            console.error('未处理的Promise拒绝:', e.reason);
+        });
+    </script>
+</body>
+
+</html>
