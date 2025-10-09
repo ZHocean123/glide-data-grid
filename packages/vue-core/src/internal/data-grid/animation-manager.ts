@@ -1,4 +1,4 @@
-import { clamp } from "../../common/utils.js";
+import clamp from "lodash/clamp.js";
 import type { Item } from "./data-grid-types.js";
 import { itemsAreEqual } from "./render/data-grid-lib.js";
 

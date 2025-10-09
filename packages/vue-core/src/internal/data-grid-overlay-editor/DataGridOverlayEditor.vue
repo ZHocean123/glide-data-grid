@@ -44,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, type Component } from "vue";
+import { ref, computed, watch, onMounted, onUnmounted, type Component } from "vue";
 import { createApp } from "vue";
 import { makeCSSStyle, type Theme } from "../../common/styles";
 import type { GetCellRendererCallback } from "../../cells/cell-types";
@@ -112,8 +112,50 @@ if (props.validateCell !== undefined) {
 
 const finished = ref(false);
 const customMotion = ref<[-1 | 0 | 1, -1 | 0 | 1] | undefined>(undefined);
-const { ref: overlayRef, style: stayOnScreenStyle } = useStayOnScreen();
-const setOverlayRef = overlayRef;
+const overlayRef = ref<HTMLElement | null>(null);
+const stayOnScreenStyle = ref<Record<string, any>>({});
+
+// Initialize useStayOnScreen
+const targetLocation = ref<"center" | "below" | "above" | undefined>(undefined);
+const containerRect = ref<Rectangle>({
+  x: 0,
+  y: 0,
+  width: window.innerWidth,
+  height: window.innerHeight
+});
+
+const getIdealBounds = () => {
+  return {
+    x: props.target.x,
+    y: props.target.y,
+    width: props.target.width,
+    height: props.target.height
+  };
+};
+
+const updateBounds = (bounds: Partial<Rectangle>) => {
+  stayOnScreenStyle.value = {
+    position: "absolute",
+    left: `${bounds.x}px`,
+    top: `${bounds.y}px`,
+    width: `${bounds.width}px`,
+    height: `${bounds.height}px`
+  };
+};
+
+// Set up useStayOnScreen with proper parameters
+const cleanup = useStayOnScreen(
+  overlayRef,
+  containerRect,
+  computed(() => props.target),
+  targetLocation,
+  getIdealBounds,
+  updateBounds
+);
+
+const setOverlayRef = (el: HTMLElement | null) => {
+  overlayRef.value = el;
+};
 
 const themeStyle = computed(() => makeCSSStyle(props.theme));
 
@@ -170,7 +212,7 @@ if (provider !== undefined) {
   editorComponent = isObjectEditor ? provider.editor : provider as Component;
 }
 
-styleOverride = { ...styleOverride, ...stayOnScreenStyle };
+styleOverride = { ...styleOverride, ...stayOnScreenStyle.value };
 
 const portalElement = computed(() => {
   return props.portalElementRef?.current ?? document.getElementById("portal");
@@ -235,5 +277,9 @@ const setTempValue = (newVal: GridCell | undefined) => {
 
 watch(() => props.content, (newContent) => {
   lastValueRef.value = tempValue.value ?? newContent;
+});
+
+onUnmounted(() => {
+  cleanup?.();
 });
 </script>

@@ -1,769 +1,563 @@
-import { GridCellKind } from "../data-grid-types.js";
-import type { Rectangle, Item, GridCell, InnerGridCell } from "../data-grid-types.js";
-import type { Theme, FullTheme } from "../../../common/styles.js";
+/* eslint-disable sonarjs/no-duplicate-string */
+/* eslint-disable unicorn/no-for-loop */
+import {
+    type GridSelection,
+    type InnerGridCell,
+    type Rectangle,
+    CompactSelection,
+    GridColumnIcon,
+    type Item,
+    type CellList,
+    GridCellKind,
+    type DrawCellCallback,
+    isInnerOnlyCell,
+    type GridCell,
+} from "../data-grid-types.js";
+import { CellSet } from "../cell-set.js";
+import type { HoverValues } from "../animation-manager.js";
+import {
+    type MappedGridColumn,
+    cellIsSelected,
+    cellIsInRange,
+    getFreezeTrailingHeight,
+    drawLastUpdateUnderlay,
+} from "./data-grid-lib.js";
 import type { SpriteManager } from "../data-grid-sprites.js";
+import { mergeAndRealizeTheme, type FullTheme, type Theme } from "../../../common/styles.js";
+import { blend } from "../color-parser.js";
+import type { DrawArgs, DrawStateTuple, GetCellRendererCallback, PrepResult } from "../../../cells/cell-types.js";
+import type { HoverInfo } from "./draw-grid-arg.js";
+import type { EnqueueCallback } from "../use-animation-queue.js";
+import type { RenderStateProvider } from "../../../common/render-state-provider.js";
 import type { ImageWindowLoader } from "../image-window-loader-interface.js";
-import type { DrawCellCallback } from "../data-grid-types.js";
-import type { MappedGridColumn } from "./data-grid-lib.js";
-import type { CellSet } from "../cell-set.js";
-import type { BaseDrawArgs } from "../../../cells/cell-types.js";
-import { drawTextCell, drawLastUpdateUnderlay, prepTextCell } from "./data-grid-lib.js";
-import { assert } from "../../../common/support.js";
-import { clamp } from "../../../common/utils.js";
-import { drawCheckbox } from "./draw-checkbox.js";
-import { drawEditHoverIndicator, HoverEffectTheme } from "./draw-edit-hover-indicator.js";
-import { roundedRect, measureTextCached } from "./data-grid-lib.js";
-import type { GridSelection, GridColumnIcon } from "../data-grid-types.js";
-import { isReadWriteCell, isInnerOnlyCell } from "../data-grid-types.js";
-import { mergeAndRealizeTheme } from "../../../common/styles.js";
+import { intersectRect } from "../../../common/math.js";
+import type { GridMouseGroupHeaderEventArgs } from "../event-args.js";
+import { getSkipPoint, getSpanBounds, walkColumns, walkRowsInCol } from "./data-grid-render.walk.js";
 
-// Blend function for colors
-function blend(color1: string, color2: string, ratio: number = 0.5): string {
-    const hex = (color: string) => {
-        const c = color.replace('#', '');
-        return {
-            r: parseInt(c.substring(0, 2), 16),
-            g: parseInt(c.substring(2, 4), 16),
-            b: parseInt(c.substring(4, 6), 16)
-        };
-    };
-    
-    const c1 = hex(color1);
-    const c2 = hex(color2);
-    
-    const r = Math.round(c1.r * (1 - ratio) + c2.r * ratio);
-    const g = Math.round(c1.g * (1 - ratio) + c2.g * ratio);
-    const b = Math.round(c1.b * (1 - ratio) + c2.b * ratio);
-    
-    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+const loadingCell: InnerGridCell = {
+    kind: GridCellKind.Loading,
+    allowOverlay: false,
+};
+
+export interface GroupDetails {
+    readonly name: string;
+    readonly icon?: string;
+    readonly overrideTheme?: Partial<Theme>;
+    readonly actions?: readonly {
+        readonly title: string;
+        readonly onClick: (e: GridMouseGroupHeaderEventArgs) => void;
+        readonly icon: GridColumnIcon | string;
+    }[];
 }
 
-export interface DrawCellsArg {
-    ctx: CanvasRenderingContext2D;
-    theme: Theme;
-    effectiveCols: readonly MappedGridColumn[];
-    cellXOffset: number;
-    cellYOffset: number;
-    translateX: number;
-    translateY: number;
-    width: number;
-    height: number;
-    totalHeaderHeight: number;
-    rows: number;
-    getRowHeight: (row: number) => number;
-    gridSelection: GridSelection;
-    getCellContent: (cell: Item) => InnerGridCell;
-    getGroupDetails: (group: string) => { name: string; icon?: string };
-    getRowThemeOverride: (row: number) => Partial<Theme> | undefined;
-    disabledRows: Set<number>;
-    isFocused: boolean;
-    drawFocus: boolean;
-    freezeTrailingRows: number;
-    hasAppendRow: boolean;
-    drawRegions: Rectangle[];
-    damage: CellSet | undefined;
-    hoverValues: Map<Item, string>;
-    hyperWrapping: boolean;
-    drawCellCallback?: DrawCellCallback;
-    spriteManager: SpriteManager;
-    enqueue: (cb: () => void) => void;
-    imageLoader?: ImageWindowLoader;
-    minimumCellWidth?: number;
-    verticalBorder: boolean;
+export type GroupDetailsCallback = (groupName: string) => GroupDetails;
+export type GetRowThemeCallback = (row: number) => Partial<Theme> | undefined;
+
+export interface Highlight {
+    readonly color: string;
+    readonly range: Rectangle;
+    readonly style?: "dashed" | "solid" | "no-outline" | "solid-outline";
 }
 
-interface SpanInfo {
-    cell: InnerGridCell;
-    rect: Rectangle; // location relative to the cell being drawn
-    width: number;
-    height: number;
-    colIndex: number;
-    rowIndex: number;
-    clip: boolean;
-}
+// preppable items:
+// - font
+// - fillStyle
 
-const cellKinds = new Set<GridCellKind>([
-    GridCellKind.Text,
-    GridCellKind.Number,
-    GridCellKind.Uri,
-    GridCellKind.Image,
-    GridCellKind.Bubble,
-    GridCellKind.Boolean,
-    GridCellKind.Protected,
-    GridCellKind.Drilldown,
-    GridCellKind.RowID,
-    GridCellKind.Loading,
-    GridCellKind.Markdown,
-    GridCellKind.Custom,
-]);
+// Column draw loop prep cycle
+// - Prep item
+// - Prep sets props
+// - Prep returns list of cared about props
+// - Draw item
+// - Loop may set some items, if present in args list, set undefined
+// - Prep next item, giving previous result
+// - If next item type is different, de-prep
+// - Result per column
+export function drawCells(
+    ctx: CanvasRenderingContext2D,
+    effectiveColumns: readonly MappedGridColumn[],
+    allColumns: readonly MappedGridColumn[],
+    height: number,
+    totalHeaderHeight: number,
+    translateX: number,
+    translateY: number,
+    cellYOffset: number,
+    rows: number,
+    getRowHeight: (row: number) => number,
+    getCellContent: (cell: Item) => InnerGridCell,
+    getGroupDetails: GroupDetailsCallback,
+    getRowThemeOverride: GetRowThemeCallback | undefined,
+    disabledRows: CompactSelection,
+    isFocused: boolean,
+    drawFocus: boolean,
+    freezeTrailingRows: number,
+    hasAppendRow: boolean,
+    drawRegions: readonly Rectangle[],
+    damage: CellSet | undefined,
+    selection: GridSelection,
+    prelightCells: CellList | undefined,
+    highlightRegions: readonly Highlight[] | undefined,
+    imageLoader: ImageWindowLoader,
+    spriteManager: SpriteManager,
+    hoverValues: HoverValues,
+    hoverInfo: HoverInfo | undefined,
+    drawCellCallback: DrawCellCallback | undefined,
+    hyperWrapping: boolean,
+    outerTheme: FullTheme,
+    enqueue: EnqueueCallback,
+    renderStateProvider: RenderStateProvider,
+    getCellRenderer: GetCellRendererCallback,
+    overrideCursor: (cursor: string) => void,
+    minimumCellWidth: number
+): Rectangle[] | undefined {
+    let toDraw = damage?.size ?? Number.MAX_SAFE_INTEGER;
+    const frameTime = performance.now();
+    let font = outerTheme.baseFontFull;
+    ctx.font = font;
+    const deprepArg = { ctx };
+    const cellIndex: [number, number] = [0, 0];
+    const freezeTrailingRowsHeight =
+        freezeTrailingRows > 0 ? getFreezeTrailingHeight(rows, freezeTrailingRows, getRowHeight) : 0;
+    let result: Rectangle[] | undefined;
+    let handledSpans: Set<string> | undefined = undefined;
 
-const cellRendererCache = new Map<string, {
-    kind: string;
-    prep: (ctx: CanvasRenderingContext2D, theme: Theme) => void;
-    draw: (ctx: CanvasRenderingContext2D, theme: Theme) => void;
-}>();
+    const skipPoint = getSkipPoint(drawRegions);
 
-function getCellRenderer(cell: InnerGridCell, getCellRenderer: (cell: InnerGridCell) => any) {
-    // For now, we'll just return undefined for custom cells
-    if (cell.kind === GridCellKind.Custom) {
-        return undefined;
-    }
-    return getCellRenderer(cell);
-}
-
-export function drawCells(args: DrawCellsArg): SpanInfo[] {
-    const {
-        ctx,
-        theme,
-        effectiveCols,
-        cellXOffset,
+    walkColumns(
+        effectiveColumns,
         cellYOffset,
         translateX,
         translateY,
-        width,
-        height,
         totalHeaderHeight,
-        rows,
-        getRowHeight,
-        gridSelection,
-        getCellContent,
-        getGroupDetails,
-        getRowThemeOverride,
-        disabledRows,
-        isFocused,
-        drawFocus,
-        freezeTrailingRows,
-        hasAppendRow,
-        drawRegions,
-        damage,
-        hoverValues,
-        hyperWrapping,
-        drawCellCallback,
-        spriteManager,
-        enqueue,
+        (c, drawX, colDrawStartY, clipX, startRow) => {
+            const diff = Math.max(0, clipX - drawX);
+
+            const colDrawX = drawX + diff;
+            const colDrawY = totalHeaderHeight + 1;
+            const colWidth = c.width - diff;
+            const colHeight = height - totalHeaderHeight - 1;
+            if (drawRegions.length > 0) {
+                let found = false;
+                for (let i = 0; i < drawRegions.length; i++) {
+                    const dr = drawRegions[i];
+                    if (intersectRect(colDrawX, colDrawY, colWidth, colHeight, dr.x, dr.y, dr.width, dr.height)) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) return;
+            }
+
+            const reclip = () => {
+                ctx.save();
+                ctx.beginPath();
+                ctx.rect(colDrawX, colDrawY, colWidth, colHeight);
+                ctx.clip();
+            };
+
+            const colSelected = selection.columns.hasIndex(c.sourceIndex);
+
+            const groupTheme = getGroupDetails(c.group ?? "").overrideTheme;
+            const colTheme =
+                c.themeOverride === undefined && groupTheme === undefined
+                    ? outerTheme
+                    : mergeAndRealizeTheme(outerTheme, groupTheme, c.themeOverride);
+            const colFont = colTheme.baseFontFull;
+            if (colFont !== font) {
+                font = colFont;
+                ctx.font = colFont;
+            }
+            reclip();
+            let prepResult: PrepResult | undefined = undefined;
+
+            walkRowsInCol(
+                startRow,
+                colDrawStartY,
+                height,
+                rows,
+                getRowHeight,
+                freezeTrailingRows,
+                hasAppendRow,
+                skipPoint,
+                (drawY, row, rh, isSticky, isTrailingRow) => {
+                    if (row < 0) return;
+
+                    cellIndex[0] = c.sourceIndex;
+                    cellIndex[1] = row;
+                    // if (damage !== undefined && !damage.some(d => d[0] === c.sourceIndex && d[1] === row)) {
+                    //     return;
+                    // }
+                    // if (
+                    //     drawRegions.length > 0 &&
+                    //     !drawRegions.some(dr => intersectRect(drawX, drawY, c.width, rh, dr.x, dr.y, dr.width, dr.height))
+                    // ) {
+                    //     return;
+                    // }
+
+                    // These are dumb versions of the above. I cannot for the life of believe that this matters but this is
+                    // the tightest part of the draw loop and the allocations above actually has a very measurable impact
+                    // on performance. For the love of all that is unholy please keep checking this again in the future.
+                    // As soon as this doesn't have any impact of note go back to the saner looking code. The smoke test
+                    // here is to scroll to the bottom of a test case first, then scroll back up while profiling and see
+                    // how many major GC collections you get. These allocate a lot of objects.
+                    if (damage !== undefined && !damage.has(cellIndex)) {
+                        return;
+                    }
+                    if (drawRegions.length > 0) {
+                        let found = false;
+                        for (let i = 0; i < drawRegions.length; i++) {
+                            const dr = drawRegions[i];
+                            if (intersectRect(drawX, drawY, c.width, rh, dr.x, dr.y, dr.width, dr.height)) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) return;
+                    }
+
+                    const rowSelected = selection.rows.hasIndex(row);
+                    const rowDisabled = disabledRows.hasIndex(row);
+
+                    const cell: InnerGridCell = row < rows ? getCellContent(cellIndex) : loadingCell;
+
+                    let cellX = drawX;
+                    let cellWidth = c.width;
+                    let drawingSpan = false;
+                    let skipContents = false;
+                    if (cell.span !== undefined) {
+                        const [startCol, endCol] = cell.span;
+                        const spanKey = `${row},${startCol},${endCol},${c.sticky}`; //alloc
+                        if (handledSpans === undefined) handledSpans = new Set();
+                        if (!handledSpans.has(spanKey)) {
+                            const areas = getSpanBounds(cell.span, drawX, drawY, c.width, rh, c, allColumns);
+                            const area = c.sticky ? areas[0] : areas[1];
+                            if (!c.sticky && areas[0] !== undefined) {
+                                skipContents = true;
+                            }
+                            if (area !== undefined) {
+                                cellX = area.x;
+                                cellWidth = area.width;
+                                handledSpans.add(spanKey);
+                                ctx.restore();
+                                prepResult = undefined;
+                                ctx.save();
+                                ctx.beginPath();
+                                const d = Math.max(0, clipX - area.x);
+                                ctx.rect(area.x + d, drawY, area.width - d, rh);
+                                if (result === undefined) {
+                                    result = [];
+                                }
+                                result.push({
+                                    x: area.x + d,
+                                    y: drawY,
+                                    width: area.width - d,
+                                    height: rh,
+                                });
+                                ctx.clip();
+                                drawingSpan = true;
+                            }
+                        } else {
+                            toDraw--;
+                            return;
+                        }
+                    }
+
+                    const rowTheme = getRowThemeOverride?.(row);
+                    const trailingTheme =
+                        isTrailingRow && c.trailingRowOptions?.themeOverride !== undefined
+                            ? c.trailingRowOptions?.themeOverride
+                            : undefined;
+                    const theme =
+                        cell.themeOverride === undefined && rowTheme === undefined && trailingTheme === undefined
+                            ? colTheme
+                            : mergeAndRealizeTheme(colTheme, rowTheme, trailingTheme, cell.themeOverride); //alloc
+
+                    ctx.beginPath();
+
+                    const isSelected = cellIsSelected(cellIndex, cell, selection);
+                    let accentCount = cellIsInRange(cellIndex, cell, selection, drawFocus);
+                    const spanIsHighlighted =
+                        cell.span !== undefined &&
+                        selection.columns.some(
+                            index => cell.span !== undefined && index >= cell.span[0] && index <= cell.span[1] //alloc
+                        );
+                    if (isSelected && !isFocused && drawFocus) {
+                        accentCount = 0;
+                    } else if (isSelected && drawFocus) {
+                        accentCount = Math.max(accentCount, 1);
+                    }
+                    if (spanIsHighlighted) {
+                        accentCount++;
+                    }
+                    if (!isSelected) {
+                        if (rowSelected) accentCount++;
+                        if (colSelected && !isTrailingRow) accentCount++;
+                    }
+
+                    const bgCell = cell.kind === GridCellKind.Protected ? theme.bgCellMedium : theme.bgCell;
+                    let fill: string | undefined;
+                    if (isSticky || bgCell !== outerTheme.bgCell) {
+                        fill = blend(bgCell, fill);
+                    }
+
+                    if (accentCount > 0 || rowDisabled) {
+                        if (rowDisabled) {
+                            fill = blend(theme.bgHeader, fill);
+                        }
+                        for (let i = 0; i < accentCount; i++) {
+                            fill = blend(theme.accentLight, fill);
+                        }
+                    } else if (prelightCells !== undefined) {
+                        for (const pre of prelightCells) {
+                            if (pre[0] === c.sourceIndex && pre[1] === row) {
+                                fill = blend(theme.bgSearchResult, fill);
+                                break;
+                            }
+                        }
+                    }
+
+                    if (highlightRegions !== undefined) {
+                        for (let i = 0; i < highlightRegions.length; i++) {
+                            const region = highlightRegions[i];
+                            const r = region.range;
+                            if (
+                                region.style !== "solid-outline" &&
+                                r.x <= c.sourceIndex &&
+                                c.sourceIndex < r.x + r.width &&
+                                r.y <= row &&
+                                row < r.y + r.height
+                            ) {
+                                fill = blend(region.color, fill);
+                            }
+                        }
+                    }
+
+                    let didDamageClip = false;
+                    if (damage !== undefined) {
+                        // we want to clip each cell individually rather than form a super clip region. The reason for
+                        // this is passing too many clip regions to the GPU at once can cause a performance hit. This
+                        // allows us to damage a large number of cells at once without issue.
+                        const top = drawY + 1;
+                        const bottom = isSticky
+                            ? top + rh - 1
+                            : Math.min(top + rh - 1, height - freezeTrailingRowsHeight);
+                        const h = bottom - top;
+
+                        // however, not clipping at all is even better. We want to clip if we are the left most col
+                        // or overlapping the bottom clip area.
+                        if (h !== rh - 1 || cellX + 1 <= clipX) {
+                            didDamageClip = true;
+                            ctx.save();
+                            ctx.beginPath();
+                            ctx.rect(cellX + 1, top, cellWidth - 1, h);
+                            ctx.clip();
+                        }
+
+                        // we also need to make sure to wipe the contents. Since the fill can do that lets repurpose
+                        // that call to avoid an extra draw call.
+                        fill = fill === undefined ? theme.bgCell : blend(fill, theme.bgCell);
+                    }
+
+                    const isLastColumn = c.sourceIndex === allColumns.length - 1;
+                    const isLastRow = row === rows - 1;
+                    if (fill !== undefined) {
+                        ctx.fillStyle = fill;
+                        if (prepResult !== undefined) {
+                            prepResult.fillStyle = fill;
+                        }
+                        if (damage !== undefined) {
+                            // this accounts for the fill handle outline being drawn inset on these cells. We do this
+                            // because technically the bottom right corner of the outline are on other cells.
+                            ctx.fillRect(
+                                cellX + 1,
+                                drawY + 1,
+                                cellWidth - (isLastColumn ? 2 : 1),
+                                rh - (isLastRow ? 2 : 1)
+                            );
+                        } else {
+                            ctx.fillRect(cellX, drawY, cellWidth, rh);
+                        }
+                    }
+
+                    if (cell.style === "faded") {
+                        ctx.globalAlpha = 0.6;
+                    }
+
+                    let hoverValue: HoverValues[number] | undefined;
+                    for (let i = 0; i < hoverValues.length; i++) {
+                        const hv = hoverValues[i];
+                        if (hv.item[0] === c.sourceIndex && hv.item[1] === row) {
+                            hoverValue = hv;
+                            break;
+                        }
+                    }
+
+                    if (cellWidth > minimumCellWidth && !skipContents) {
+                        const cellFont = theme.baseFontFull;
+                        if (cellFont !== font) {
+                            ctx.font = cellFont;
+                            font = cellFont;
+                        }
+                        prepResult = drawCell(
+                            ctx,
+                            cell,
+                            c.sourceIndex,
+                            row,
+                            isLastColumn,
+                            isLastRow,
+                            cellX,
+                            drawY,
+                            cellWidth,
+                            rh,
+                            accentCount > 0,
+                            theme,
+                            fill ?? theme.bgCell,
+                            imageLoader,
+                            spriteManager,
+                            hoverValue?.hoverAmount ?? 0,
+                            hoverInfo,
+                            hyperWrapping,
+                            frameTime,
+                            drawCellCallback,
+                            prepResult,
+                            enqueue,
+                            renderStateProvider,
+                            getCellRenderer,
+                            overrideCursor
+                        );
+                    }
+
+                    if (didDamageClip) {
+                        ctx.restore();
+                    }
+
+                    if (cell.style === "faded") {
+                        ctx.globalAlpha = 1;
+                    }
+
+                    toDraw--;
+                    if (drawingSpan) {
+                        ctx.restore();
+                        prepResult?.deprep?.(deprepArg);
+                        prepResult = undefined;
+                        reclip();
+                        font = colFont;
+                        ctx.font = colFont;
+                    }
+
+                    return toDraw <= 0;
+                }
+            );
+
+            ctx.restore();
+            return toDraw <= 0;
+        }
+    );
+    return result;
+}
+
+const allocatedItem: [number, number] = [0, 0];
+const reusableRect = { x: 0, y: 0, width: 0, height: 0 };
+const drawState: DrawStateTuple = [undefined, () => undefined];
+
+let animationFrameRequested = false;
+function animRequest(): void {
+    animationFrameRequested = true;
+}
+
+export function drawCell(
+    ctx: CanvasRenderingContext2D,
+    cell: InnerGridCell,
+    col: number,
+    row: number,
+    isLastCol: boolean,
+    isLastRow: boolean,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    highlighted: boolean,
+    theme: FullTheme,
+    finalCellFillColor: string,
+    imageLoader: ImageWindowLoader,
+    spriteManager: SpriteManager,
+    hoverAmount: number,
+    hoverInfo: HoverInfo | undefined,
+    hyperWrapping: boolean,
+    frameTime: number,
+    drawCellCallback: DrawCellCallback | undefined,
+    lastPrep: PrepResult | undefined,
+    enqueue: EnqueueCallback | undefined,
+    renderStateProvider: RenderStateProvider,
+    getCellRenderer: GetCellRendererCallback,
+    overrideCursor: (cursor: string) => void
+): PrepResult | undefined {
+    let hoverX: number | undefined;
+    let hoverY: number | undefined;
+    if (hoverInfo !== undefined && hoverInfo[0][0] === col && hoverInfo[0][1] === row) {
+        hoverX = hoverInfo[1][0];
+        hoverY = hoverInfo[1][1];
+    }
+    let result: PrepResult | undefined = undefined;
+
+    allocatedItem[0] = col;
+    allocatedItem[1] = row;
+
+    reusableRect.x = x;
+    reusableRect.y = y;
+    reusableRect.width = w;
+    reusableRect.height = h;
+
+    drawState[0] = renderStateProvider.getValue(allocatedItem);
+    drawState[1] = (val: any) => renderStateProvider.setValue(allocatedItem, val); //alloc
+
+    animationFrameRequested = false;
+
+    const args: DrawArgs<typeof cell> = {
+        //alloc
+        ctx,
+        theme,
+        col,
+        row,
+        cell,
+        rect: reusableRect,
+        highlighted,
+        cellFillColor: finalCellFillColor,
+        hoverAmount,
+        frameTime,
+        hoverX,
+        drawState,
+        hoverY,
         imageLoader,
-        minimumCellWidth,
-        verticalBorder,
-    } = args;
+        spriteManager,
+        hyperWrapping,
+        overrideCursor: hoverX !== undefined ? overrideCursor : undefined,
+        requestAnimationFrame: animRequest,
+    };
+    const needsAnim = drawLastUpdateUnderlay(args, cell.lastUpdated, frameTime, lastPrep, isLastCol, isLastRow);
 
-    const fullTheme = mergeAndRealizeTheme(theme);
-
-    const spans: SpanInfo[] = [];
-    const isDamageEnabled = damage !== undefined;
-
-    const dpr = window.devicePixelRatio;
-    const isOverlayed = dpr < 1.5;
-
-    const skipY = drawRegions[0]?.y;
-    let skipToY = skipY === undefined ? undefined : Math.max(skipY, totalHeaderHeight);
-
-    // First pass: compute all spans and their positions
-    for (const [colIndex, col] of effectiveCols.entries()) {
-        const isColFrozen = colIndex < effectiveCols.findIndex(c => !c.sticky);
-        let cellX = colIndex === 0 ? 0 : effectiveCols[colIndex - 1].width;
-        for (let i = colIndex - 1; i >= 0 && effectiveCols[i].sticky; i--) {
-            cellX = i === 0 ? 0 : cellX - effectiveCols[i].width;
+    const r = getCellRenderer(cell);
+    if (r !== undefined) {
+        if (lastPrep?.renderer !== r) {
+            lastPrep?.deprep?.(args);
+            lastPrep = undefined;
         }
-
-        cellX = col.sticky ? cellX : cellX + translateX;
-
-        if (cellX > width) break;
-
-        const cellWidth = Math.max(col.width, minimumCellWidth ?? 0) + 1;
-
-        let drawY = totalHeaderHeight + translateY;
-
-        if (drawY > height && !isColFrozen) break;
-
-        for (let rowIndex = cellYOffset; rowIndex < rows - freezeTrailingRows; rowIndex++) {
-            const rowHeight = getRowHeight(rowIndex);
-            if (drawY + rowHeight < (skipToY || 0)) {
-                drawY += rowHeight;
-                continue;
-            }
-
-            if (drawY > height && !isColFrozen) break;
-
-            const cellItem: Item = [col.sourceIndex, rowIndex];
-            const cellContent = getCellContent(cellItem);
-
-            if (isDamageEnabled && !damage.has(cellItem)) {
-                drawY += rowHeight;
-                continue;
-            }
-
-            const cellRect: Rectangle = {
-                x: cellX,
-                y: drawY,
-                width: cellWidth,
-                height: rowHeight + 1,
-            };
-
-            // Draw cell background
-            const rowTheme = getRowThemeOverride(rowIndex);
-            const bgCol = rowTheme?.bgCell ?? disabledRows.has(rowIndex)
-                ? theme.bgCellDisabled || theme.bgCell
-                : theme.bgCell;
-
-            let drawBg = true;
-            for (const r of drawRegions) {
-                if (cellRect.x >= r.x && cellRect.x + cellRect.width <= r.x + r.width &&
-                    cellRect.y >= r.y && cellRect.y + cellRect.height <= r.y + r.height) {
-                    drawBg = false;
-                    break;
-                }
-            }
-
-            if (drawBg) {
-                ctx.fillStyle = bgCol;
-                ctx.fillRect(cellRect.x, cellRect.y, cellRect.width, cellRect.height);
-            }
-
-            // Draw cell content
-            const baseArgs: BaseDrawArgs = {
-                ctx,
-                rect: cellRect,
-                theme: rowTheme ? { ...theme, ...rowTheme } : theme,
-                col: col.sourceIndex,
-                row: rowIndex,
-                highlighted: false,
-                hoverAmount: 0,
-                hoverX: undefined,
-                hoverY: undefined,
-                cellFillColor: '',
-                imageLoader,
-                spriteManager,
-                hyperWrapping,
-                cell: cellContent,
-            };
-
-            const hoverValue = hoverValues.get(cellItem);
-            if (hoverValue !== undefined) {
-                ctx.fillStyle = hoverValue;
-                ctx.fillRect(cellRect.x, cellRect.y, cellRect.width, cellRect.height);
-            }
-
-            const highlight = gridSelection.current !== undefined &&
-                gridSelection.current.range.x <= col.sourceIndex &&
-                gridSelection.current.range.x + gridSelection.current.range.width > col.sourceIndex &&
-                gridSelection.current.range.y <= rowIndex &&
-                gridSelection.current.range.y + gridSelection.current.range.height > rowIndex;
-
-            const isSelected = gridSelection.columns.hasIndex(col.sourceIndex) ||
-                gridSelection.rows.hasIndex(rowIndex) ||
-                highlight;
-
-            const isHovered = hoverValues.has(cellItem);
-
-            // Draw cell specific content
-            let prepResult: any = undefined;
-            let drawResult: any = undefined;
-
-            if (!isInnerOnlyCell(cellContent) && drawCellCallback !== undefined) {
-                drawCellCallback({
-                    ctx,
-                    cell: cellContent as GridCell,
-                    theme: rowTheme ? { ...theme, ...rowTheme } : theme,
-                    rect: cellRect,
-                    col: col.sourceIndex,
-                    row: rowIndex,
-                    hoverAmount: 0,
-                    hoverX: undefined,
-                    hoverY: undefined,
-                    highlighted: isSelected,
-                    imageLoader: imageLoader!,
-                }, () => {
-                    // Draw default content
-                    prepResult = { fillStyle: theme.textDark };
-                    if (cellContent.kind === GridCellKind.Text) {
-                        prepTextCell(baseArgs, prepResult);
-                        drawTextCell(baseArgs, cellContent.data, cellContent.contentAlign, cellContent.allowWrapping, hyperWrapping);
-                    } else if (cellContent.kind === GridCellKind.Number) {
-                        prepTextCell(baseArgs, prepResult);
-                        drawTextCell(baseArgs, cellContent.displayData, cellContent.contentAlign, false, false);
-                    } else if (cellContent.kind === GridCellKind.Boolean) {
-                        drawCheckbox(
-                            ctx,
-                            fullTheme,
-                            cellContent.data,
-                            cellRect.x,
-                            cellRect.y,
-                            cellRect.width,
-                            cellRect.height,
-                            isSelected,
-                            baseArgs.hoverX,
-                            baseArgs.hoverY,
-                            theme.checkboxMaxSize,
-                            cellContent.contentAlign
-                        );
-                    } else if (cellContent.kind === GridCellKind.Uri) {
-                        prepTextCell(baseArgs, prepResult);
-                        drawTextCell(baseArgs, cellContent.displayData || cellContent.data, cellContent.contentAlign, false, false);
-                    } else if (cellContent.kind === GridCellKind.Image) {
-                        // Draw image placeholder
-                        ctx.fillStyle = theme.bgGray || '#dddddd';
-                        ctx.fillRect(cellRect.x, cellRect.y, cellRect.width, cellRect.height);
-                    } else {
-                        drawTextCell(baseArgs, "Unsupported", undefined, false, false);
-                    }
-                });
-            } else if (isInnerOnlyCell(cellContent)) {
-                if (cellContent.kind === "new-row") {
-                    // Draw new row hint
-                    const pad = theme.cellHorizontalPadding;
-                    const textX = cellRect.x + pad + (col.icon !== undefined ? 16 + pad : 0);
-                    let textWidth = cellRect.width - pad * 2 - (col.icon !== undefined ? 16 + pad : 0);
-                    textWidth = Math.max(textWidth, 0);
-
-                    ctx.fillStyle = theme.textLight;
-                    ctx.font = fullTheme.baseFontFull;
-                    ctx.textBaseline = "middle";
-                    const metrics = measureTextCached(cellContent.hint, ctx);
-                    if (metrics.width < textWidth) {
-                        ctx.fillText(cellContent.hint, textX, cellRect.y + cellRect.height / 2);
-                    } else {
-                        let truncated = cellContent.hint;
-                        while (metrics.width > textWidth && truncated.length > 0) {
-                            truncated = truncated.slice(0, -1);
-                            const newMetrics = measureTextCached(truncated + "...", ctx);
-                            if (newMetrics.width <= textWidth) {
-                                truncated = truncated + "...";
-                                break;
-                            }
-                        }
-                        ctx.fillText(truncated, textX, cellRect.y + cellRect.height / 2);
-                    }
-
-                    if (col.icon !== undefined) {
-                        spriteManager.drawSprite(
-                            col.icon as any,
-                            "normal",
-                            ctx,
-                            cellRect.x + pad,
-                            cellRect.y + cellRect.height / 2 - 8,
-                            16,
-                            theme
-                        );
-                    }
-                } else if (cellContent.kind === "marker") {
-                    const pad = theme.cellHorizontalPadding;
-                    const y = cellRect.y + cellRect.height / 2;
-
-                    if (cellContent.markerKind === "checkbox" || cellContent.markerKind === "checkbox-visible") {
-                        drawCheckbox(
-                            ctx,
-                            fullTheme,
-                            cellContent.checked,
-                            cellRect.x + pad,
-                            y - 8,
-                            16,
-                            16,
-                            false,
-                            undefined,
-                            undefined,
-                            theme.checkboxMaxSize,
-                            "center"
-                        );
-                    } else if (cellContent.markerKind === "number" || cellContent.markerKind === "both") {
-                        prepTextCell(baseArgs, prepResult);
-                        ctx.fillStyle = theme.textLight;
-                        ctx.font = fullTheme.baseFontFull;
-                        ctx.textBaseline = "middle";
-                        ctx.fillText(
-                            (rowIndex + 1).toString(),
-                            cellRect.x + pad + (cellContent.markerKind === "both" ? 20 : 0),
-                            y
-                        );
-                    }
-                }
-            } else {
-                const renderer = getCellRenderer(cellContent, getCellRenderer as any);
-                if (renderer !== undefined) {
-                    prepResult = renderer.prep(ctx, rowTheme ? { ...theme, ...rowTheme } : theme);
-                    drawResult = renderer.draw(ctx, rowTheme ? { ...theme, ...rowTheme } : theme);
-                } else {
-                    prepResult = { fillStyle: theme.textDark };
-                    if (cellContent.kind === GridCellKind.Text) {
-                        prepTextCell(baseArgs, prepResult);
-                        drawTextCell(baseArgs, cellContent.data, cellContent.contentAlign, cellContent.allowWrapping, hyperWrapping);
-                    } else if (cellContent.kind === GridCellKind.Number) {
-                        prepTextCell(baseArgs, prepResult);
-                        drawTextCell(baseArgs, cellContent.displayData, cellContent.contentAlign, false, false);
-                    } else if (cellContent.kind === GridCellKind.Boolean) {
-                        drawCheckbox(
-                            ctx,
-                            fullTheme,
-                            cellContent.data,
-                            cellRect.x,
-                            cellRect.y,
-                            cellRect.width,
-                            cellRect.height,
-                            isSelected,
-                            baseArgs.hoverX,
-                            baseArgs.hoverY,
-                            theme.checkboxMaxSize,
-                            cellContent.contentAlign
-                        );
-                    } else if (cellContent.kind === GridCellKind.Uri) {
-                        prepTextCell(baseArgs, prepResult);
-                        drawTextCell(baseArgs, cellContent.displayData || cellContent.data, cellContent.contentAlign, false, false);
-                    } else if (cellContent.kind === GridCellKind.Image) {
-                        // Draw image placeholder
-                        ctx.fillStyle = theme.bgGray || '#dddddd';
-                        ctx.fillRect(cellRect.x, cellRect.y, cellRect.width, cellRect.height);
-                    } else {
-                        drawTextCell(baseArgs, "Unsupported", undefined, false, false);
-                    }
-                }
-            }
-
-            // Draw cell border
-            if (verticalBorder) {
-                ctx.strokeStyle = theme.horizontalBorderColor || '#e0e0e0';
-                ctx.beginPath();
-                ctx.moveTo(cellRect.x + cellRect.width - 0.5, cellRect.y);
-                ctx.lineTo(cellRect.x + cellRect.width - 0.5, cellRect.y + cellRect.height);
-                ctx.stroke();
-            }
-
-            // Draw cell hover indicator
-            if (isHovered && isReadWriteCell(cellContent as GridCell) && !('readonly' in cellContent) || !(cellContent as any).readonly) {
-                const hoverTheme: HoverEffectTheme = {
-                    bgColor: theme.bgCellSelected || '#e9e9eb',
-                    fullSize: false,
-                };
-                const displayData = cellContent.kind === GridCellKind.Uri 
-                    ? cellContent.data 
-                    : cellContent.kind === GridCellKind.Text 
-                        ? cellContent.data 
-                        : '';
-                drawEditHoverIndicator(ctx, fullTheme, hoverTheme, displayData, cellRect, 1, undefined);
-            }
-
-            // Draw cell selection
-            if (isSelected) {
-                ctx.fillStyle = blend(theme.bgCellSelected || '#e0e0e0', bgCol);
-                ctx.fillRect(cellRect.x, cellRect.y, cellRect.width, cellRect.height);
-            }
-
-            // Draw cell focus
-            if (drawFocus && isFocused && gridSelection.current !== undefined &&
-                gridSelection.current.cell[0] === col.sourceIndex &&
-                gridSelection.current.cell[1] === rowIndex) {
-                ctx.strokeStyle = theme.accentColor;
-                ctx.lineWidth = 2;
-                ctx.strokeRect(cellRect.x + 1, cellRect.y + 1, cellRect.width - 2, cellRect.height - 2);
-            }
-
-            // Store span info for later use
-            if (cellContent.span !== undefined) {
-                spans.push({
-                    cell: cellContent,
-                    rect: cellRect,
-                    width: cellWidth,
-                    height: rowHeight + 1,
-                    colIndex: col.sourceIndex,
-                    rowIndex,
-                    clip: false,
-                });
-            }
-
-            drawY += rowHeight;
+        const partialPrepResult = r.drawPrep?.(args, lastPrep);
+        if (drawCellCallback !== undefined && !isInnerOnlyCell(args.cell)) {
+            drawCellCallback(args as DrawArgs<GridCell>, () => r.draw(args, cell));
+        } else {
+            r.draw(args, cell);
         }
-
-        // Draw trailing rows
-        let trailingY = height;
-        for (let fr = 0; fr < freezeTrailingRows; fr++) {
-            const rowIndex = rows - 1 - fr;
-            const rowHeight = getRowHeight(rowIndex);
-            trailingY -= rowHeight;
-
-            if (trailingY + rowHeight < (skipToY || 0)) continue;
-
-            const cellItem: Item = [col.sourceIndex, rowIndex];
-            const cellContent = getCellContent(cellItem);
-
-            if (isDamageEnabled && !damage.has(cellItem)) {
-                continue;
-            }
-
-            const cellRect: Rectangle = {
-                x: cellX,
-                y: trailingY,
-                width: cellWidth,
-                height: rowHeight + 1,
-            };
-
-            // Draw cell background
-            const rowTheme = getRowThemeOverride(rowIndex);
-            const bgCol = rowTheme?.bgCell ?? disabledRows.has(rowIndex)
-                ? theme.bgCellDisabled || theme.bgCell
-                : theme.bgCell;
-
-            let drawBg = true;
-            for (const r of drawRegions) {
-                if (cellRect.x >= r.x && cellRect.x + cellRect.width <= r.x + r.width &&
-                    cellRect.y >= r.y && cellRect.y + cellRect.height <= r.y + r.height) {
-                    drawBg = false;
-                    break;
-                }
-            }
-
-            if (drawBg) {
-                ctx.fillStyle = bgCol;
-                ctx.fillRect(cellRect.x, cellRect.y, cellRect.width, cellRect.height);
-            }
-
-            // Draw cell content
-            const baseArgs: BaseDrawArgs = {
-                ctx,
-                rect: cellRect,
-                theme: rowTheme ? { ...theme, ...rowTheme } : theme,
-                col: col.sourceIndex,
-                row: rowIndex,
-                highlighted: false,
-                hoverAmount: 0,
-                hoverX: undefined,
-                hoverY: undefined,
-                cellFillColor: '',
-                imageLoader,
-                spriteManager,
-                hyperWrapping,
-                cell: cellContent,
-            };
-
-            const hoverValue = hoverValues.get(cellItem);
-            if (hoverValue !== undefined) {
-                ctx.fillStyle = hoverValue;
-                ctx.fillRect(cellRect.x, cellRect.y, cellRect.width, cellRect.height);
-            }
-
-            const highlight = gridSelection.current !== undefined &&
-                gridSelection.current.range.x <= col.sourceIndex &&
-                gridSelection.current.range.x + gridSelection.current.range.width > col.sourceIndex &&
-                gridSelection.current.range.y <= rowIndex &&
-                gridSelection.current.range.y + gridSelection.current.range.height > rowIndex;
-
-            const isSelected = gridSelection.columns.hasIndex(col.sourceIndex) ||
-                gridSelection.rows.hasIndex(rowIndex) ||
-                highlight;
-
-            const isHovered = hoverValues.has(cellItem);
-
-            // Draw cell specific content
-            let prepResult: any = undefined;
-            let drawResult: any = undefined;
-
-            if (!isInnerOnlyCell(cellContent) && drawCellCallback !== undefined) {
-                drawCellCallback({
-                    ctx,
-                    cell: cellContent as GridCell,
-                    theme: rowTheme ? { ...theme, ...rowTheme } : theme,
-                    rect: cellRect,
-                    col: col.sourceIndex,
-                    row: rowIndex,
-                    hoverAmount: 0,
-                    hoverX: undefined,
-                    hoverY: undefined,
-                    highlighted: isSelected,
-                    imageLoader: imageLoader!,
-                }, () => {
-                    // Draw default content
-                    prepResult = { fillStyle: theme.textDark };
-                    if (cellContent.kind === GridCellKind.Text) {
-                        prepTextCell(baseArgs, prepResult);
-                        drawTextCell(baseArgs, cellContent.data, cellContent.contentAlign, cellContent.allowWrapping, hyperWrapping);
-                    } else if (cellContent.kind === GridCellKind.Number) {
-                        prepTextCell(baseArgs, prepResult);
-                        drawTextCell(baseArgs, cellContent.displayData, cellContent.contentAlign, false, false);
-                    } else if (cellContent.kind === GridCellKind.Boolean) {
-                        drawCheckbox(
-                            ctx,
-                            fullTheme,
-                            cellContent.data,
-                            cellRect.x,
-                            cellRect.y,
-                            cellRect.width,
-                            cellRect.height,
-                            isSelected,
-                            baseArgs.hoverX,
-                            baseArgs.hoverY,
-                            theme.checkboxMaxSize,
-                            cellContent.contentAlign
-                        );
-                    } else if (cellContent.kind === GridCellKind.Uri) {
-                        prepTextCell(baseArgs, prepResult);
-                        drawTextCell(baseArgs, cellContent.displayData || cellContent.data, cellContent.contentAlign, false, false);
-                    } else if (cellContent.kind === GridCellKind.Image) {
-                        // Draw image placeholder
-                        ctx.fillStyle = theme.bgGray || '#dddddd';
-                        ctx.fillRect(cellRect.x, cellRect.y, cellRect.width, cellRect.height);
-                    } else {
-                        drawTextCell(baseArgs, "Unsupported", undefined, false, false);
-                    }
-                });
-            } else if (isInnerOnlyCell(cellContent)) {
-                if (cellContent.kind === "new-row") {
-                    // Draw new row hint
-                    const pad = theme.cellHorizontalPadding;
-                    const textX = cellRect.x + pad + (col.icon !== undefined ? 16 + pad : 0);
-                    let textWidth = cellRect.width - pad * 2 - (col.icon !== undefined ? 16 + pad : 0);
-                    textWidth = Math.max(textWidth, 0);
-
-                    ctx.fillStyle = theme.textLight;
-                    ctx.font = fullTheme.baseFontFull;
-                    ctx.textBaseline = "middle";
-                    const metrics = measureTextCached(cellContent.hint, ctx);
-                    if (metrics.width < textWidth) {
-                        ctx.fillText(cellContent.hint, textX, cellRect.y + cellRect.height / 2);
-                    } else {
-                        let truncated = cellContent.hint;
-                        while (metrics.width > textWidth && truncated.length > 0) {
-                            truncated = truncated.slice(0, -1);
-                            const newMetrics = measureTextCached(truncated + "...", ctx);
-                            if (newMetrics.width <= textWidth) {
-                                truncated = truncated + "...";
-                                break;
-                            }
-                        }
-                        ctx.fillText(truncated, textX, cellRect.y + cellRect.height / 2);
-                    }
-
-                    if (col.icon !== undefined) {
-                        spriteManager.drawSprite(
-                            col.icon as any,
-                            "normal",
-                            ctx,
-                            cellRect.x + pad,
-                            cellRect.y + cellRect.height / 2 - 8,
-                            16,
-                            theme
-                        );
-                    }
-                } else if (cellContent.kind === "marker") {
-                    const pad = theme.cellHorizontalPadding;
-                    const y = cellRect.y + cellRect.height / 2;
-
-                    if (cellContent.markerKind === "checkbox" || cellContent.markerKind === "checkbox-visible") {
-                        drawCheckbox(
-                            ctx,
-                            fullTheme,
-                            cellContent.checked,
-                            cellRect.x + pad,
-                            y - 8,
-                            16,
-                            16,
-                            false,
-                            undefined,
-                            undefined,
-                            theme.checkboxMaxSize,
-                            "center"
-                        );
-                    } else if (cellContent.markerKind === "number" || cellContent.markerKind === "both") {
-                        prepTextCell(baseArgs, prepResult);
-                        ctx.fillStyle = theme.textLight;
-                        ctx.font = fullTheme.baseFontFull;
-                        ctx.textBaseline = "middle";
-                        ctx.fillText(
-                            (rowIndex + 1).toString(),
-                            cellRect.x + pad + (cellContent.markerKind === "both" ? 20 : 0),
-                            y
-                        );
-                    }
-                }
-            } else {
-                const renderer = getCellRenderer(cellContent, getCellRenderer as any);
-                if (renderer !== undefined) {
-                    prepResult = renderer.prep(ctx, rowTheme ? { ...theme, ...rowTheme } : theme);
-                    drawResult = renderer.draw(ctx, rowTheme ? { ...theme, ...rowTheme } : theme);
-                } else {
-                    prepResult = { fillStyle: theme.textDark };
-                    if (cellContent.kind === GridCellKind.Text) {
-                        prepTextCell(baseArgs, prepResult);
-                        drawTextCell(baseArgs, cellContent.data, cellContent.contentAlign, cellContent.allowWrapping, hyperWrapping);
-                    } else if (cellContent.kind === GridCellKind.Number) {
-                        prepTextCell(baseArgs, prepResult);
-                        drawTextCell(baseArgs, cellContent.displayData, cellContent.contentAlign, false, false);
-                    } else if (cellContent.kind === GridCellKind.Boolean) {
-                        drawCheckbox(
-                            ctx,
-                            fullTheme,
-                            cellContent.data,
-                            cellRect.x,
-                            cellRect.y,
-                            cellRect.width,
-                            cellRect.height,
-                            isSelected,
-                            baseArgs.hoverX,
-                            baseArgs.hoverY,
-                            theme.checkboxMaxSize,
-                            cellContent.contentAlign
-                        );
-                    } else if (cellContent.kind === GridCellKind.Uri) {
-                        prepTextCell(baseArgs, prepResult);
-                        drawTextCell(baseArgs, cellContent.displayData || cellContent.data, cellContent.contentAlign, false, false);
-                    } else if (cellContent.kind === GridCellKind.Image) {
-                        // Draw image placeholder
-                        ctx.fillStyle = theme.bgGray || '#dddddd';
-                        ctx.fillRect(cellRect.x, cellRect.y, cellRect.width, cellRect.height);
-                    } else {
-                        drawTextCell(baseArgs, "Unsupported", undefined, false, false);
-                    }
-                }
-            }
-
-            // Draw cell border
-            if (verticalBorder) {
-                ctx.strokeStyle = theme.horizontalBorderColor || '#e0e0e0';
-                ctx.beginPath();
-                ctx.moveTo(cellRect.x + cellRect.width - 0.5, cellRect.y);
-                ctx.lineTo(cellRect.x + cellRect.width - 0.5, cellRect.y + cellRect.height);
-                ctx.stroke();
-            }
-
-            // Draw cell hover indicator
-            if (isHovered && isReadWriteCell(cellContent as GridCell) && !('readonly' in cellContent) || !(cellContent as any).readonly) {
-                const hoverTheme: HoverEffectTheme = {
-                    bgColor: theme.bgCellSelected || '#e9e9eb',
-                    fullSize: false,
-                };
-                const displayData = cellContent.kind === GridCellKind.Uri 
-                    ? cellContent.data 
-                    : cellContent.kind === GridCellKind.Text 
-                        ? cellContent.data 
-                        : '';
-                drawEditHoverIndicator(ctx, fullTheme, hoverTheme, displayData, cellRect, 1, undefined);
-            }
-
-            // Draw cell selection
-            if (isSelected) {
-                ctx.fillStyle = blend(theme.bgCellSelected || '#e0e0e0', bgCol);
-                ctx.fillRect(cellRect.x, cellRect.y, cellRect.width, cellRect.height);
-            }
-
-            // Draw cell focus
-            if (drawFocus && isFocused && gridSelection.current !== undefined &&
-                gridSelection.current.cell[0] === col.sourceIndex &&
-                gridSelection.current.cell[1] === rowIndex) {
-                ctx.strokeStyle = theme.accentColor;
-                ctx.lineWidth = 2;
-                ctx.strokeRect(cellRect.x + 1, cellRect.y + 1, cellRect.width - 2, cellRect.height - 2);
-            }
-
-            // Store span info for later use
-            if (cellContent.span !== undefined) {
-                spans.push({
-                    cell: cellContent,
-                    rect: cellRect,
-                    width: cellWidth,
-                    height: rowHeight + 1,
-                    colIndex: col.sourceIndex,
-                    rowIndex,
-                    clip: false,
-                });
-            }
-        }
+        result =
+            partialPrepResult === undefined
+                ? undefined
+                : {
+                      deprep: partialPrepResult?.deprep,
+                      fillStyle: partialPrepResult?.fillStyle,
+                      font: partialPrepResult?.font,
+                      renderer: r,
+                  };
     }
 
-    return spans;
+    if (needsAnim || animationFrameRequested) enqueue?.(allocatedItem);
+    return result;
 }

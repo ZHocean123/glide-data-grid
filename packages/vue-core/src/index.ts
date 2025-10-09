@@ -77,11 +77,28 @@ export type {
 } from "./internal/data-grid/image-window-loader-interface.js";
 
 // Export utilities
-export { 
+export {
     getDataEditorTheme,
     makeCSSStyle,
     mergeAndRealizeTheme,
 } from "./common/styles.js";
+
+// Export math utilities
+export {
+    getClosestRect,
+    intersectRect,
+    pointInRect,
+    combineRects,
+    rectContains,
+    hugRectToTarget,
+    splitRectIntoRegions,
+    lerp,
+    distance,
+    clamp,
+} from "./common/math.js";
+
+// Export math types
+export type { SplitRect } from "./common/math.js";
 
 // Export render functions
 export { 

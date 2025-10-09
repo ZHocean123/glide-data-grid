@@ -6,11 +6,18 @@ import {
     type GridSelection,
     type EditListItem,
     type EditableGridCell,
-    type FillPatternEventArgs,
     type FillHandleDirection,
     isReadWriteCell
 } from '../internal/data-grid/data-grid-types.js';
-import { getClosestRect, combineRects, pointInRect } from '../common/math.js';
+import { pointInRect, getClosestRect, combineRects } from '../common/math.js';
+
+// 定义 FillPatternEventArgs 类型
+export interface FillPatternEventArgs {
+    fillDestination: Rectangle;
+    patternSource: Rectangle;
+    preventDefault: () => void;
+}
+
 
 export interface UseFillHandleOptions {
     /** 当前选择的单元格 */
@@ -49,7 +56,7 @@ export function useFillHandle(options: UseFillHandleOptions) {
         getCellsForSelection,
         onCellsEdited,
         onFillPattern,
-        allowedFillDirections = 'orthogonal',
+        allowedFillDirections = 'any',
         rowMarkerOffset
     } = options;
 
@@ -142,8 +149,7 @@ export function useFillHandle(options: UseFillHandleOptions) {
             for (let x = 0; x < currentRange.width; x++) {
                 for (let y = 0; y < currentRange.height; y++) {
                     const cell: Item = [currentRange.x + x, currentRange.y + y];
-                    // @ts-ignore
-                    if (pointInRect(cell, patternRange)) continue;
+                    if (pointInRect(cell[0], cell[1], patternRange)) continue;
                     
                     const patternCell = pattern[y % patternRange.height][x % patternRange.width];
                     if (!isReadWriteCell(patternCell)) continue;
@@ -173,9 +179,7 @@ export function useFillHandle(options: UseFillHandleOptions) {
                     ...fillHandleState.previousSelection.current,
                     range: combineRects(patternRange, currentRange),
                 } : undefined,
-                // @ts-ignore
                 columns: fillHandleState.previousSelection.columns,
-                // @ts-ignore
                 rows: fillHandleState.previousSelection.rows,
             };
 
@@ -272,8 +276,7 @@ export function useFillHandle(options: UseFillHandleOptions) {
             for (let x = 0; x < targetRange.width; x++) {
                 for (let y = 0; y < targetRange.height; y++) {
                     const cell: Item = [targetRange.x + x, targetRange.y + y];
-                    // @ts-ignore
-                    if (pointInRect(cell, patternRange)) continue;
+                    if (pointInRect(cell[0], cell[1], patternRange)) continue;
                     
                     const patternCell = pattern[y % patternRange.height][x % patternRange.width];
                     if (!isReadWriteCell(patternCell)) continue;

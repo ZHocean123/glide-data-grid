@@ -18,6 +18,37 @@ export interface MappedGridColumn extends FullyDefined<InnerGridColumn> {
     sticky: boolean;
 }
 
+export function useMappedColumns(
+    columns: readonly InnerGridColumn[],
+    freezeColumns: number
+): readonly MappedGridColumn[] {
+    return columns.map(
+        (c, i): MappedGridColumn => ({
+            group: c.group ?? "",
+            grow: c.grow ?? 0,
+            hasMenu: c.hasMenu ?? false,
+            icon: c.icon ?? "",
+            id: c.id ?? "",
+            menuIcon: c.menuIcon ?? "",
+            overlayIcon: c.overlayIcon ?? "",
+            sourceIndex: i,
+            sticky: i < freezeColumns,
+            indicatorIcon: c.indicatorIcon ?? "",
+            style: c.style ?? "normal",
+            themeOverride: c.themeOverride ?? {},
+            title: c.title ?? "",
+            trailingRowOptions: c.trailingRowOptions ?? {},
+            width: c.width,
+            growOffset: c.growOffset ?? 0,
+            rowMarker: c.rowMarker ?? "square",
+            rowMarkerChecked: c.rowMarkerChecked ?? false,
+            headerRowMarkerTheme: c.headerRowMarkerTheme ?? {},
+            headerRowMarkerAlwaysVisible: c.headerRowMarkerAlwaysVisible ?? false,
+            headerRowMarkerDisabled: c.headerRowMarkerDisabled ?? false,
+        })
+    );
+}
+
 export function gridSelectionHasItem(sel: GridSelection, item: Item): boolean {
     const [col, row] = item;
     if (sel.columns.hasIndex(col) || sel.rows.hasIndex(row)) return true;

@@ -63,7 +63,7 @@ export class SpriteManager {
     ) {
         const [bgColor, fgColor] = getColors(variant, theme);
         const rSize = size * Math.ceil(window.devicePixelRatio);
-        const key = `${bgColor}_${fgColor}_${rSize}_${String(sprite)}`;
+        const key = `${bgColor}_${fgColor}_${rSize}_${sprite}`;
 
         let spriteCanvas = this.spriteMap.get(key);
         if (spriteCanvas === undefined) {

@@ -55,7 +55,7 @@ import { browserIsFirefox, browserIsSafari } from "../../common/browser-detect.j
 import { useAnimationQueue, type EnqueueCallback } from "./use-animation-queue.js";
 import { assert } from "../../common/support.js";
 import type { CellRenderer, GetCellRendererCallback } from "../../cells/cell-types.js";
-import type { DrawGridArg } from "./render/data-grid-render.js";
+import type { DrawGridArg } from "./render/draw-grid-arg.js";
 import type { ImageWindowLoader } from "./image-window-loader-interface.js";
 import {
     type GridMouseEventArgs,
@@ -140,9 +140,13 @@ type DamageUpdateList = readonly {
 // Define RenderStateProvider class
 class RenderStateProvider {
     getCellRenderer: (cell: InnerGridCell) => { kind: string; prep: (ctx: CanvasRenderingContext2D, theme: Theme) => void; draw: (ctx: CanvasRenderingContext2D, theme: Theme) => void; } | undefined;
+    getValue: (item: Item) => any;
+    setValue: (item: Item, value: any) => void;
     
     constructor() {
         this.getCellRenderer = () => undefined;
+        this.getValue = () => undefined;
+        this.setValue = () => {};
     }
 }
 
@@ -400,16 +404,16 @@ interface DataGridProps {
     readonly headerIcons: SpriteMap | undefined;
 
     /** Controls smooth scrolling in the data grid. If smooth scrolling is not enabled the grid will always be cell
-     * aligned.
-     * @defaultValue `false`
-     * @group Style
-     */
+      * aligned.
+      * @defaultValue `false`
+      * @group Style
+      */
     readonly smoothScrollX: boolean | undefined;
     /** Controls smooth scrolling in the data grid. If smooth scrolling is not enabled the grid will always be cell
-     * aligned.
-     * @defaultValue `false`
-     * @group Style
-     */
+      * aligned.
+      * @defaultValue `false`
+      * @group Style
+      */
     readonly smoothScrollY: boolean | undefined;
 
     readonly theme: FullTheme;
@@ -887,7 +891,7 @@ const isOverHeaderElement = (
         // Simplified implementation
         if (header.hasMenu === true) {
             const menuBounds = { ...headerBounds, width: 20, height: 20 };
-            if (pointInRect(menuBounds, clientX, clientY)) {
+            if (pointInRect(clientX, clientY, menuBounds)) {
                 return {
                     area: "menu",
                     bounds: menuBounds,
@@ -895,7 +899,7 @@ const isOverHeaderElement = (
             }
         } else if (header.indicatorIcon !== undefined) {
             const indicatorBounds = { ...headerBounds, width: 20, height: 20 };
-            if (pointInRect(indicatorBounds, clientX, clientY)) {
+            if (pointInRect(clientX, clientY, indicatorBounds)) {
                 return {
                     area: "indicator",
                     bounds: indicatorBounds,
@@ -965,8 +969,8 @@ const draw = () => {
     const lastBlitDataWithRef = {
         current: lastBlitData.value ? {
             lastBuffer: undefined,
-            aBufferScroll: [false, false],
-            bBufferScroll: [false, false],
+            aBufferScroll: [false, false] as [boolean, boolean],
+            bBufferScroll: [false, false] as [boolean, boolean],
             cellXOffset: props.cellXOffset,
             cellYOffset: props.cellYOffset,
             translateX: translateX.value,
@@ -992,47 +996,77 @@ const draw = () => {
         }
     }
 
+    // Create hoverValues array
+    const hoverValuesArray = Array.from(hoverValuesMap.entries()).map(([item, value]) => ({
+        item,
+        hoverAmount: 1,
+    }));
+
     const current: DrawGridArg = {
-        ctx: canvasCtx.value,
-        theme: props.theme,
-        effectiveCols: mappedColumns.value,
+        canvasCtx: canvasCtx.value,
+        headerCanvasCtx: overlayCtx.value,
+        width: props.width,
+        height: props.height,
         cellXOffset: cellXOffset.value,
         cellYOffset: props.cellYOffset,
         translateX: Math.round(translateX.value),
         translateY: Math.round(translateY.value),
-        width: props.width,
-        height: props.height,
-        totalHeaderHeight: totalHeaderHeight.value,
+        mappedColumns: mappedColumns.value,
+        enableGroups: props.enableGroups,
+        freezeColumns: props.freezeColumns,
+        dragAndDropState: props.dragAndDropState,
+        theme: props.theme,
+        drawFocus: props.drawFocusRing,
+        headerHeight: props.headerHeight,
+        groupHeaderHeight: props.groupHeaderHeight,
+        disabledRows: props.disabledRows || CompactSelection.empty(),
+        rowHeight: props.rowHeight,
+        verticalBorder: props.verticalBorder,
+        overrideCursor: didOverride ? overrideCursor : () => {},
+        isResizing: props.isResizing,
+        selection: props.selection,
+        fillHandle: props.fillHandle,
+        freezeTrailingRows: props.freezeTrailingRows,
         rows: props.rows,
-        getRowHeight: (row: number) => typeof props.rowHeight === "function" ? props.rowHeight(row) : props.rowHeight,
-        gridSelection: props.selection,
         getCellContent: props.getCellContent,
         getGroupDetails: props.getGroupDetails ?? (name => ({ name })),
         getRowThemeOverride: props.getRowThemeOverride ?? (() => undefined),
-        disabledRows: disabledRowsSet,
         isFocused: props.isFocused,
-        drawFocus: props.drawFocusRing,
-        freezeTrailingRows: props.freezeTrailingRows,
-        freezeColumns: props.freezeColumns,
-        hasAppendRow: props.hasAppendRow,
-        drawRegions,
-        damage: damageRegion.value,
-        hoverValues: hoverValuesMap,
-        hyperWrapping: props.experimental?.hyperWrapping ?? false,
-        drawCellCallback: props.drawCell,
         drawHeaderCallback: props.drawHeader,
-        spriteManager: spriteManager.value,
-        enqueue: (cb: () => void) => cb(),
-        imageLoader: props.imageWindowLoader,
-        minimumCellWidth: minimumCellWidth.value,
-        verticalBorder: props.verticalBorder(0),
-        horizontalBorder: false,
-        headerHeight: props.headerHeight,
-        groupHeaderHeight: props.groupHeaderHeight,
-        enableGroups: props.enableGroups,
-        dragAndDropState: props.dragAndDropState,
-        resizeIndicator: props.resizeIndicator ?? "full",
+        prelightCells: Array.from(prelightCellsMap.keys()),
+        drawCellCallback: props.drawCell,
+        highlightRegions: props.highlightRegions,
         resizeCol: props.resizeColumn ?? 0,
+        imageLoader: props.imageWindowLoader,
+        lastBlitData: lastBlitDataWithRef,
+        hoverValues: hoverValuesArray,
+        hyperWrapping: props.experimental?.hyperWrapping ?? false,
+        hoverInfo: hoveredItemInfo.value,
+        spriteManager: spriteManager.value,
+        maxScaleFactor: maxDPR.value,
+        hasAppendRow: props.hasAppendRow,
+        touchMode: lastWasTouch.value,
+        enqueue: enqueueRef.value,
+        renderStateProvider: new class {
+            getValue(item: Item) {
+                return renderStateProvider.value.getValue(item);
+            }
+            
+            setValue(item: Item, value: any) {
+                return renderStateProvider.value.setValue(item, value);
+            }
+            
+            getCellRenderer(cell: InnerGridCell) {
+                return renderStateProvider.value.getCellRenderer(cell);
+            }
+        }(),
+        getCellRenderer: props.getCellRenderer,
+        renderStrategy: props.experimental?.renderStrategy ?? "single-buffer",
+        bufferACtx: bufferACtx,
+        bufferBCtx: bufferBCtx,
+        damage: damageRegion.value,
+        minimumCellWidth: minimumCellWidth.value,
+        resizeIndicator: props.resizeIndicator ?? "full",
     };
 
     // This confusing bit of code due to some poor design. Long story short, the damage property is only used
@@ -1041,9 +1075,9 @@ const draw = () => {
     // the draw anyway.
     if (current.damage === undefined) {
         lastArgsRef.value = current;
-        drawGrid(current);
+        drawGrid(current, last);
     } else {
-        drawGrid(current);
+        drawGrid(current, last);
     }
 
     // don't reset on damage events
