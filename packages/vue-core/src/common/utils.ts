@@ -3,7 +3,15 @@
  * 与React版本保持一致，但使用Vue的响应式系统
  */
 
-import { ref, computed, watch, type Ref, type ComputedRef } from "vue";
+import { ref, computed, watch, h, type Ref, type ComputedRef } from "vue";
+
+/**
+ * Sprite组件的属性
+ */
+export interface SpriteProps {
+    bgColor: string;
+    fgColor: string;
+}
 
 /**
  * 深度比较两个值是否相等
@@ -228,32 +236,91 @@ export function createAlias<T>(source: Ref<T>): ComputedRef<T> {
 
 // Vue版本的节流组合式函数
 export function useThrottleFn<T extends (...args: any[]) => any>(
-  fn: T,
-  delay: number
+    fn: T,
+    delay: number
 ): T {
-  let lastCall = 0;
-  return ((...args: Parameters<T>) => {
-    const now = Date.now();
-    if (now - lastCall >= delay) {
-      lastCall = now;
-      return fn(...args);
-    }
-  }) as T;
+    let lastCall = 0;
+    return ((...args: Parameters<T>) => {
+        const now = Date.now();
+        if (now - lastCall >= delay) {
+            lastCall = now;
+            return fn(...args);
+        }
+    }) as T;
 }
+
+// 文本方向检测函数
+const rtlRange = "\u0591-\u07FF\uFB1D-\uFDFD\uFE70-\uFEFC";
+const ltrRange =
+    "A-Za-z\u00C0-\u00D6\u00D8-\u00F6" +
+    "\u00F8-\u02B8\u0300-\u0590\u0800-\u1FFF\u200E\u2C00-\uFB1C" +
+    "\uFE00-\uFE6F\uFEFD-\uFFFF";
+
+/* eslint-disable no-misleading-character-class */
+const rtl = new RegExp("^[^" + ltrRange + "]*[" + rtlRange + "]");
+/* eslint-enable no-misleading-character-class */
+
+export function direction(value: string): "rtl" | "not-rtl" {
+    return rtl.test(value) ? "rtl" : "not-rtl";
+}
+
+export const getSquareBB = (posX: number, posY: number, squareSideLength: number) => ({
+    x1: posX - squareSideLength / 2,
+    y1: posY - squareSideLength / 2,
+    x2: posX + squareSideLength / 2,
+    y2: posY + squareSideLength / 2,
+});
+
+export const getSquareXPosFromAlign = (
+    alignment: "left" | "center" | "right",
+    containerX: number,
+    containerWidth: number,
+    horizontalPadding: number,
+    squareWidth: number
+) => {
+    switch (alignment) {
+        case "left":
+            return Math.floor(containerX) + horizontalPadding + squareWidth / 2;
+        case "center":
+            return Math.floor(containerX + containerWidth / 2);
+        case "right":
+            return Math.floor(containerX + containerWidth) - horizontalPadding - squareWidth / 2;
+    }
+};
+
+export const getSquareWidth = (maxSize: number, containerHeight: number, verticalPadding: number) =>
+    Math.min(maxSize, containerHeight - verticalPadding * 2);
 
 // Vue版本的防抖组合式函数
 export function useDebounceFn<T extends (...args: any[]) => any>(
-  fn: T,
-  delay: number
+    fn: T,
+    delay: number
 ): T {
-  let timeoutId: number | null = null;
-  return ((...args: Parameters<T>) => {
-    if (timeoutId !== null) {
-      clearTimeout(timeoutId);
-    }
-    timeoutId = window.setTimeout(() => {
-      fn(...args);
-      timeoutId = null;
-    }, delay);
-  }) as T;
+    let timeoutId: number | null = null;
+    return ((...args: Parameters<T>) => {
+        if (timeoutId !== null) {
+            clearTimeout(timeoutId);
+        }
+        timeoutId = window.setTimeout(() => {
+            fn(...args);
+            timeoutId = null;
+        }, delay);
+    }) as T;
+}
+
+/**
+ * 为数组创建可访问性字符串
+ */
+export function makeAccessibilityStringForArray(data: readonly string[]): string {
+    if (data.length === 0) return "Empty";
+    if (data.length === 1) return data[0];
+    if (data.length === 2) return `${data[0]} and ${data[1]}`;
+    return `${data[0]}, ${data[1]}, and ${data.length - 2} more`;
+}
+
+/**
+ * 将度数转换为弧度
+ */
+export function degreesToRadians(degrees: number): number {
+    return degrees * (Math.PI / 180);
 }

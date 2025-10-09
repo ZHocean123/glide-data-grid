@@ -1,15 +1,20 @@
-/**
- * Vue版本的选择行为组合式函数
- * 与React版本保持一致，但使用Vue的响应式系统
- */
-
-import { type Ref } from "vue";
-import { type GridSelection, CompactSelection, type Slice, type SelectionBlending, type SelectionTrigger } from "./data-grid-types.js";
+import { computed } from "vue";
+import { CompactSelection, type GridSelection, type Slice } from "./data-grid-types.js";
 
 type SetCallback = (newVal: GridSelection, expand: boolean) => void;
 
+/**
+ * The type of selection blending to use:
+ * - `exclusive`: Only one type of selection can be made at a time.
+ * - `mixed`: Multiple types of selection can be made at a time, but only when a multi-key (e.g., Cmd/Ctrl) is held.
+ * - `additive`: Multiple types of selection can be made at a time, and selections accumulate without a modifier.
+ */
+export type SelectionBlending = "exclusive" | "mixed" | "additive";
+
+type SelectionTrigger = "click" | "drag" | "keyboard-nav" | "keyboard-select" | "edit";
+
 export function useSelectionBehavior(
-    gridSelection: Ref<GridSelection>,
+    gridSelection: GridSelection,
     setGridSelection: SetCallback,
     rangeBehavior: SelectionBlending,
     columnBehavior: SelectionBlending,
@@ -51,26 +56,25 @@ export function useSelectionBehavior(
             (rangeBehavior === "mixed" && (append || trigger === "drag")) || rangeBehavior === "additive";
         const allowColumnCoSelect = (columnBehavior === "mixed" || columnBehavior === "additive") && rangeMixable;
         const allowRowCoSelect = (rowBehavior === "mixed" || rowBehavior === "additive") && rangeMixable;
-        
         let newVal: GridSelection = {
             current:
                 value === undefined
                     ? undefined
                     : {
                           ...value,
-                          rangeStack: trigger === "drag" ? (gridSelection.value.current?.rangeStack ?? []) : [],
+                          rangeStack: trigger === "drag" ? (gridSelection.current?.rangeStack ?? []) : [],
                       },
-            columns: allowColumnCoSelect ? gridSelection.value.columns : CompactSelection.empty(),
-            rows: allowRowCoSelect ? gridSelection.value.rows : CompactSelection.empty(),
+            columns: allowColumnCoSelect ? gridSelection.columns : CompactSelection.empty(),
+            rows: allowRowCoSelect ? gridSelection.rows : CompactSelection.empty(),
         };
 
         const addLastRange = append && (rangeSelect === "multi-rect" || rangeSelect === "multi-cell");
-        if (addLastRange && newVal.current !== undefined && gridSelection.value.current !== undefined) {
+        if (addLastRange && newVal.current !== undefined && gridSelection.current !== undefined) {
             newVal = {
                 ...newVal,
                 current: {
                     ...newVal.current,
-                    rangeStack: [...gridSelection.value.current.rangeStack, gridSelection.value.current.range],
+                    rangeStack: [...gridSelection.current.rangeStack, gridSelection.current.range],
                 },
             };
         }
@@ -81,13 +85,13 @@ export function useSelectionBehavior(
         newRows: CompactSelection | undefined,
         append: Slice | number | undefined,
         allowMixed: boolean
-    ) => {
-        newRows = newRows ?? gridSelection.value.rows ?? CompactSelection.empty();
-        if (append !== undefined && newRows) {
+    ): void => {
+        newRows = newRows ?? gridSelection.rows;
+        if (append !== undefined) {
             newRows = newRows.add(append);
         }
         let newVal: GridSelection;
-        if (rowBehavior === "exclusive" && newRows && newRows.length > 0) {
+        if (rowBehavior === "exclusive" && newRows.length > 0) {
             newVal = {
                 current: undefined,
                 columns: CompactSelection.empty(),
@@ -96,11 +100,11 @@ export function useSelectionBehavior(
         } else {
             const rangeMixed = (allowMixed && rangeBehavior === "mixed") || rangeBehavior === "additive";
             const columnMixed = (allowMixed && columnBehavior === "mixed") || columnBehavior === "additive";
-            const current = !rangeMixed ? undefined : gridSelection.value.current;
+            const current = !rangeMixed ? undefined : gridSelection.current;
             newVal = {
                 current,
-                columns: columnMixed ? gridSelection.value.columns : CompactSelection.empty(),
-                rows: newRows ?? CompactSelection.empty(),
+                columns: columnMixed ? gridSelection.columns : CompactSelection.empty(),
+                rows: newRows,
             };
         }
         setGridSelection(newVal, false);
@@ -110,13 +114,13 @@ export function useSelectionBehavior(
         newCols: CompactSelection | undefined,
         append: number | Slice | undefined,
         allowMixed: boolean
-    ) => {
-        newCols = newCols ?? gridSelection.value.columns ?? CompactSelection.empty();
-        if (append !== undefined && newCols) {
+    ): void => {
+        newCols = newCols ?? gridSelection.columns;
+        if (append !== undefined) {
             newCols = newCols.add(append);
         }
         let newVal: GridSelection;
-        if (columnBehavior === "exclusive" && newCols && newCols.length > 0) {
+        if (columnBehavior === "exclusive" && newCols.length > 0) {
             newVal = {
                 current: undefined,
                 rows: CompactSelection.empty(),
@@ -125,11 +129,11 @@ export function useSelectionBehavior(
         } else {
             const rangeMixed = (allowMixed && rangeBehavior === "mixed") || rangeBehavior === "additive";
             const rowMixed = (allowMixed && rowBehavior === "mixed") || rowBehavior === "additive";
-            const current = !rangeMixed ? undefined : gridSelection.value.current;
+            const current = !rangeMixed ? undefined : gridSelection.current;
             newVal = {
                 current,
-                rows: rowMixed ? gridSelection.value.rows : CompactSelection.empty(),
-                columns: newCols ?? CompactSelection.empty(),
+                rows: rowMixed ? gridSelection.rows : CompactSelection.empty(),
+                columns: newCols,
             };
         }
         setGridSelection(newVal, false);
